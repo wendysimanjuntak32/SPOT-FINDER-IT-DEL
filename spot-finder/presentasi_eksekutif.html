@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Presentation - SpotFinder IT Del (Laporan untuk Pembina Yayasan Del)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --del-navy: #0b1e3b;
+            --del-navy-dark: #040c18;
+            --del-blue: #0077b6;
+            --del-cyan: #0284c7;
+            --del-gold: #f59e0b;
+            --del-gold-light: #fef3c7;
+            --bg-dark: #030a14;
+            --card-bg: rgba(11, 30, 59, 0.88);
+            --border-glow: rgba(2, 132, 199, 0.45);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --emerald: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(2, 132, 199, 0.18), transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.14), transparent 45%),
+                linear-gradient(to bottom, #030a14 0%, #08162b 100%);
+        }
+
+        /* Gorga Batak Cultural Top Ribbon */
+        .gorga-bar {
+            height: 7px;
+            width: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                #b91c1c 0px, #b91c1c 12px,
+                #0f172a 12px, #0f172a 24px,
+                #f8fafc 24px, #f8fafc 32px,
+                #f59e0b 32px, #f59e0b 44px
+            );
+            box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+        }
+
+        /* Executive Navbar */
+        .nav-header {
+            padding: 16px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            background: rgba(4, 12, 24, 0.92);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .brand-logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: #fff;
+            padding: 2px;
+            border: 2px solid var(--del-cyan);
+            box-shadow: 0 0 16px rgba(2, 132, 199, 0.4);
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--del-gold);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .badge-target {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--del-gold);
+            color: var(--del-gold);
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .btn-live {
+            background: linear-gradient(135deg, var(--del-cyan), var(--del-blue));
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 9999px;
+            font-weight: 800;
+            font-size: 0.88rem;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-live:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(2, 132, 199, 0.6);
+        }
+
+        /* Container */
+        .exec-container {
+            max-width: 1120px;
+            margin: 32px auto;
+            padding: 0 24px;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Top Progress Bar / Executive Tabs */
+        .exec-tabs {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            background: rgba(11, 30, 59, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: #94a3b8;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .tab-btn .tab-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.78rem;
+            flex-shrink: 0;
+        }
+
+        .tab-btn:hover {
+            background: rgba(15, 40, 78, 0.9);
+            border-color: var(--del-cyan);
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(11, 30, 59, 0.95));
+            border-color: var(--del-cyan);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
+        }
+
+        .tab-btn.active .tab-num {
+            background: var(--del-cyan);
+            color: #fff;
+        }
+
+        /* Slide Main Card */
+        .slide-deck {
+            position: relative;
+            min-height: 540px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 44px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide-content {
+            display: none;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide-content.active { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(2, 132, 199, 0.2);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            margin-bottom: 14px;
+        }
+
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            letter-spacing: -0.8px;
+        }
+
+        .slide-title span {
+            background: linear-gradient(135deg, #38bdf8 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-lead {
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        /* Executive Metrics Grid */
+        .metric-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin: 18px 0;
+        }
+
+        .metric-box {
+            background: rgba(15, 40, 78, 0.7);
+            border: 1px solid rgba(2, 132, 199, 0.3);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-box strong {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #38bdf8;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .metric-box span {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 3-Col Points Grid */
+        .points-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 14px;
+        }
+
+        .point-card {
+            background: rgba(15, 40, 78, 0.65);
+            border: 1px solid rgba(2, 132, 199, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.25s;
+        }
+
+        .point-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--del-cyan);
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
+            background: rgba(15, 40, 78, 0.95);
+        }
+
+        .point-card-icon { font-size: 1.8rem; margin-bottom: 10px; display: inline-block; }
+        .point-card h4 { font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-bottom: 6px; }
+        .point-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+        .point-card strong { color: #38bdf8; }
+
+        /* Speech Script Box (Gold Executive) */
+        .speech-box {
+            margin-top: 24px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(11, 30, 59, 0.85));
+            border-left: 5px solid var(--del-gold);
+            border-radius: 0 14px 14px 0;
+            padding: 16px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        .speech-title {
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: var(--del-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speech-box p {
+            font-size: 0.98rem;
+            color: #ffffff;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* Slide Footer & Navigation Controls */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .slide-counter-txt {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .slide-counter-txt strong { color: #fff; font-size: 1.05rem; }
+
+        .slide-btns { display: flex; gap: 12px; }
+
+        .btn-nav {
+            padding: 10px 22px;
+            background: rgba(15, 40, 78, 0.8);
+            border: 1px solid var(--border-glow);
+            color: #fff;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background: var(--del-cyan);
+            box-shadow: 0 4px 16px rgba(2, 132, 199, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .shortcuts-tip {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .key-badge {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .exec-tabs { grid-template-columns: 1fr 1fr; }
+            .metric-row { grid-template-columns: 1fr 1fr; }
+            .slide-deck { padding: 24px; }
+            .slide-title { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Gorga Batak Ribbon -->
+    <div class="gorga-bar"></div>
+
+    <!-- Header Navigation -->
+    <header class="nav-header">
+        <a href="index.html" class="brand">
+            <img src="assets/logo-it-del.jpg" alt="Logo IT Del" class="brand-logo">
+            <div class="brand-text">
+                <h1>SpotFinder IT Del</h1>
+                <span>EXECUTIVE BRIEFING • PEMBINA YAYASAN DEL</span>
+            </div>
+        </a>
+        <div class="nav-actions">
+            <span class="badge-target">🎯 Paparan Eksekutif</span>
+            <a href="index.html" class="btn-live">
+                🚀 Buka Web Live SpotFinder
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="exec-container">
+
+        <!-- 5 Executive Progress Tabs -->
+        <nav class="exec-tabs">
+            <button class="tab-btn active" onclick="goToSlide(0)">
+                <span class="tab-num">1</span>
+                <div>Identitas & Solusi</div>
+            </button>
+            <button class="tab-btn" onclick="goToSlide(1)">
+                <span class="tab-num">2</span>
+                <div>Fakta & Data Masalah</div>
+            </button>
+            <button class="tab-btn" onclick="goToSlide(2)">
+                <span class="tab-num">3</span>
+                <div>Efisiensi Biaya & IoT</div>
+            </button>
+            <button class="tab-btn" onclick="goToSlide(3)">
+                <span class="tab-num">4</span>
+                <div>Skalabilitas & HP</div>
+            </button>
+            <button class="tab-btn" onclick="goToSlide(4)">
+                <span class="tab-num">5</span>
+                <div>Dampak & Nilai Del</div>
+            </button>
+        </nav>
+
+        <!-- Slide Deck Card -->
+        <div class="slide-deck">
+
+            <!-- ==========================================
+                 SLIDE 1: IDENTITAS & RINGKASAN EKSEKUTIF
+                 ========================================== -->
+            <section class="slide-content active" id="slide-1">
+                <div class="slide-badge">🏛️ SLIDE 1: RINGKASAN EKSEKUTIF</div>
+                <h2 class="slide-title">Proyek: <span>SpotFinder IT Del</span></h2>
+                <p class="slide-lead">
+                    Inovasi sistem IoT cerdas berbiaya rendah (*low-cost, high-impact*) untuk memantau kapasitas fasilitas belajar kampus secara <em>real-time</em> langsung ke smartphone mahasiswa.
+                </p>
+
+                <!-- Key Metrics -->
+                <div class="metric-row">
+                    <div class="metric-box">
+                        <strong>< 100 ms</strong>
+                        <span>Kecepatan Sinkronisasi (MQTT)</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>Rp 0</strong>
+                        <span>Biaya Lisensi (Open Source)</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>100%</strong>
+                        <span>Akses Web Smartphone</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>20 Kursi</strong>
+                        <span>Pilot Project (Gazebo Toba)</span>
+                    </div>
+                </div>
+
+                <div class="points-grid">
+                    <div class="point-card">
+                        <span class="point-card-icon">🧠</span>
+                        <h4>Hardware Cerdas di Lokasi</h4>
+                        <p>Menggunakan mikrokontroler <strong>ESP8266 / ESP32</strong> dengan <strong>Layar OLED I2C</strong> dan <strong>Dual-Button Counter</strong> (Pin 14 Masuk, Pin 12 Keluar).</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">📱</span>
+                        <h4>Aplikasi Web Responsif</h4>
+                        <p>Didesain dengan identitas resmi <strong>Royal Navy Blue IT Del</strong> dan panorama <strong>Danau Toba</strong>, dapat diakses dari browser HP tanpa install aplikasi berat.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">⚡</span>
+                        <h4>Jalur Data Super Cepat</h4>
+                        <p>Terhubung ke broker MQTT kampus di IP <code>76.13.19.250</code>, mengirim pembaruan data secara instan dan hemat kuota internet.</p>
+                    </div>
+                </div>
+
+                <div class="speech-box">
+                    <div class="speech-title">🗣️ Naskah Pembuka (Ucapkan ke Pak Luhut):</div>
+                    <p>"Selamat pagi/siang Bapak Pembina Yayasan Del, Bapak Jenderal Luhut Binsar Pandjaitan, serta bapak/ibu sekalian. Izinkan saya memaparkan proyek inovasi teknologi terapan kami yang bernama <strong>SpotFinder IT Del</strong>. Ini adalah sistem Internet of Things berbiaya sangat terjangkau namun berkinerja tinggi, yang mentransformasikan fasilitas kampus IT Del menjadi Smart Campus yang disiplin, efisien, dan termonitor secara real-time."</p>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 SLIDE 2: FAKTA LAPANGAN & MASALAH NYATA
+                 ========================================== -->
+            <section class="slide-content" id="slide-2">
+                <div class="slide-badge">📊 SLIDE 2: FAKTA LAPANGAN & DATA MASALAH</div>
+                <h2 class="slide-title">Mengapa Aplikasi Ini Dibuat? <span>(Fakta & Data)</span></h2>
+                <p class="slide-lead">
+                    Diciptakan berdasarkan observasi dan analisis inefisiensi waktu belajar mahasiswa di Institut Teknologi Del.
+                </p>
+
+                <div class="points-grid">
+                    <div class="point-card">
+                        <span class="point-card-icon">⏱️</span>
+                        <h4>1. Inefisiensi Waktu (15-20 Menit)</h4>
+                        <p>Jarak asrama ke Gazebo tepi Danau Toba berkisar <strong>250 - 400 meter</strong>. Berjalan ke lokasi hanya untuk mendapati tempat penuh membuang waktu <strong>15–20 menit</strong> waktu belajar produktif mahasiswa.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">📡</span>
+                        <h4>2. Ketiadaan Data Real-Time</h4>
+                        <p>Area terbuka kampus (*outdoor spot*) tidak memiliki pengawas atau papan informasi jarak jauh. Mahasiswa tidak memiliki kepastian ketersediaan tempat duduk sebelum berangkat.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">👥</span>
+                        <h4>3. Overkapasitas & Disiplin Ruang</h4>
+                        <p>Tanpa adanya indikator kapasitas digital, gazebo sering berdesakan melebihi kuota 20 orang, mengganggu ketertiban dan fokus belajar mahasiswa.</p>
+                    </div>
+                </div>
+
+                <div class="speech-box">
+                    <div class="speech-title">🗣️ Naskah Narasi (Ucapkan ke Pak Luhut):</div>
+                    <p>"Bapak Pembina yang kami hormati, di IT Del kita diajarkan tentang kedisiplinan dan efisiensi waktu. Fakta di lapangan menunjukkan bahwa mahasiswa sering membuang waktu 15 hingga 20 menit berjalan kaki ke Gazebo tepi Danau Toba, namun sesampainya di sana ternyata tempat sudah penuh 100%. Tidak adanya data ketersediaan tempat secara jarak jauh menjadi inefisiensi nyata. SpotFinder kami ciptakan untuk menyelesaikan masalah ini secara tuntas."</p>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 SLIDE 3: EFISIENSI BIAYA & ARSITEKTUR IOT
+                 ========================================== -->
+            <section class="slide-content" id="slide-3">
+                <div class="slide-badge">⚙️ SLIDE 3: ARSITEKTUR TEKNIS & EFISIENSI BIAYA</div>
+                <h2 class="slide-title">Cara Kerja Alat & <span>Efisiensi Biaya (< Rp 100 Ribu)</span></h2>
+                <p class="slide-lead">
+                    Membuktikan bahwa inovasi berkelas tidak harus mahal, dibangun dengan arsitektur IoT modern yang modular.
+                </p>
+
+                <div class="metric-row">
+                    <div class="metric-box">
+                        <strong>~Rp 45.000</strong>
+                        <span>Modul ESP8266 WiFi</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>~Rp 30.000</strong>
+                        <span>OLED I2C 0.96" Display</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>~Rp 5.000</strong>
+                        <span>Dual Push Button</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>< Rp 90.000</strong>
+                        <span>Total Biaya Per Titik</span>
+                    </div>
+                </div>
+
+                <div class="points-grid">
+                    <div class="point-card">
+                        <span class="point-card-icon">🔘</span>
+                        <h4>Logika Counter Dua Arah</h4>
+                        <p><strong>Pin 14 (Masuk)</strong> menambah hitungan (+1 orang), <strong>Pin 12 (Keluar)</strong> mengurangi hitungan (-1 orang). Dilengkapi anti-double-click (debounce 220ms).</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">📺</span>
+                        <h4>Layar OLED di Lokasi</h4>
+                        <p>Menampilkan status <code>TERISI</code> dan <code>KOSONG</code> secara real-time di gazebo agar pengunjung fisik langsung tahu sisa kuota.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">☁️</span>
+                        <h4>Protokol MQTT Kampus</h4>
+                        <p>Data dikirim dalam format JSON ringkas via WiFi ke broker MQTT <code>76.13.19.250</code>, lalu disiarkan ke dashboard web mahasiswa via WebSocket.</p>
+                    </div>
+                </div>
+
+                <div class="speech-box">
+                    <div class="speech-title">🗣️ Naskah Narasi (Ucapkan ke Pak Luhut):</div>
+                    <p>"Dari segi biaya, sistem ini sangat efisien. Satu unit hardware lengkap hanya membutuhkan biaya kurang dari 90 ribu rupiah. Saat tombol Pin 14 ditekan saat ada orang masuk, angka di layar OLED gazebo bertambah, dan dalam waktu kurang dari 100 milidetik data di smartphone seluruh mahasiswa langsung berubah tanpa perlu me-reload web. Sangat cepat, hemat kuota, dan hemat daya."</p>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 SLIDE 4: SKALABILITAS KE SMARTPHONE & TEMPAT UMUM
+                 ========================================== -->
+            <section class="slide-content" id="slide-4">
+                <div class="slide-badge">🚀 SLIDE 4: POTENSI PENGEMBANGAN SKALA LUAS</div>
+                <h2 class="slide-title">Pengembangan Lebih Luas <span>(Smartphone & Fasilitas Publik)</span></h2>
+                <p class="slide-lead">
+                    Konsep dasar <em>Smart Capacity & People Flow Counter</em> ini sangat fleksibel dan siap diperluas ke berbagai fasilitas publik nasional.
+                </p>
+
+                <div class="points-grid">
+                    <div class="point-card">
+                        <span class="point-card-icon">🅿️</span>
+                        <h4>1. Smart Parking Kawasan Danau Toba</h4>
+                        <p>Dipasang di palang parkir destinasi wisata atau kampus. Pengendara dapat mengecek <strong>sisa slot parkir mobil/motor</strong> dari HP sebelum tiba di lokasi.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">🏥</span>
+                        <h4>2. Rumah Sakit & Puskesmas</h4>
+                        <p>Memantau ketersediaan <strong>Bed Rawat Inap</strong> dan nomor antrean poliklinik secara transparan langsung di smartphone keluarga pasien.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">🏛️</span>
+                        <h4>3. Antrean Kantor Pelayanan & Bank</h4>
+                        <p>Mengurangi penumpukan fisik masyarakat di ruang tunggu dengan tiket antrean digital yang berjalan live di smartphone.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">🤖</span>
+                        <h4>4. Integrasi Sensor Otomatis & AI</h4>
+                        <p>Tombol manual dapat ditingkatkan dengan <strong>Sensor Inframerah (IR Beam)</strong> atau <strong>Kamera AI</strong> untuk mendeteksi pergerakan orang secara otomatis.</p>
+                    </div>
+                </div>
+
+                <div class="speech-box">
+                    <div class="speech-title">🗣️ Naskah Narasi (Ucapkan ke Pak Luhut):</div>
+                    <p>"Bapak Pembina, inovasi ini tidak berhenti di gazebo saja. Jika dihubungkan lebih jauh ke aplikasi smartphone, sistem ini bisa kita terapkan untuk Smart Parking di kawasan wisata Danau Toba, pemantauan tempat tidur rumah sakit, dan antrean pelayanan publik. Ini adalah pondasi nyata menuju implementasi Smart City yang modern dan terdata."</p>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 SLIDE 5: NILAI DEL & KESIMPULAN EKSEKUTIF
+                 ========================================== -->
+            <section class="slide-content" id="slide-5">
+                <div class="slide-badge">🎓 SLIDE 5: KESIMPULAN & NILAI LUHUR DEL</div>
+                <h2 class="slide-title">Komitmen & <span>Nilai Del: MarTuhan, Marroha, Marbisuk</span></h2>
+                <p class="slide-lead">
+                    Mewujudkan karakter unggul mahasiswa IT Del melalui karya teknologi terapan yang solutif.
+                </p>
+
+                <div class="points-grid">
+                    <div class="point-card">
+                        <span class="point-card-icon">🙏</span>
+                        <h4>MarTuhan (Integritas)</h4>
+                        <p>Teknologi yang dibangun dengan kejujuran data dan ditujukan untuk kebaikan bersama civitas akademika.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">❤️</span>
+                        <h4>Marroha (Kepedulian)</h4>
+                        <p>Peka terhadap kesulitan sesama mahasiswa dalam efisiensi waktu belajar dan kenyamanan fasilitas kampus.</p>
+                    </div>
+                    <div class="point-card">
+                        <span class="point-card-icon">💡</span>
+                        <h4>Marbisuk (Kebijaksanaan & Inovasi)</h4>
+                        <p>Menjawab tantangan dengan kecerdasan rekayasa teknologi IoT yang murah, efektif, dan siap diterapkan.</p>
+                    </div>
+                </div>
+
+                <div class="speech-box">
+                    <div class="speech-title">🗣️ Naskah Penutup (Ucapkan ke Pak Luhut):</div>
+                    <p>"Demikian pemaparan proyek SpotFinder IT Del. Kami bertekad untuk terus membuktikan bahwa mahasiswa Institut Teknologi Del mampu menciptakan teknologi terapan yang berdampak nyata, berlandaskan nilai MarTuhan, Marroha, Marbisuk. Terima kasih atas arahan dan bimbingan Bapak Pembina, kami siap mendemonstrasikan alat ini secara langsung."</p>
+                </div>
+            </section>
+
+            <!-- Slide Footer & Navigation Controls -->
+            <div class="slide-footer">
+                <div class="slide-counter-txt">
+                    Halaman: <strong id="slide-num-txt">1</strong> dari <strong>5 Bagian Eksekutif</strong>
+                </div>
+                <div class="slide-btns">
+                    <button class="btn-nav" id="btn-prev" onclick="prevSlide()" disabled>◀ Bagian Sebelumnya</button>
+                    <button class="btn-nav" id="btn-next" onclick="nextSlide()">Bagian Berikutnya ▶</button>
+                </div>
+            </div>
+
+        </div>
+
+        <p class="shortcuts-tip">
+            💡 Navigasi Slide Cepat: Tekan tombol <span class="key-badge">◀ Panah Kiri</span> dan <span class="key-badge">Panah Kanan ▶</span> pada keyboard laptop Anda.
+        </p>
+    </main>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-content');
+        const tabs = document.querySelectorAll('.tab-btn');
+        const prevBtn = document.getElementById('btn-prev');
+        const nextBtn = document.getElementById('btn-next');
+        const numTxt = document.getElementById('slide-num-txt');
+
+        function updateSlideUI() {
+            slides.forEach((slide, idx) => {
+                slide.classList.toggle('active', idx === currentSlide);
+            });
+            tabs.forEach((tab, idx) => {
+                tab.classList.toggle('active', idx === currentSlide);
+            });
+
+            if (numTxt) numTxt.textContent = (currentSlide + 1);
+
+            prevBtn.disabled = (currentSlide === 0);
+            nextBtn.disabled = (currentSlide === slides.length - 1);
+            
+            if (currentSlide === slides.length - 1) {
+                nextBtn.textContent = 'Selesai 🏁';
+            } else {
+                nextBtn.textContent = 'Bagian Berikutnya ▶';
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlideUI();
+        }
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key >= '1' && e.key <= '5') {
+                goToSlide(parseInt(e.key) - 1);
+            }
+        });
+    </script>
+</body>
+</html>

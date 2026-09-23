@@ -426,19 +426,22 @@ class SpotFinderApp {
         const gazebo = data || this.spots.find(s => s.id === 'spot-gazebo-danau') || {
             ruangan: "Gazebo Danau Toba",
             kosong: 12,
-            total: 20
+            total: 20,
+            persen: 40
         };
 
-        const line1El = document.getElementById('virtual-lcd-line1');
-        const line2El = document.getElementById('virtual-lcd-line2');
-
-        const name = (gazebo.ruangan || gazebo.name || "Gazebo Danau Tob").substring(0, 16).padEnd(16, ' ');
         const kosong = gazebo.kosong !== undefined ? gazebo.kosong : gazebo.availableSeats;
         const total = gazebo.total !== undefined ? gazebo.total : gazebo.totalCapacity;
-        const statusLine = `Kosong: ${kosong}/${total}`.padEnd(16, ' ');
+        const persen = gazebo.persen !== undefined ? gazebo.persen : Math.round(((total - kosong) / total) * 100);
+        const name = (gazebo.ruangan || gazebo.name || "GAZEBO TOBA").toUpperCase();
 
-        if (line1El) line1El.textContent = name;
-        if (line2El) line2El.textContent = statusLine;
+        const titleEl = document.getElementById('virtual-oled-title');
+        const statusEl = document.getElementById('virtual-oled-status');
+        const percentEl = document.getElementById('virtual-oled-percent');
+
+        if (titleEl) titleEl.textContent = name;
+        if (statusEl) statusEl.textContent = `${kosong} / ${total} KOSONG`;
+        if (percentEl) percentEl.textContent = `Keterisian: ${persen}%`;
     }
 
     sendTestMqttBroadcast() {

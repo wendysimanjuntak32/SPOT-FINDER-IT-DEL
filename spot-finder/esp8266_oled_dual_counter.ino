@@ -218,31 +218,35 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
+// Variabel Non-Blocking MQTT Reconnect
+unsigned long lastMqttReconnectAttempt = 0;
+
 // ==========================================
-// 7. KONEKSI KE MQTT BROKER
+// 7. KONEKSI KE MQTT BROKER (NON-BLOCKING)
 // ==========================================
 void reconnectMQTT() {
   if (WiFi.status() != WL_CONNECTED) return;
+  if (client.connected()) return;
 
-  while (!client.connected()) {
-    Serial.print(F(" Menghubungkan ke MQTT Broker ("));
+  unsigned long now = millis();
+  if (now - lastMqttReconnectAttempt > 4000) {
+    lastMqttReconnectAttempt = now;
+    Serial.print(F(" [MQTT] Menghubungkan ke Broker ("));
     Serial.print(mqtt_server);
-    Serial.print(F(")..."));
+    Serial.print(F(")... "));
 
     String clientId = "ESP8266-SpotFinder-" + String(ESP.getChipId(), HEX);
 
     if (client.connect(clientId.c_str())) {
-      Serial.println(F(" BERHASIL!"));
+      Serial.println(F("BERHASIL!"));
       client.subscribe(mqtt_topic);
       notifAction = "Online";
       renderOled();
       publishStatus();
     } else {
-      Serial.print(F(" Gagal, rc="));
+      Serial.print(F("Gagal rc="));
       Serial.print(client.state());
-      Serial.println(F(" coba lagi dalam 3 detik..."));
-      delay(3000);
-      yield();
+      Serial.println(F(", tetap menampilkan layar"));
     }
   }
 }
@@ -252,7 +256,7 @@ void reconnectMQTT() {
 // ==========================================
 void setup() {
   Serial.begin(115200);
-  delay(200);
+  delay(100);
   Serial.println(F("\n=============================================="));
   Serial.println(F("  SPOTFINDER IT DEL - ESP8266 DUAL COUNTER    "));
   Serial.println(F("=============================================="));
@@ -269,31 +273,15 @@ void setup() {
   bool oledFound = false;
   if (display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     oledFound = true;
-    Serial.println(F(" [OK] OLED SSD1306 Ditemukan pada Alamat I2C: 0x3C"));
+    Serial.println(F(" [OK] OLED SSD1306 Ditemukan pada Alamat: 0x3C"));
   } else if (display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) {
     oledFound = true;
-    Serial.println(F(" [OK] OLED SSD1306 Ditemukan pada Alamat I2C: 0x3D"));
+    Serial.println(F(" [OK] OLED SSD1306 Ditemukan pada Alamat: 0x3D"));
   }
 
-  if (!oledFound) {
-    Serial.println(F(" [ERROR] OLED SSD1306 TIDAK TERDETEKSI!"));
-    Serial.println(F(" -> Periksa Kabel:"));
-    Serial.println(F("    - OLED SDA ke Pin D2 (GPIO 4)"));
-    Serial.println(F("    - OLED SCL ke Pin D1 (GPIO 5)"));
-    Serial.println(F("    - OLED VCC ke Pin 3V3 atau VIN (5V)"));
-    Serial.println(F("    - OLED GND ke Pin GND"));
-  } else {
-    display.clearDisplay();
-    display.setTextColor(SSD1306_WHITE);
-    display.setTextSize(1);
-    display.setCursor(8, 14);
-    display.print(F("SPOTFINDER IT DEL"));
-    display.setCursor(24, 30);
-    display.print(F("GAZEBO TOBA"));
-    display.setCursor(14, 48);
-    display.print(F("Menghubungkan..."));
-    display.display();
-  }
+  // LANGSUNG TAMPILKAN ANGKA PADA LAYAR OLED TANPA TUNGGU WIFI
+  kursiKosong = TOTAL_CAPACITY - orangDiDalam;
+  renderOled();
 
   // Koneksi WiFi ke Hotspot
   WiFi.mode(WIFI_STA);
@@ -301,28 +289,9 @@ void setup() {
   Serial.print(F(" Menghubungkan ke WiFi: "));
   Serial.println(ssid);
 
-  int retry = 0;
-  while (WiFi.status() != WL_CONNECTED && retry < 25) {
-    delay(500);
-    Serial.print(F("."));
-    retry++;
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(F("\n [OK] WiFi Tersambung!"));
-    Serial.print(F(" IP Address: "));
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println(F("\n [WARN] WiFi gagal tersambung, tetap berjalan mode offline"));
-  }
-
   // Setup MQTT
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(mqttCallback);
-
-  // Tampilkan layar awal
-  kursiKosong = TOTAL_CAPACITY - orangDiDalam;
-  renderOled();
 }
 
 // ==========================================

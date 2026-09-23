@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mobile Legends 5v5 Web - MOBA Arena</title>
-    <meta name="description" content="Game web MOBA 5v5 utuh ala Mobile Legends: Bang Bang (MLBB). Peta 3 Lane, Monster Jungle (Buff Biru, Buff Merah, Turtle, Lord), Roster Hero Ikonik, Toko Item Shop, dan Announcer First Blood hingga Savage!">
+    <title>CHRONO MATIKA: 5v5 Legends of Numeria</title>
+    <meta name="description" content="Game MOBA 5v5 Epik Berpadu Kekuatan Matematika & Manipulasi Waktu. 3 Jalur (3-Lanes), Monster Runic Jungle, Math Critical Surge, Runic Math Nodes, dan Mega Titan Lord of Numeria!">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,17 +18,18 @@
 </head>
 <body>
 
-    <!-- Main Game Canvas (60 FPS 3-Lane Land of Dawn Map) -->
+    <!-- Main Game Canvas (60 FPS 3-Lane Runic Arena) -->
     <canvas id="gameCanvas"></canvas>
+    <div class="bg-ambient-layer"></div>
 
-    <!-- SCREEN 1: HERO DRAFT & BATTLE SPELL SELECTION -->
+    <!-- SCREEN 1: HERO DRAFT & MATHEMATICAL ARCHETYPE SELECTION -->
     <div class="draft-screen" id="screenHeroDraft">
         <div class="draft-header">
             <div class="mlbb-badge">
-                <i class="fa-solid fa-crown"></i> CLASSIC 5v5 MOBA ARENA
+                <i class="fa-solid fa-atom"></i> 5v5 MATHEMATICAL MOBA ARENA
             </div>
-            <h1 class="mlbb-title">MOBILE LEGENDS: WEB</h1>
-            <p class="mlbb-sub">Pilih Hero andalan dan Battle Spell Anda untuk bertarung di Land of Dawn!</p>
+            <h1 class="mlbb-title">CHRONO MATIKA</h1>
+            <p class="mlbb-sub">Legends of Numeria — Kuasai Rumus Vektor, Manipulasi Waktu, dan Rebut Kemenangan 5v5!</p>
         </div>
 
         <!-- 6 Hero Draft Cards -->
@@ -38,52 +39,58 @@
                 <div class="draft-avatar" style="background: linear-gradient(135deg, #f43f5e, #be123c);">⚔️</div>
                 <span class="draft-role-tag">FIGHTER</span>
                 <h3 class="draft-hero-name">Zilong</h3>
+                <span class="draft-hero-title">The Vector Dragoon</span>
             </div>
 
             <div class="hero-draft-card" data-hero="saber">
                 <div class="draft-avatar" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">🗡️</div>
                 <span class="draft-role-tag">ASSASSIN</span>
                 <h3 class="draft-hero-name">Saber</h3>
+                <span class="draft-hero-title">Spacetime Matrix Blade</span>
             </div>
 
             <div class="hero-draft-card" data-hero="eudora">
                 <div class="draft-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">🧙‍♂️</div>
                 <span class="draft-role-tag">MAGE</span>
                 <h3 class="draft-hero-name">Eudora</h3>
+                <span class="draft-hero-title">Quantum Resonance</span>
             </div>
 
             <div class="hero-draft-card" data-hero="layla">
                 <div class="draft-avatar" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">🏹</div>
                 <span class="draft-role-tag">MARKSMAN</span>
                 <h3 class="draft-hero-name">Layla</h3>
+                <span class="draft-hero-title">Trigonometric Gunner</span>
             </div>
 
             <div class="hero-draft-card" data-hero="tigreal">
                 <div class="draft-avatar" style="background: linear-gradient(135deg, #eab308, #ca8a04);">🛡️</div>
                 <span class="draft-role-tag">TANK</span>
                 <h3 class="draft-hero-name">Tigreal</h3>
+                <span class="draft-hero-title">Sacred Geometry</span>
             </div>
 
             <div class="hero-draft-card" data-hero="estes">
                 <div class="draft-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">💚</div>
                 <span class="draft-role-tag">SUPPORT</span>
                 <h3 class="draft-hero-name">Estes</h3>
+                <span class="draft-hero-title">Fibonacci Life Sage</span>
             </div>
 
         </div>
 
         <!-- Battle Spell Selector -->
         <div class="spell-selector-row">
-            <span style="font-size: 0.8rem; font-weight: 800; color: var(--mlbb-gold);">Battle Spell:</span>
-            <div class="spell-chip selected" data-spell="flicker">⚡ Flicker</div>
+            <span style="font-size: 0.82rem; font-weight: 800; color: var(--chrono-gold);"><i class="fa-solid fa-wand-magic-sparkles"></i> Quantum Spell:</span>
+            <div class="spell-chip selected" data-spell="flicker">⚡ Quantum Flicker</div>
             <div class="spell-chip" data-spell="execute">⚔️ Execute</div>
             <div class="spell-chip" data-spell="retribution">🗡️ Retribution</div>
             <div class="spell-chip" data-spell="flameshot">🔥 Flameshot</div>
-            <div class="spell-chip" data-spell="sprint">👟 Sprint</div>
+            <div class="spell-chip" data-spell="sprint">👟 Velocity Sprint</div>
         </div>
 
         <button class="btn-enter-battle" id="btnEnterBattle">
-            <i class="fa-solid fa-play"></i> MULAI PERTANDINGAN
+            <i class="fa-solid fa-play"></i> MASUK KE ARENA NUMERIA
         </button>
     </div>
 
@@ -97,12 +104,15 @@
             <span class="hud-score-red" id="scoreRedTeam">0</span>
         </div>
 
+        <!-- Active Rune Buffs Status -->
+        <div class="hud-runes-indicator" id="hudRunesIndicator"></div>
+
         <!-- Kill Feed -->
         <div class="hud-kill-feed" id="killFeedBox"></div>
 
         <!-- Minimap Radar -->
         <div class="hud-minimap-box">
-            <canvas id="minimapCanvas" width="180" height="120"></canvas>
+            <canvas id="minimapCanvas" width="185" height="125"></canvas>
         </div>
 
         <!-- Quick Buy Item Widget -->
@@ -114,7 +124,20 @@
             </div>
         </div>
 
-        <!-- Kill Streak Banner Popup (Double Kill, Savage, etc.) -->
+        <!-- Math Critical Surge Card Popup -->
+        <div class="math-surge-card" id="mathSurgeCard">
+            <div class="math-surge-header">
+                <span><i class="fa-solid fa-bolt" style="color: var(--chrono-gold);"></i> MATH CRITICAL SURGE</span>
+                <span id="mathSurgeTimerText">2.5s</span>
+            </div>
+            <div class="math-timer-bar">
+                <div class="math-timer-fill" id="mathTimerFill"></div>
+            </div>
+            <div class="math-equation-text" id="mathEquationText">12 × 7 = ?</div>
+            <div class="math-options-grid" id="mathOptionsGrid"></div>
+        </div>
+
+        <!-- Kill Streak Banner Popup -->
         <div class="kill-streak-banner" id="killStreakBanner">SAVAGE!</div>
 
         <!-- Bottom Controls Dock -->
@@ -125,12 +148,12 @@
                 <div class="player-core-bar">
                     <div class="avatar-round" id="hudPlayerAvatar">⚔️</div>
                     <div class="bars-container">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 800;">
-                            <span id="hudPlayerName">Zilong</span>
-                            <span id="playerHpLabel">2680 / 2680</span>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 800;">
+                            <span id="hudPlayerName">Zilong (Lv.1)</span>
+                            <span id="playerHpLabel">2750 / 2750</span>
                         </div>
                         <div class="bar-wrap"><div class="bar-fill hp" id="playerHpBar" style="width: 100%;"></div></div>
-                        <div class="bar-wrap" style="height: 5px;"><div class="bar-fill mana" id="playerManaBar" style="width: 100%;"></div></div>
+                        <div class="bar-wrap" style="height: 6px;"><div class="bar-fill mana" id="playerManaBar" style="width: 100%;"></div></div>
                     </div>
                     <span class="gold-badge" id="playerGoldCount">300 G</span>
                 </div>
@@ -146,7 +169,7 @@
                 </div>
             </div>
 
-            <!-- Center: Recall & Shop Buttons -->
+            <!-- Center: Recall, Shop, Scoreboard -->
             <div class="center-utility-dock">
                 <button class="btn-utility" onclick="window.mlbbGame.player.startRecall(window.mlbbGame)" title="Recall ke Base (B)">
                     <i class="fa-solid fa-house-chimney"></i> Recall (B)
@@ -191,7 +214,7 @@
                 </div>
 
                 <!-- BIG BASIC ATTACK BUTTON -->
-                <div class="btn-main-attack" onclick="window.mlbbGame.player.performBasicAttack(window.mlbbGame)" title="Serangan Dasar (Klik Kiri / Spasi)">
+                <div class="btn-main-attack" onclick="window.mlbbGame.player.performBasicAttack(window.mlbbGame)" title="Serangan Vektor (Klik Kiri / Spasi)">
                     ⚔️
                 </div>
 
@@ -204,8 +227,17 @@
     <div class="mlbb-modal-overlay" id="shopModal">
         <div class="mlbb-modal-card">
             <div class="modal-header-row">
-                <h3><i class="fa-solid fa-cart-shopping" style="color: var(--mlbb-gold);"></i> Toko Equipment Land of Dawn</h3>
+                <h3><i class="fa-solid fa-cart-shopping" style="color: var(--chrono-gold);"></i> Toko Equipment Numeria</h3>
                 <button onclick="window.mlbbGame.toggleItemShop()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Math Discount Challenge Banner -->
+            <div class="shop-math-discount-box" id="shopMathDiscountBanner">
+                <div>
+                    <h4 style="color: var(--chrono-cyan); font-size: 0.88rem;"><i class="fa-solid fa-graduation-cap"></i> Diskon Matematika Pintar (25% OFF)</h4>
+                    <p style="font-size: 0.72rem; color: #cbd5e1;" id="shopMathQuestionText">Jawab cepat untuk diskon 25% harga item berikutnya!</p>
+                </div>
+                <div id="shopMathOptionsContainer" style="display: flex; gap: 0.4rem;"></div>
             </div>
 
             <!-- Categories Tabs -->
@@ -226,17 +258,17 @@
     <div class="mlbb-modal-overlay" id="scoreboardModal">
         <div class="mlbb-modal-card">
             <div class="modal-header-row">
-                <h3><i class="fa-solid fa-table-list" style="color: var(--mlbb-gold);"></i> Papan Skor Pertandingan 5v5</h3>
+                <h3><i class="fa-solid fa-table-list" style="color: var(--chrono-gold);"></i> Papan Skor Pertandingan Chrono Matika</h3>
                 <button onclick="window.mlbbGame.toggleScoreboard()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="scoreboard-teams-grid">
                 <div>
-                    <h4 style="color: #38bdf8; margin-bottom: 0.5rem;">Tim Biru (Kawan)</h4>
+                    <h4 style="color: #38bdf8; margin-bottom: 0.5rem;"><i class="fa-solid fa-shield"></i> Tim Biru (Kawan)</h4>
                     <div id="scoreListBlue"></div>
                 </div>
                 <div>
-                    <h4 style="color: #f43f5e; margin-bottom: 0.5rem;">Tim Merah (Musuh)</h4>
+                    <h4 style="color: #f43f5e; margin-bottom: 0.5rem;"><i class="fa-solid fa-skull"></i> Tim Merah (Musuh)</h4>
                     <div id="scoreListRed"></div>
                 </div>
             </div>
@@ -245,10 +277,10 @@
 
     <!-- MODAL: GAME OVER (VICTORY / DEFEAT) -->
     <div class="mlbb-modal-overlay" id="screenGameOver">
-        <div class="mlbb-modal-card" style="text-align: center; max-width: 480px;">
-            <h2 id="gameOverTitle" style="font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem;">🏆 VICTORY!</h2>
-            <p id="gameOverDesc" style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 1.5rem;">Tim Anda berhasil menghancurkan Base Crystal musuh!</p>
-            <button class="btn-enter-battle" onclick="location.reload()" style="width: 100%;">
+        <div class="mlbb-modal-card" style="text-align: center; max-width: 500px;">
+            <h2 id="gameOverTitle" style="font-size: 3.2rem; font-weight: 900; margin-bottom: 0.5rem;">🏆 VICTORY!</h2>
+            <p id="gameOverDesc" style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 1.5rem;">Tim Anda berhasil menghancurkan Nexus Crystal musuh!</p>
+            <button class="btn-enter-battle" onclick="location.reload()" style="width: 100%; justify-content: center;">
                 <i class="fa-solid fa-rotate-right"></i> MAIN LAGI
             </button>
         </div>

@@ -1,7 +1,8 @@
 /**
- * MLBB WEB - Main Game Engine
- * 60 FPS MOBA Arena: 3 Lanes, Jungle Camps (Blue/Red Buff, Turtle, Lord),
- * Bushes Camouflage, 5v5 AI Heroes, Gold Economy, Leveling 1-15, and Item Shop
+ * CHRONO MATIKA: 5v5 Legends of Numeria
+ * High-Performance 60 FPS HTML5 Canvas Engine
+ * Fusing 5v5 MOBA 3-Lanes, Jungle Camps, Bushes, Item Shop, Leveling 1-15,
+ * with Mathematical Critical Surges, River Math Runes, and Titan Lord of Numeria!
  */
 
 class MLBBGameEngine {
@@ -10,7 +11,7 @@ class MLBBGameEngine {
         this.ctx = this.canvas.getContext('2d');
         this.sound = new MLBBSoundEngine();
 
-        // Map Dimensions (Land of Dawn: 3000 x 2000 px)
+        // Map Dimensions (Numeria Runic Arena: 3000 x 2000 px)
         this.mapWidth = 3000;
         this.mapHeight = 2000;
 
@@ -26,18 +27,31 @@ class MLBBGameEngine {
         this.nexusList = [];
         this.jungleCamps = [];
         this.bushes = [];
+        this.riverRunes = [];
         this.projectiles = [];
         this.particles = [];
+        this.ambientMathMotes = [];
         this.damageTexts = [];
         this.summonedLord = null;
 
         // Game Match State
         this.gameTime = 0;
         this.minionTimer = 0;
+        this.runeTimer = 0;
         this.blueScore = 0;
         this.redScore = 0;
         this.killFeed = [];
         this.firstBloodClaimed = false;
+
+        // Math Surge State
+        this.mathSurgeActive = false;
+        this.mathSurgeTimer = 0;
+        this.mathSurgeQuestion = null;
+        this.mathSurgeCooldown = 0;
+
+        // Shop Discount State
+        this.shopDiscountActive = false;
+        this.shopMathQuestion = null;
 
         // Inputs
         this.keys = {};
@@ -51,6 +65,7 @@ class MLBBGameEngine {
         this.resize();
         window.addEventListener('resize', () => this.resize());
         this.initInputs();
+        this.initAmbientMotes();
         this.startLoop();
     }
 
@@ -61,10 +76,38 @@ class MLBBGameEngine {
         this.camera.height = this.canvas.height;
     }
 
+    initAmbientMotes() {
+        this.ambientMathMotes = [];
+        const symbols = ['π', '∑', '∫', '∞', '√x', '∆', 'θ', 'λ', 'e', 'x²', '∇', '±', '≠', '≈'];
+        for (let i = 0; i < 65; i++) {
+            this.ambientMathMotes.push({
+                x: Math.random() * this.mapWidth,
+                y: Math.random() * this.mapHeight,
+                symbol: symbols[Math.floor(Math.random() * symbols.length)],
+                size: 14 + Math.random() * 18,
+                speedY: -0.2 - Math.random() * 0.4,
+                speedX: (Math.random() - 0.5) * 0.3,
+                opacity: 0.15 + Math.random() * 0.25,
+                color: Math.random() > 0.5 ? '#38bdf8' : '#fbbf24'
+            });
+        }
+    }
+
     initInputs() {
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
             this.keys[e.key.toUpperCase()] = true;
+
+            // Math Surge Keyboard Options (Keys 1, 2, 3, 4 during surge)
+            if (this.mathSurgeActive && this.mathSurgeQuestion) {
+                if (['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4'].includes(e.code)) {
+                    const optIdx = parseInt(e.key) - 1;
+                    if (optIdx >= 0 && optIdx < this.mathSurgeQuestion.options.length) {
+                        this.answerMathSurge(this.mathSurgeQuestion.options[optIdx]);
+                        return;
+                    }
+                }
+            }
 
             if (this.state === 'PLAYING' && this.player && this.player.alive) {
                 if (e.code === 'KeyQ' || e.key === '1') this.player.castSkill(0, this);
@@ -111,18 +154,22 @@ class MLBBGameEngine {
     }
 
     /* ==========================================================================
-       Match Initialization (Draft 5v5, Map Entities, Jungle, Turrets)
+       Match Initialization (Draft 5v5, Map Entities, Jungle, Runes, Turrets)
        ========================================================================== */
     startMatch(chosenHeroId, chosenSpellId) {
         this.sound.init();
         this.state = 'PLAYING';
         this.gameTime = 0;
         this.minionTimer = 0;
+        this.runeTimer = 0;
         this.blueScore = 0;
         this.redScore = 0;
         this.killFeed = [];
         this.firstBloodClaimed = false;
         this.summonedLord = null;
+        this.mathSurgeActive = false;
+        this.mathSurgeCooldown = 15;
+        this.shopDiscountActive = false;
 
         this.heroes = [];
         this.minions = [];
@@ -130,6 +177,7 @@ class MLBBGameEngine {
         this.nexusList = [];
         this.jungleCamps = [];
         this.bushes = [];
+        this.riverRunes = [];
         this.projectiles = [];
         this.particles = [];
         this.damageTexts = [];
@@ -148,55 +196,69 @@ class MLBBGameEngine {
             const startPos = this.getHeroSpawnPoint('BLUE', idx);
             const spell = isHuman ? MLBB_BATTLE_SPELLS.find(s => s.id === chosenSpellId) : MLBB_BATTLE_SPELLS[idx % MLBB_BATTLE_SPELLS.length];
 
-            const hero = new MLBBHeroEntity(cfg, 'BLUE', startPos.x, startPos.y, isHuman, spell, idx);
+            const hero = new MLBBHeroEntity(cfg, 'BLUE', startPos.x, startPos.y, isHuman, spell, idx % 3);
             this.heroes.push(hero);
             if (isHuman) this.player = hero;
         });
 
         // Red Team (5 AI Opponents)
-        const redHeroKeys = allHeroKeys.filter(k => k !== chosenHeroId).slice(0, 5);
+        const redHeroKeys = allHeroKeys.slice(0, 5);
         redHeroKeys.forEach((key, idx) => {
             const cfg = MLBB_HEROES.find(h => h.id === key);
             const startPos = this.getHeroSpawnPoint('RED', idx);
-            const spell = MLBB_BATTLE_SPELLS[idx % MLBB_BATTLE_SPELLS.length];
+            const spell = MLBB_BATTLE_SPELLS[(idx + 2) % MLBB_BATTLE_SPELLS.length];
 
-            const hero = new MLBBHeroEntity(cfg, 'RED', startPos.x, startPos.y, false, spell, idx);
+            const hero = new MLBBHeroEntity(cfg, 'RED', startPos.x, startPos.y, false, spell, idx % 3);
             this.heroes.push(hero);
         });
 
-        // Spawn initial minion wave
+        // 3. Spawn Initial River Math Runes & Initial Minions
+        this.spawnRiverRunes();
         this.spawn3LaneMinions();
 
-        // Voice Announcer Intro
-        this.sound.announce('Welcome to Mobile Legends! 5 seconds till the enemy reaches the battlefield. Smash them! All troops deployed.');
-        this.addKillFeed('System', 'Pertandingan Dimulai! Hancurkan Base Crystal Musuh.', 'system');
-
-        // Hide Draft Screen & Open Battle HUD
+        // 4. Switch Screens
         document.getElementById('screenHeroDraft').style.display = 'none';
         document.getElementById('screenBattleHUD').style.display = 'block';
-        document.getElementById('screenGameOver').style.display = 'none';
 
-        this.updateHUDHeroProfile();
+        // Update HUD Hero Icons & Names
+        document.getElementById('hudPlayerAvatar').textContent = this.player.heroData.icon;
+        document.getElementById('hudPlayerName').textContent = `${this.player.heroData.name} (Lv.1)`;
+        document.getElementById('hudPlayerSpellIcon').textContent = this.player.battleSpell.icon;
+
+        for (let i = 0; i < 3; i++) {
+            document.getElementById(`skillName${i}`).textContent = this.player.heroData.skills[i].name.split(' ')[0];
+        }
+
+        this.renderInventorySlots();
+        this.addKillFeed('system', '⚔️ Selamat datang di CHRONO MATIKA: Legends of Numeria!');
+        this.sound.announce('Welcome to Chrono Matika, Legends of Numeria!');
     }
 
-    getHeroSpawnPoint(team, laneIdx) {
-        if (team === 'BLUE') {
-            return { x: 220 + Math.random() * 60, y: 1750 + (Math.random() - 0.5) * 80 };
-        } else {
-            return { x: 2780 - Math.random() * 60, y: 250 + (Math.random() - 0.5) * 80 };
-        }
+    getHeroSpawnPoint(team, index) {
+        const base = team === 'BLUE' ? { x: 220, y: 1780 } : { x: 2780, y: 220 };
+        const offsets = [
+            { x: 0, y: 0 },
+            { x: 40, y: -40 },
+            { x: -40, y: 40 },
+            { x: 50, y: 50 },
+            { x: -50, y: -50 }
+        ];
+        return {
+            x: base.x + offsets[index % offsets.length].x,
+            y: base.y + offsets[index % offsets.length].y
+        };
     }
 
     buildMapEntities() {
-        // Base Nexus Crystals (Blue at Bottom-Left, Red at Top-Right)
-        this.nexusList.push(new MLBBBaseCrystal(220, 1780, 'BLUE'));
-        this.nexusList.push(new MLBBBaseCrystal(2780, 220, 'RED'));
+        // 2 Nexus Base Crystals (Blue & Red)
+        this.nexusList.push(new MLBBBaseNexus(220, 1780, 'BLUE', 8000));
+        this.nexusList.push(new MLBBBaseNexus(2780, 220, 'RED', 8000));
 
         // 9 Blue Turrets (Top, Mid, Bot lanes)
         // Top Lane Blue
         this.turrets.push(new MLBBTurret(300, 1200, 'BLUE', 'Top Outer'));
         this.turrets.push(new MLBBTurret(300, 600, 'BLUE', 'Top Inner'));
-        this.turrets.push(new MLBBTurret(450, 1600, 'BLUE', 'Top Base'));
+        this.turrets.push(new MLBBTurret(450, 1550, 'BLUE', 'Top Base'));
 
         // Mid Lane Blue
         this.turrets.push(new MLBBTurret(1050, 1300, 'BLUE', 'Mid Outer'));
@@ -224,27 +286,36 @@ class MLBBGameEngine {
         this.turrets.push(new MLBBTurret(2700, 1400, 'RED', 'Bot Inner'));
         this.turrets.push(new MLBBTurret(2550, 450, 'RED', 'Bot Base'));
 
-        // Bushes (Rumput Semak untuk Kamuflase)
+        // Bushes (Runic Foliage)
         const bushLocations = [
-            { x: 1500, y: 1000, w: 120, h: 70 }, // Mid River Bush
-            { x: 1350, y: 850, w: 100, h: 80 },  // River Upper
-            { x: 1650, y: 1150, w: 100, h: 80 }, // River Lower
-            { x: 800, y: 800, w: 90, h: 60 },    // Blue Jungle Bush
-            { x: 2200, y: 1200, w: 90, h: 60 },  // Red Jungle Bush
-            { x: 450, y: 400, w: 110, h: 70 },   // Top Corner
-            { x: 2550, y: 1600, w: 110, h: 70 }  // Bot Corner
+            { x: 1500, y: 1000, w: 130, h: 75 }, // Mid River Bush
+            { x: 1350, y: 850, w: 110, h: 85 },  // River Upper
+            { x: 1650, y: 1150, w: 110, h: 85 }, // River Lower
+            { x: 800, y: 800, w: 95, h: 65 },    // Blue Jungle Bush
+            { x: 2200, y: 1200, w: 95, h: 65 },  // Red Jungle Bush
+            { x: 450, y: 400, w: 120, h: 75 },   // Top Corner
+            { x: 2550, y: 1600, w: 120, h: 75 }  // Bot Corner
         ];
         bushLocations.forEach(b => this.bushes.push(new MLBBBush(b.x, b.y, b.w, b.h)));
 
         // Jungle Camps: Blue Buff, Red Buff, Turtle, Lord
-        this.jungleCamps.push(new MLBBJungleMonster(850, 1150, 'BLUE_BUFF', 'Fiend (Blue Buff)', 3000));
-        this.jungleCamps.push(new MLBBJungleMonster(1150, 1550, 'RED_BUFF', 'Beast (Red Buff)', 3200));
-        this.jungleCamps.push(new MLBBJungleMonster(2150, 850, 'BLUE_BUFF', 'Fiend (Blue Buff)', 3000));
-        this.jungleCamps.push(new MLBBJungleMonster(1850, 450, 'RED_BUFF', 'Beast (Red Buff)', 3200));
+        this.jungleCamps.push(new MLBBJungleMonster(850, 1150, 'BLUE_BUFF', 'Quantum Fiend (Blue Buff)', 3200));
+        this.jungleCamps.push(new MLBBJungleMonster(1150, 1550, 'RED_BUFF', 'Matrix Beast (Red Buff)', 3400));
+        this.jungleCamps.push(new MLBBJungleMonster(2150, 850, 'BLUE_BUFF', 'Quantum Fiend (Blue Buff)', 3200));
+        this.jungleCamps.push(new MLBBJungleMonster(1850, 450, 'RED_BUFF', 'Matrix Beast (Red Buff)', 3400));
 
-        // River Bosses: Turtle & Lord
-        this.jungleCamps.push(new MLBBJungleMonster(1250, 650, 'TURTLE', 'Turtle', 6500));
-        this.jungleCamps.push(new MLBBJungleMonster(1750, 1350, 'LORD', 'Lord', 12000));
+        // River Bosses: Geometry Turtle & Ancient Math Titan Lord
+        this.jungleCamps.push(new MLBBJungleMonster(1250, 650, 'TURTLE', 'Geometric Turtle', 7000));
+        this.jungleCamps.push(new MLBBJungleMonster(1750, 1350, 'LORD', 'Math Titan of Numeria', 13500));
+    }
+
+    spawnRiverRunes() {
+        this.riverRunes = [];
+        // 4 River Math Runes
+        this.riverRunes.push(new MLBBRiverRune(1400, 900, 'PI', 'π (Pi Shield 600)'));
+        this.riverRunes.push(new MLBBRiverRune(1600, 1100, 'SIGMA', '∑ (Sigma Gold +200)'));
+        this.riverRunes.push(new MLBBRiverRune(1100, 500, 'INFINITY', '∞ (Infinite Mana & CDR)'));
+        this.riverRunes.push(new MLBBRiverRune(1900, 1500, 'SQRT', '√x (Akar Pemulihan 50%)'));
     }
 
     spawn3LaneMinions() {
@@ -282,6 +353,8 @@ class MLBBGameEngine {
     update(dt) {
         this.gameTime += dt;
         this.minionTimer += dt;
+        this.runeTimer += dt;
+        if (this.mathSurgeCooldown > 0) this.mathSurgeCooldown -= dt;
 
         // Minion Spawner every 25 seconds
         if (this.minionTimer >= 25.0) {
@@ -289,45 +362,78 @@ class MLBBGameEngine {
             this.spawn3LaneMinions();
         }
 
+        // River Rune Respawn every 45 seconds
+        if (this.runeTimer >= 45.0) {
+            this.runeTimer = 0;
+            this.spawnRiverRunes();
+            this.addKillFeed('system', '✨ Runic Math Nodes telah muncul di sepanjang sungai!');
+        }
+
         // 1. Update Player Controls
         if (this.player && this.player.alive) {
             this.handlePlayerInput(dt);
         }
 
-        // 2. Update Heroes & AI
+        // 2. Update Ambient Math Motes
+        this.ambientMathMotes.forEach(mote => {
+            mote.y += mote.speedY;
+            mote.x += mote.speedX;
+            if (mote.y < 0) mote.y = this.mapHeight;
+            if (mote.x < 0) mote.x = this.mapWidth;
+            if (mote.x > this.mapWidth) mote.x = 0;
+        });
+
+        // 3. Update Heroes & AI
         this.heroes.forEach(h => h.update(dt, this));
 
-        // 3. Update Minions
+        // 4. Update Minions
         this.minions.forEach(m => m.update(dt, this));
         this.minions = this.minions.filter(m => m.alive);
 
-        // 4. Update Jungle Camps
+        // 5. Update Jungle Camps
         this.jungleCamps.forEach(j => j.update(dt, this));
 
-        // 5. Update Turrets & Base Crystals
+        // 6. Update River Math Runes
+        this.riverRunes.forEach(r => r.update(dt, this));
+        this.riverRunes = this.riverRunes.filter(r => r.alive);
+
+        // 7. Update Turrets & Base Crystals
         this.turrets.forEach(t => t.update(dt, this));
         this.turrets = this.turrets.filter(t => t.alive);
-
         this.nexusList.forEach(n => n.update(dt, this));
 
-        // 6. Update Summoned Lord
+        // 8. Update Summoned Math Titan Lord
         if (this.summonedLord) {
             this.summonedLord.update(dt, this);
             if (!this.summonedLord.alive) this.summonedLord = null;
         }
 
-        // 7. Update Projectiles
+        // 9. Update Projectiles
         this.projectiles.forEach(p => p.update(dt, this));
         this.projectiles = this.projectiles.filter(p => p.alive);
 
-        // 8. Update Particles & Damage Texts
+        // 10. Update Particles & Damage Texts
         this.particles.forEach(p => p.update(dt));
         this.particles = this.particles.filter(p => p.alive);
 
         this.damageTexts.forEach(t => t.update(dt));
         this.damageTexts = this.damageTexts.filter(t => t.alive);
 
-        // 9. Camera Smoothing
+        // 11. Update Math Surge Popup Timer
+        if (this.mathSurgeActive) {
+            this.mathSurgeTimer -= dt;
+            const pct = Math.max(0, (this.mathSurgeTimer / 2.5) * 100);
+            const fill = document.getElementById('mathTimerFill');
+            const timerTxt = document.getElementById('mathSurgeTimerText');
+            if (fill) fill.style.width = `${pct}%`;
+            if (timerTxt) timerTxt.textContent = `${this.mathSurgeTimer.toFixed(1)}s`;
+
+            if (this.mathSurgeTimer <= 0) {
+                this.closeMathSurge(false);
+            }
+        }
+
+        // 12. Camera Smoothing
         if (this.player) {
             const tx = this.player.x - this.camera.width / 2;
             const ty = this.player.y - this.camera.height / 2;
@@ -338,10 +444,10 @@ class MLBBGameEngine {
             this.camera.y = Math.max(0, Math.min(this.mapHeight - this.camera.height, this.camera.y));
         }
 
-        // 10. Update HUD
+        // 13. Update HUD
         this.updateHUD();
 
-        // 11. Check Victory / Defeat
+        // 14. Check Victory / Defeat
         const blueCore = this.nexusList.find(n => n.team === 'BLUE');
         const redCore = this.nexusList.find(n => n.team === 'RED');
 
@@ -368,7 +474,7 @@ class MLBBGameEngine {
             mx /= len;
             my /= len;
 
-            this.player.isRecalling = false; // Cancel recall if moving
+            this.player.isRecalling = false;
             this.player.x += mx * this.player.moveSpeed * 60 * dt;
             this.player.y += my * this.player.moveSpeed * 60 * dt;
 
@@ -377,6 +483,100 @@ class MLBBGameEngine {
         }
 
         this.player.angle = Math.atan2(this.mouse.worldY - this.player.y, this.mouse.worldX - this.player.x);
+    }
+
+    /* ==========================================================================
+       Mathematical Critical Surge Engine
+       ========================================================================== */
+    triggerMathSurge() {
+        if (this.mathSurgeActive || this.mathSurgeCooldown > 0) return;
+        this.mathSurgeActive = true;
+        this.mathSurgeTimer = 2.5;
+        this.mathSurgeCooldown = 18;
+
+        // Generate Math Question (Arithmetic, Power, Roots, Algebra)
+        const types = ['mul', 'add_mul', 'sqrt', 'power'];
+        const chosenType = types[Math.floor(Math.random() * types.length)];
+        let qText = '';
+        let ans = 0;
+
+        if (chosenType === 'mul') {
+            const a = Math.floor(Math.random() * 8) + 6;
+            const b = Math.floor(Math.random() * 8) + 6;
+            ans = a * b;
+            qText = `${a} × ${b} = ?`;
+        } else if (chosenType === 'add_mul') {
+            const a = Math.floor(Math.random() * 15) + 10;
+            const b = Math.floor(Math.random() * 5) + 3;
+            const c = Math.floor(Math.random() * 10) + 2;
+            ans = a + b * c;
+            qText = `${a} + (${b} × ${c}) = ?`;
+        } else if (chosenType === 'sqrt') {
+            const roots = [9, 16, 25, 36, 49, 64, 81, 100, 121, 144];
+            const chosenRoot = roots[Math.floor(Math.random() * roots.length)];
+            ans = Math.sqrt(chosenRoot);
+            qText = `√${chosenRoot} = ?`;
+        } else {
+            const base = Math.floor(Math.random() * 6) + 4;
+            ans = base * base;
+            qText = `${base}² = ?`;
+        }
+
+        // Generate 3 options (1 correct, 2 distractors)
+        const options = [ans];
+        while (options.length < 3) {
+            const delta = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1);
+            const fake = ans + delta;
+            if (fake > 0 && !options.includes(fake)) {
+                options.push(fake);
+            }
+        }
+        // Shuffle options
+        options.sort(() => Math.random() - 0.5);
+
+        this.mathSurgeQuestion = { qText, ans, options };
+
+        // Render to HUD
+        const card = document.getElementById('mathSurgeCard');
+        document.getElementById('mathEquationText').textContent = qText;
+        const grid = document.getElementById('mathOptionsGrid');
+        grid.innerHTML = '';
+
+        options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-math-opt';
+            btn.innerHTML = `<span style="color: var(--chrono-gold); font-size: 0.75rem; margin-right: 4px;">[${idx + 1}]</span> ${opt}`;
+            btn.onclick = () => this.answerMathSurge(opt);
+            grid.appendChild(btn);
+        });
+
+        card.classList.add('active');
+        this.sound.playLevelUp();
+    }
+
+    answerMathSurge(selectedAns) {
+        if (!this.mathSurgeActive || !this.mathSurgeQuestion) return;
+        const isCorrect = (selectedAns === this.mathSurgeQuestion.ans);
+        this.closeMathSurge(isCorrect);
+    }
+
+    closeMathSurge(success) {
+        this.mathSurgeActive = false;
+        const card = document.getElementById('mathSurgeCard');
+        if (card) card.classList.remove('active');
+
+        if (success && this.player && this.player.alive) {
+            // Apply 250% True Critical Surge Buff
+            this.player.mathSurgeStacks = 3;
+            this.player.mathSurgeBonusSpeed = 1.6;
+            this.player.skillCooldowns = [0, 0, 0]; // Reset all skill CDs!
+            this.player.hp = Math.min(this.player.maxHp, this.player.hp + 500);
+
+            this.showDamageText(this.player.x, this.player.y - 45, '★ MATH CRITICAL SURGE +250% TRUE DMG! ★', true, true);
+            this.createExplosion(this.player.x, this.player.y, '#38bdf8', 35);
+            this.sound.playBuyItem();
+            this.sound.announce('Mathematical Critical Surge Activated!');
+        }
     }
 
     /* ==========================================================================
@@ -404,86 +604,78 @@ class MLBBGameEngine {
     }
 
     getAlliesOf(team) {
-        return this.heroes.filter(h => h.team === team && h.alive);
+        const allies = [];
+        this.heroes.filter(h => h.team === team && h.alive).forEach(h => allies.push(h));
+        this.minions.filter(m => m.team === team && m.alive).forEach(m => allies.push(m));
+        this.turrets.filter(t => t.team === team && t.alive).forEach(t => allies.push(t));
+        this.nexusList.filter(n => n.team === team && n.alive).forEach(n => allies.push(n));
+        if (this.summonedLord && this.summonedLord.team === team && this.summonedLord.alive) {
+            allies.push(this.summonedLord);
+        }
+        return allies;
     }
 
-    showDamageText(x, y, damage, isCrit = false, isHeal = false) {
-        this.damageTexts.push(new MLBBFloatingText(x, y, damage, isCrit, isHeal));
-    }
-
-    createExplosion(x, y, color = '#fbbf24', count = 20) {
+    createExplosion(x, y, color = '#fbbf24', count = 12) {
         for (let i = 0; i < count; i++) {
-            const ang = Math.random() * Math.PI * 2;
-            const spd = Math.random() * 5 + 2;
-            this.particles.push(new MLBBParticle(x, y, Math.cos(ang) * spd, Math.sin(ang) * spd, color, Math.random() * 4 + 2, 0.4));
+            this.particles.push(new MLBBParticle(x, y, color));
         }
     }
 
-    addKillFeed(killerName, victimName, type = 'kill') {
-        this.killFeed.unshift({ killerName, victimName, type });
-        if (this.killFeed.length > 5) this.killFeed.pop();
-
-        const feedEl = document.getElementById('killFeedBox');
-        if (feedEl) {
-            feedEl.innerHTML = this.killFeed.map(k => {
-                if (k.type === 'system') return `<div class="feed-msg system">${k.victimName}</div>`;
-                return `<div class="feed-msg"><span class="k">${k.killerName}</span> <i class="fa-solid fa-skull"></i> <span class="v">${k.victimName}</span></div>`;
-            }).join('');
-        }
+    showDamageText(x, y, text, isCrit = false, isHeal = false) {
+        this.damageTexts.push(new MLBBFloatingText(x, y, text, isCrit, isHeal));
     }
 
-    triggerMultiKillAnnounce(streak, isPlayer) {
-        const streaks = {
-            1: 'First Blood!',
-            2: 'Double Kill!',
-            3: 'Triple Kill!',
-            4: 'Maniac!',
-            5: 'Savage!'
-        };
-        const text = streaks[streak] || 'Legendary!';
-        this.sound.announce(text, true);
+    addKillFeed(type, text) {
+        const feedBox = document.getElementById('killFeedBox');
+        if (!feedBox) return;
 
-        // Show banner overlay
+        const msg = document.createElement('div');
+        msg.className = `feed-msg ${type}`;
+        msg.innerHTML = text;
+        feedBox.prepend(msg);
+
+        setTimeout(() => {
+            if (msg.parentNode) msg.parentNode.removeChild(msg);
+        }, 5000);
+    }
+
+    showKillStreakBanner(text) {
         const banner = document.getElementById('killStreakBanner');
-        if (banner) {
-            banner.textContent = text;
-            banner.className = 'kill-streak-banner show';
-            setTimeout(() => banner.className = 'kill-streak-banner', 2400);
-        }
+        if (!banner) return;
+        banner.textContent = text;
+        banner.classList.add('show');
+        setTimeout(() => banner.classList.remove('show'), 2200);
     }
 
     /* ==========================================================================
-       HUD & Shop Management
+       HUD Updating & UI Widgets
        ========================================================================== */
-    updateHUDHeroProfile() {
-        if (!this.player) return;
-        document.getElementById('hudPlayerName').textContent = this.player.heroData.name;
-        document.getElementById('hudPlayerRole').textContent = this.player.heroData.role;
-        document.getElementById('hudPlayerAvatar').textContent = this.player.heroData.icon;
-        document.getElementById('hudPlayerSpellIcon').textContent = this.player.battleSpell.icon;
-
-        // Skill names
-        this.player.heroData.skills.forEach((s, idx) => {
-            const nameEl = document.getElementById(`skillName${idx}`);
-            if (nameEl) nameEl.textContent = s.name;
-        });
-    }
-
     updateHUD() {
         if (!this.player) return;
 
-        // HP & Mana Bars
+        // Player Bars
         const hpPct = Math.max(0, (this.player.hp / this.player.maxHp) * 100);
         const manaPct = Math.max(0, (this.player.mana / this.player.maxMana) * 100);
+
         document.getElementById('playerHpBar').style.width = `${hpPct}%`;
         document.getElementById('playerManaBar').style.width = `${manaPct}%`;
         document.getElementById('playerHpLabel').textContent = `${Math.round(this.player.hp)} / ${this.player.maxHp}`;
-        document.getElementById('playerLevelBadge').textContent = this.player.level;
+        document.getElementById('hudPlayerName').textContent = `${this.player.heroData.name} (Lv.${this.player.level})`;
         document.getElementById('playerGoldCount').textContent = `${Math.round(this.player.gold)} G`;
 
-        // Skill Cooldowns
+        // Active Runes Indicator
+        const runeIndicator = document.getElementById('hudRunesIndicator');
+        if (runeIndicator) {
+            let activeHtml = '';
+            if (this.player.piShieldTimer > 0) activeHtml += `<span class="rune-active-badge">🛡️ Pi Shield (${this.player.piShieldTimer.toFixed(0)}s)</span>`;
+            if (this.player.infinityTimer > 0) activeHtml += `<span class="rune-active-badge" style="color: #fbbf24; border-color: #fbbf24;">∞ Infinity CDR (${this.player.infinityTimer.toFixed(0)}s)</span>`;
+            if (this.player.mathSurgeStacks > 0) activeHtml += `<span class="rune-active-badge" style="color: #f43f5e; border-color: #f43f5e;">⚡ Critical Surge (${this.player.mathSurgeStacks})</span>`;
+            runeIndicator.innerHTML = activeHtml;
+        }
+
+        // Skills Cooldowns
         for (let i = 0; i < 3; i++) {
-            const cd = this.player.skillCooldowns[i] || 0;
+            const cd = this.player.skillCooldowns[i];
             const slot = document.getElementById(`skillSlot${i}`);
             const cdText = document.getElementById(`skillCdText${i}`);
             if (cd > 0) {
@@ -523,14 +715,18 @@ class MLBBGameEngine {
     updateQuickBuyWidget() {
         if (!this.player) return;
         const unownedItems = MLBB_ITEMS.filter(item => !this.player.inventory.some(i => i.id === item.id));
-        const affordable = unownedItems.find(item => item.price <= this.player.gold);
+        const affordable = unownedItems.find(item => {
+            const price = this.shopDiscountActive ? Math.round(item.price * 0.75) : item.price;
+            return price <= this.player.gold;
+        });
 
         const quickBox = document.getElementById('quickBuyBox');
         if (affordable && this.player.inventory.length < 6) {
             quickBox.style.display = 'flex';
             document.getElementById('quickItemIcon').textContent = affordable.icon;
             document.getElementById('quickItemName').textContent = affordable.name;
-            document.getElementById('quickItemPrice').textContent = `${affordable.price} G`;
+            const finalPrice = this.shopDiscountActive ? Math.round(affordable.price * 0.75) : affordable.price;
+            document.getElementById('quickItemPrice').textContent = `${finalPrice} G`;
             quickBox.onclick = () => this.buyItem(affordable.id);
         } else {
             quickBox.style.display = 'none';
@@ -540,13 +736,16 @@ class MLBBGameEngine {
     buyItem(itemId) {
         if (!this.player || this.player.inventory.length >= 6) return;
         const item = MLBB_ITEMS.find(i => i.id === itemId);
-        if (item && this.player.gold >= item.price) {
-            this.player.gold -= item.price;
+        const finalPrice = this.shopDiscountActive ? Math.round(item.price * 0.75) : item.price;
+
+        if (item && this.player.gold >= finalPrice) {
+            this.player.gold -= finalPrice;
             this.player.inventory.push(item);
             this.player.applyItemStats(item);
             this.sound.playBuyItem();
             this.showDamageText(this.player.x, this.player.y - 30, `+${item.name}`, false, true);
             this.renderInventorySlots();
+            this.renderShopItems('ALL');
         }
     }
 
@@ -568,8 +767,51 @@ class MLBBGameEngine {
         const modal = document.getElementById('shopModal');
         modal.classList.toggle('active');
         if (modal.classList.contains('active')) {
+            this.renderShopDiscountChallenge();
             this.renderShopItems('ALL');
         }
+    }
+
+    renderShopDiscountChallenge() {
+        const banner = document.getElementById('shopMathDiscountBanner');
+        const qTxt = document.getElementById('shopMathQuestionText');
+        const optContainer = document.getElementById('shopMathOptionsContainer');
+        if (!banner || !qTxt || !optContainer) return;
+
+        if (this.shopDiscountActive) {
+            qTxt.innerHTML = '<span style="color: #22c55e; font-weight: 800;">✓ Diskon 25% Aktif untuk semua item!</span>';
+            optContainer.innerHTML = '';
+            return;
+        }
+
+        const a = Math.floor(Math.random() * 8) + 7;
+        const b = Math.floor(Math.random() * 8) + 4;
+        const ans = a * b;
+        qTxt.innerHTML = `Berapa <strong>${a} × ${b}</strong>? Jawab untuk diskon 25%:`;
+
+        const opts = [ans, ans + 3, ans - 4].sort(() => Math.random() - 0.5);
+        optContainer.innerHTML = '';
+
+        opts.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-buy';
+            btn.style.padding = '0.3rem 0.6rem';
+            btn.style.fontSize = '0.78rem';
+            btn.textContent = opt;
+            btn.onclick = () => {
+                if (opt === ans) {
+                    this.shopDiscountActive = true;
+                    this.sound.playBuyItem();
+                    this.showDamageText(this.player.x, this.player.y - 25, '25% SHOP DISCOUNT ACTIVE!', true, true);
+                    this.renderShopDiscountChallenge();
+                    this.renderShopItems('ALL');
+                } else {
+                    btn.disabled = true;
+                    btn.style.background = '#ef4444';
+                }
+            };
+            optContainer.appendChild(btn);
+        });
     }
 
     renderShopItems(category = 'ALL') {
@@ -579,21 +821,30 @@ class MLBBGameEngine {
 
         const items = category === 'ALL' ? MLBB_ITEMS : MLBB_ITEMS.filter(i => i.category === category);
         items.forEach(item => {
+            const finalPrice = this.shopDiscountActive ? Math.round(item.price * 0.75) : item.price;
+            const isOwned = this.player.inventory.some(i => i.id === item.id);
+            const isFull = this.player.inventory.length >= 6;
+
             const card = document.createElement('div');
             card.className = 'shop-item-card';
             card.innerHTML = `
                 <div class="shop-item-icon">${item.icon}</div>
                 <div class="shop-item-info">
                     <h4>${item.name}</h4>
-                    <span class="price-tag">${item.price} Gold</span>
+                    <span class="price-tag">
+                        ${this.shopDiscountActive ? `<s style="color:#94a3b8; font-size:0.7rem; margin-right:4px;">${item.price}</s>` : ''}
+                        ${finalPrice} Gold
+                    </span>
                     <p>${item.desc}</p>
                 </div>
-                <button class="btn-buy" ${this.player.gold < item.price ? 'disabled' : ''}>Beli</button>
+                <button class="btn-buy" ${isOwned || isFull || this.player.gold < finalPrice ? 'disabled' : ''}>
+                    ${isOwned ? 'Dimiliki' : 'Beli'}
+                </button>
             `;
-            card.querySelector('.btn-buy').onclick = () => {
-                this.buyItem(item.id);
-                this.renderShopItems(category);
-            };
+            const btn = card.querySelector('.btn-buy');
+            if (!isOwned && !isFull) {
+                btn.onclick = () => this.buyItem(item.id);
+            }
             container.appendChild(card);
         });
     }
@@ -635,11 +886,11 @@ class MLBBGameEngine {
         const mw = miniCanvas.width;
         const mh = miniCanvas.height;
 
-        mctx.fillStyle = '#0a101d';
+        mctx.fillStyle = '#060d17';
         mctx.fillRect(0, 0, mw, mh);
 
         // Draw 3 Lanes on Radar
-        mctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        mctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
         mctx.lineWidth = 3;
 
         // Top lane
@@ -662,7 +913,18 @@ class MLBBGameEngine {
         mctx.lineTo(mw * 0.9, mh * 0.1);
         mctx.stroke();
 
-        // Jungle Bosses (Turtle & Lord)
+        // River Math Runes
+        this.riverRunes.forEach(r => {
+            if (!r.alive) return;
+            const rx = (r.x / this.mapWidth) * mw;
+            const ry = (r.y / this.mapHeight) * mh;
+            mctx.fillStyle = '#38bdf8';
+            mctx.beginPath();
+            mctx.arc(rx, ry, 2.5, 0, Math.PI * 2);
+            mctx.fill();
+        });
+
+        // Jungle Bosses
         this.jungleCamps.forEach(j => {
             if (!j.alive) return;
             const jx = (j.x / this.mapWidth) * mw;
@@ -684,7 +946,6 @@ class MLBBGameEngine {
         // Heroes
         this.heroes.forEach(h => {
             if (!h.alive) return;
-            // Hide enemy in bush from radar if not visible
             if (h.team === 'RED' && h.isInBush && !this.player.isInBush) return;
 
             const hx = (h.x / this.mapWidth) * mw;
@@ -705,12 +966,12 @@ class MLBBGameEngine {
         if (result === 'VICTORY') {
             title.textContent = '🏆 VICTORY!';
             title.style.color = '#38bdf8';
-            desc.textContent = 'Tim Anda berhasil menghancurkan Base Crystal musuh! Luar biasa!';
+            desc.textContent = 'Tim Anda berhasil menghancurkan Nexus Crystal musuh! Kemenangan Matematika Spektakuler!';
             this.sound.announce('Victory!');
         } else {
             title.textContent = '💀 DEFEAT';
             title.style.color = '#f43f5e';
-            desc.textContent = 'Base Crystal Anda telah hancur. Jangan menyerah!';
+            desc.textContent = 'Nexus Crystal Anda telah hancur. Evaluasi rumus strategi dan bangkit kembali!';
             this.sound.announce('Defeat!');
         }
 
@@ -727,32 +988,35 @@ class MLBBGameEngine {
         ctx.save();
         ctx.translate(-this.camera.x, -this.camera.y);
 
-        // 1. Draw 3-Lane Land of Dawn Map Arena
+        // 1. Draw 3-Lane Runic Arena Map Terrain
         this.drawMapTerrain(ctx);
 
         // 2. Draw Bushes
         this.bushes.forEach(b => b.draw(ctx));
 
-        // 3. Draw Jungle Camps
+        // 3. Draw River Math Runes
+        this.riverRunes.forEach(r => r.draw(ctx));
+
+        // 4. Draw Jungle Camps
         this.jungleCamps.forEach(j => j.draw(ctx));
 
-        // 4. Draw Turrets & Base Crystals
+        // 5. Draw Turrets & Base Crystals
         this.turrets.forEach(t => t.draw(ctx));
         this.nexusList.forEach(n => n.draw(ctx));
 
-        // 5. Draw Summoned Lord
+        // 6. Draw Summoned Math Titan Lord
         if (this.summonedLord) this.summonedLord.draw(ctx);
 
-        // 6. Draw Minions
+        // 7. Draw Minions
         this.minions.forEach(m => m.draw(ctx));
 
-        // 7. Draw Heroes
+        // 8. Draw Heroes
         this.heroes.forEach(h => h.draw(ctx, this));
 
-        // 8. Draw Projectiles
+        // 9. Draw Projectiles
         this.projectiles.forEach(p => p.draw(ctx));
 
-        // 9. Draw Particles & Damage Texts
+        // 10. Draw Particles & Damage Texts
         this.particles.forEach(p => p.draw(ctx));
         this.damageTexts.forEach(t => t.draw(ctx));
 
@@ -763,22 +1027,46 @@ class MLBBGameEngine {
         const cw = this.mapWidth;
         const ch = this.mapHeight;
 
-        // Ground Grass
-        ctx.fillStyle = '#0e1815';
+        // 1. Base Terrain Dark Grid
+        ctx.fillStyle = '#070d18';
         ctx.fillRect(0, 0, cw, ch);
 
-        // River diagonal stream
-        ctx.fillStyle = '#0a2538';
+        // 2. Geometric Hexagonal Ley-Grid Lines
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.06)';
+        ctx.lineWidth = 1;
+        const hexSize = 80;
+        for (let x = 0; x < cw; x += hexSize * 1.5) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, ch);
+            ctx.stroke();
+        }
+        for (let y = 0; y < ch; y += hexSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(cw, y);
+            ctx.stroke();
+        }
+
+        // 3. Luminescent Runic River (Diagonal Sine Flow)
+        const time = this.gameTime;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.22)';
+        ctx.lineWidth = 160;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(cw, ch);
-        ctx.lineWidth = 140;
-        ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
+        ctx.bezierCurveTo(cw * 0.3 + Math.sin(time) * 30, ch * 0.4, cw * 0.7 - Math.cos(time) * 30, ch * 0.6, cw, ch);
         ctx.stroke();
 
-        // 3-Lanes Path Surfaces
-        ctx.strokeStyle = 'rgba(217, 180, 110, 0.18)';
-        ctx.lineWidth = 110;
+        // Inner glowing river stream
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.lineWidth = 70;
+        ctx.stroke();
+        ctx.restore();
+
+        // 4. Mathematical Ley-Line Lanes (Gold & Cyan Circuits)
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.18)';
+        ctx.lineWidth = 120;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
@@ -789,7 +1077,7 @@ class MLBBGameEngine {
         ctx.lineTo(2780, 220);
         ctx.stroke();
 
-        // Mid Lane (Diagonal)
+        // Mid Lane (Diagonal Vector)
         ctx.beginPath();
         ctx.moveTo(220, 1780);
         ctx.lineTo(2780, 220);
@@ -802,21 +1090,131 @@ class MLBBGameEngine {
         ctx.lineTo(2780, 220);
         ctx.stroke();
 
-        // Base Circles
-        ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
+        // Central Lane Core Circuit Lines
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([15, 10]);
         ctx.beginPath();
-        ctx.arc(220, 1780, 220, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.moveTo(220, 1780);
+        ctx.lineTo(2780, 220);
+        ctx.stroke();
+        ctx.setLineDash([]);
 
-        ctx.fillStyle = 'rgba(244, 63, 94, 0.2)';
+        // 5. Blue & Red Base Mathematical Runes
+        // Blue Base Circle (Hexagon Ring)
+        ctx.fillStyle = 'rgba(14, 165, 233, 0.18)';
         ctx.beginPath();
-        ctx.arc(2780, 220, 220, 0, Math.PI * 2);
+        ctx.arc(220, 1780, 240, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = 'rgba(14, 165, 233, 0.5)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Red Base Circle
+        ctx.fillStyle = 'rgba(244, 63, 94, 0.18)';
+        ctx.beginPath();
+        ctx.arc(2780, 220, 240, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(244, 63, 94, 0.5)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // 6. Ambient Floating Mathematical Motes
+        this.ambientMathMotes.forEach(mote => {
+            ctx.fillStyle = mote.color;
+            ctx.globalAlpha = mote.opacity;
+            ctx.font = `bold ${mote.size}px monospace`;
+            ctx.fillText(mote.symbol, mote.x, mote.y);
+        });
+        ctx.globalAlpha = 1.0;
     }
 }
 
 /* ==========================================================================
-   MLBB Hero Entity Class (Leveling 1-15, Inventory, Skills, AI)
+   RIVER MATH RUNE ENTITY CLASS (π, ∑, ∞, √x)
+   ========================================================================== */
+class MLBBRiverRune {
+    constructor(x, y, runeType, name) {
+        this.x = x;
+        this.y = y;
+        this.runeType = runeType; // 'PI', 'SIGMA', 'INFINITY', 'SQRT'
+        this.name = name;
+        this.radius = 26;
+        this.alive = true;
+        this.pulse = 0;
+    }
+
+    update(dt, game) {
+        this.pulse += dt * 3;
+
+        // Check hero collection
+        game.heroes.forEach(h => {
+            if (h.alive && Math.hypot(h.x - this.x, h.y - this.y) <= this.radius + h.radius) {
+                this.collect(h, game);
+            }
+        });
+    }
+
+    collect(hero, game) {
+        this.alive = false;
+        game.sound.playBuyItem();
+        game.createExplosion(this.x, this.y, '#38bdf8', 20);
+
+        if (this.runeType === 'PI') {
+            hero.piShieldTimer = 8.0;
+            hero.shield += 600;
+            game.showDamageText(hero.x, hero.y - 35, '★ RUNE π: PERISAI GEOMETRI +600 ★', true, true);
+            if (hero.isHuman) game.sound.announce('Pi Shield Activated!');
+        } else if (this.runeType === 'SIGMA') {
+            hero.gainExpAndGold(300, 200, game);
+            game.showDamageText(hero.x, hero.y - 35, '★ RUNE ∑: +200 GOLD & EXP ★', true, true);
+        } else if (this.runeType === 'INFINITY') {
+            hero.infinityTimer = 6.0;
+            hero.mana = hero.maxMana;
+            game.showDamageText(hero.x, hero.y - 35, '★ RUNE ∞: INFINITY MANA & 50% CDR ★', true, true);
+            if (hero.isHuman) game.sound.announce('Infinity Power!');
+        } else if (this.runeType === 'SQRT') {
+            hero.hp = Math.min(hero.maxHp, hero.hp + hero.maxHp * 0.5);
+            hero.mana = Math.min(hero.maxMana, hero.mana + hero.maxMana * 0.5);
+            game.showDamageText(hero.x, hero.y - 35, '★ RUNE √x: RESTORE 50% HP & MANA ★', false, true);
+        }
+    }
+
+    draw(ctx) {
+        if (!this.alive) return;
+        const p = Math.sin(this.pulse) * 4;
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Glowing Rune Platform
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.25)';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius + p, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Symbol
+        let symbol = 'π';
+        if (this.runeType === 'SIGMA') symbol = '∑';
+        else if (this.runeType === 'INFINITY') symbol = '∞';
+        else if (this.runeType === 'SQRT') symbol = '√x';
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(symbol, 0, 0);
+
+        ctx.restore();
+    }
+}
+
+/* ==========================================================================
+   MLBB Hero Entity Class (Leveling 1-15, Inventory, Skills, Math Mechanics)
    ========================================================================== */
 class MLBBHeroEntity {
     constructor(heroData, team, x, y, isHuman, battleSpell, laneIndex = 1) {
@@ -826,9 +1224,9 @@ class MLBBHeroEntity {
         this.y = y;
         this.isHuman = isHuman;
         this.battleSpell = battleSpell;
-        this.laneIndex = laneIndex; // 0: Top, 1: Mid, 2: Bot, 3: Jungle
+        this.laneIndex = laneIndex; // 0: Top, 1: Mid, 2: Bot
 
-        this.radius = 22;
+        this.radius = 24;
         this.level = 1;
         this.exp = 0;
         this.expToNext = 180;
@@ -859,6 +1257,12 @@ class MLBBHeroEntity {
         this.isInBush = false;
         this.shield = 0;
 
+        // Math Buffs
+        this.piShieldTimer = 0;
+        this.infinityTimer = 0;
+        this.mathSurgeStacks = 0;
+        this.mathSurgeBonusSpeed = 1.0;
+
         // Stats
         this.kills = 0;
         this.deaths = 0;
@@ -877,13 +1281,25 @@ class MLBBHeroEntity {
         this.isInBush = !!game.isInsideBush(this.x, this.y);
 
         // Passive Mana & HP Regen
-        if (this.mana < this.maxMana) this.mana = Math.min(this.maxMana, this.mana + 3.5 * dt);
+        if (this.mana < this.maxMana) this.mana = Math.min(this.maxMana, this.mana + 4.5 * dt);
+        if (this.hp < this.maxHp) this.hp = Math.min(this.maxHp, this.hp + 3.0 * dt);
 
-        // Cooldowns
+        // Update Math Buff Timers
+        if (this.piShieldTimer > 0) {
+            this.piShieldTimer -= dt;
+            if (this.piShieldTimer <= 0) this.shield = 0;
+        }
+        if (this.infinityTimer > 0) {
+            this.infinityTimer -= dt;
+            this.mana = this.maxMana;
+        }
+
+        // Cooldowns (Faster if Infinity Rune is active)
+        const cdMult = this.infinityTimer > 0 ? 2.0 : 1.0;
         if (this.attackCooldown > 0) this.attackCooldown -= dt;
-        if (this.spellCooldown > 0) this.spellCooldown -= dt;
+        if (this.spellCooldown > 0) this.spellCooldown -= dt * cdMult;
         for (let i = 0; i < 3; i++) {
-            if (this.skillCooldowns[i] > 0) this.skillCooldowns[i] -= dt;
+            if (this.skillCooldowns[i] > 0) this.skillCooldowns[i] -= dt * cdMult;
         }
 
         // Recall Teleporter
@@ -927,14 +1343,14 @@ class MLBBHeroEntity {
             }
         });
 
-        if (nearest && minDist < 320) {
+        if (nearest && minDist < 340) {
             this.angle = Math.atan2(nearest.y - this.y, nearest.x - this.x);
 
             if (minDist <= this.attackRange) {
                 if (this.attackCooldown <= 0) {
                     this.attackCooldown = 1.0 / this.attackSpeed;
                     if (this.attackRange > 150) {
-                        game.projectiles.push(new MLBBProjectile(this.x, this.y, nearest.x, nearest.y, this.attackDamage, this.team, this, 12, 'laser'));
+                        game.projectiles.push(new MLBBProjectile(this.x, this.y, nearest.x, nearest.y, this.attackDamage, this.team, this, 13, 'laser'));
                     } else {
                         nearest.takeDamage(this.attackDamage, this, game);
                         game.createExplosion(nearest.x, nearest.y, '#f43f5e', 6);
@@ -948,7 +1364,7 @@ class MLBBHeroEntity {
 
             // Cast AI Skills
             for (let i = 0; i < 3; i++) {
-                if (this.skillCooldowns[i] <= 0 && Math.random() < 0.04) {
+                if (this.skillCooldowns[i] <= 0 && Math.random() < 0.05) {
                     this.castSkill(i, game);
                 }
             }
@@ -967,15 +1383,24 @@ class MLBBHeroEntity {
         this.attackCooldown = 1.0 / this.attackSpeed;
         this.isRecalling = false;
 
+        let dmg = this.attackDamage;
+        let isMathCrit = false;
+
+        if (this.mathSurgeStacks > 0) {
+            dmg *= 2.5; // +250% True Critical Surge
+            this.mathSurgeStacks--;
+            isMathCrit = true;
+        }
+
         if (this.attackRange > 150) {
-            game.projectiles.push(new MLBBProjectile(this.x, this.y, game.mouse.worldX, game.mouse.worldY, this.attackDamage, this.team, this, 13, 'laser'));
+            game.projectiles.push(new MLBBProjectile(this.x, this.y, game.mouse.worldX, game.mouse.worldY, dmg, this.team, this, 14, 'laser', isMathCrit));
             game.sound.playLaser();
         } else {
             game.sound.playSlash();
             game.getEnemiesOf(this.team).forEach(e => {
                 if (Math.hypot(e.x - this.x, e.y - this.y) <= this.attackRange + e.radius) {
-                    e.takeDamage(this.attackDamage, this, game);
-                    game.createExplosion(e.x, e.y, '#f43f5e', 8);
+                    e.takeDamage(dmg, this, game, isMathCrit);
+                    game.createExplosion(e.x, e.y, isMathCrit ? '#38bdf8' : '#f43f5e', 12);
                 }
             });
         }
@@ -984,47 +1409,57 @@ class MLBBHeroEntity {
     castSkill(idx, game) {
         if (this.skillCooldowns[idx] > 0) return;
         const skill = this.heroData.skills[idx];
-        if (this.mana < skill.manaCost) return;
+        if (this.mana < skill.manaCost && this.infinityTimer <= 0) return;
 
-        this.mana -= skill.manaCost;
+        if (this.infinityTimer <= 0) {
+            this.mana -= skill.manaCost;
+        }
         this.skillCooldowns[idx] = skill.cooldown;
         this.isRecalling = false;
+
+        // Chance to trigger Math Critical Surge during combat/skills for the player
+        if (this.isHuman && Math.random() < 0.4) {
+            game.triggerMathSurge();
+        }
 
         const targetX = this.isHuman ? game.mouse.worldX : this.x + Math.cos(this.angle) * 200;
         const targetY = this.isHuman ? game.mouse.worldY : this.y + Math.sin(this.angle) * 200;
         const ang = Math.atan2(targetY - this.y, targetX - this.x);
 
+        let dmgMult = this.mathSurgeStacks > 0 ? 2.2 : 1.0;
+        if (this.mathSurgeStacks > 0) this.mathSurgeStacks--;
+
         if (skill.type === 'flip' || skill.type === 'airborne_lock') {
             game.sound.playSlash();
             game.getEnemiesOf(this.team).forEach(e => {
                 if (Math.hypot(e.x - this.x, e.y - this.y) <= skill.range) {
-                    e.takeDamage(this.attackDamage * 2.2, this, game);
-                    e.x = this.x - Math.cos(this.angle) * 60; // Flip behind
-                    e.y = this.y - Math.sin(this.angle) * 60;
+                    e.takeDamage(this.attackDamage * 2.4 * dmgMult, this, game, dmgMult > 1);
+                    e.x = this.x - Math.cos(this.angle) * 70;
+                    e.y = this.y - Math.sin(this.angle) * 70;
                 }
             });
         } else if (skill.type === 'dash_target' || skill.type === 'dash_straight') {
             this.x += Math.cos(ang) * skill.range;
             this.y += Math.sin(ang) * skill.range;
             game.sound.playSlash();
-            game.createExplosion(this.x, this.y, '#38bdf8', 15);
+            game.createExplosion(this.x, this.y, '#38bdf8', 18);
         } else if (skill.type === 'fan_lightning' || skill.type === 'thunder_smite') {
             game.sound.playThunder();
-            game.createExplosion(targetX, targetY, '#3b82f6', 30);
+            game.createExplosion(targetX, targetY, '#3b82f6', 35);
             game.getEnemiesOf(this.team).forEach(e => {
-                if (Math.hypot(e.x - targetX, e.y - targetY) <= 140) {
-                    e.takeDamage(skill.manaCost * 4.5, this, game);
+                if (Math.hypot(e.x - targetX, e.y - targetY) <= 150) {
+                    e.takeDamage((skill.manaCost * 5.0 + this.magicPower) * dmgMult, this, game, dmgMult > 1);
                 }
             });
-        } else if (skill.type === 'global_laser') {
+        } else if (skill.type === 'global_laser' || skill.type === 'straight_bomb') {
             game.sound.playLaser();
-            game.projectiles.push(new MLBBProjectile(this.x, this.y, targetX, targetY, this.attackDamage * 3.5, this.team, this, 22, 'global_beam'));
+            game.projectiles.push(new MLBBProjectile(this.x, this.y, targetX, targetY, this.attackDamage * 3.8 * dmgMult, this.team, this, 24, 'global_beam', dmgMult > 1));
         } else if (skill.type === 'heal_link' || skill.type === 'mass_heal') {
             game.sound.playHeal();
             game.getAlliesOf(this.team).forEach(a => {
                 if (Math.hypot(a.x - this.x, a.y - this.y) <= skill.range) {
-                    a.hp = Math.min(a.maxHp, a.hp + 450);
-                    game.showDamageText(a.x, a.y - 20, '+450 HP', false, true);
+                    a.hp = Math.min(a.maxHp, a.hp + 500 + this.magicPower);
+                    game.showDamageText(a.x, a.y - 20, `+${Math.round(500 + this.magicPower)} HP`, false, true);
                 }
             });
         }
@@ -1036,22 +1471,22 @@ class MLBBHeroEntity {
 
         if (this.battleSpell.id === 'flicker') {
             const ang = this.angle;
-            this.x += Math.cos(ang) * 180;
-            this.y += Math.sin(ang) * 180;
-            game.createExplosion(this.x, this.y, '#fbbf24', 20);
+            this.x += Math.cos(ang) * 200;
+            this.y += Math.sin(ang) * 200;
+            game.createExplosion(this.x, this.y, '#fbbf24', 25);
         } else if (this.battleSpell.id === 'execute') {
             game.getEnemiesOf(this.team).forEach(e => {
-                if (Math.hypot(e.x - this.x, e.y - this.y) <= 180) {
+                if (Math.hypot(e.x - this.x, e.y - this.y) <= 190) {
                     const missingHp = e.maxHp - e.hp;
-                    const dmg = 200 + missingHp * 0.2;
-                    e.takeDamage(dmg, this, game);
-                    game.showDamageText(e.x, e.y - 20, `${Math.round(dmg)} TRUE`, true);
+                    const dmg = 250 + missingHp * 0.22;
+                    e.takeDamage(dmg, this, game, true);
+                    game.showDamageText(e.x, e.y - 25, `${Math.round(dmg)} TRUE DMG`, true);
                 }
             });
         } else if (this.battleSpell.id === 'retribution') {
-            game.jungleCamps.filter(j => j.alive && Math.hypot(j.x - this.x, j.y - this.y) <= 220).forEach(j => {
-                j.takeDamage(800, this, game);
-                game.showDamageText(j.x, j.y - 25, '800 RETRI', true);
+            game.jungleCamps.filter(j => j.alive && Math.hypot(j.x - this.x, j.y - this.y) <= 240).forEach(j => {
+                j.takeDamage(900, this, game, true);
+                game.showDamageText(j.x, j.y - 25, '900 RETRI', true);
             });
         }
     }
@@ -1090,39 +1525,70 @@ class MLBBHeroEntity {
         }
     }
 
-    takeDamage(amount, attacker, game) {
+    takeDamage(amount, attacker, game, isTrueDamage = false) {
         if (!this.alive) return;
         this.isRecalling = false;
 
-        this.hp -= amount;
-        game.showDamageText(this.x, this.y - 15, Math.round(amount));
+        let effectiveDmg = amount;
+        if (!isTrueDamage) {
+            const reduction = this.armor / (this.armor + 100);
+            effectiveDmg = amount * (1 - reduction);
+        }
+
+        if (this.shield > 0) {
+            if (this.shield >= effectiveDmg) {
+                this.shield -= effectiveDmg;
+                effectiveDmg = 0;
+            } else {
+                effectiveDmg -= this.shield;
+                this.shield = 0;
+            }
+        }
+
+        this.hp -= effectiveDmg;
+        game.showDamageText(this.x, this.y - 15, Math.round(effectiveDmg), isTrueDamage);
 
         if (this.hp <= 0) {
             this.die(attacker, game);
         }
     }
 
-    die(attacker, game) {
+    die(killer, game) {
         this.alive = false;
-        this.hp = 0;
-        this.deaths += 1;
-        this.respawnTimer = 6.0 + this.level * 1.5;
+        this.deaths++;
+        this.killStreak = 0;
+        this.respawnTimer = 6 + this.level * 2;
 
-        if (attacker) {
-            attacker.kills += 1;
-            attacker.killStreak += 1;
-            attacker.gainExpAndGold(250, 200, game);
+        if (killer && killer.team !== this.team) {
+            killer.kills++;
+            killer.killStreak++;
+            killer.gainExpAndGold(250 + this.level * 30, 200 + this.level * 20, game);
 
-            if (attacker.team === 'BLUE') game.blueScore += 1;
-            else game.redScore += 1;
+            if (killer.team === 'BLUE') game.blueScore++;
+            else game.redScore++;
 
-            game.addKillFeed(attacker.heroData.name, this.heroData.name, 'kill');
+            game.addKillFeed(
+                killer.team === 'BLUE' ? 'blue' : 'red',
+                `<span class="k">${killer.heroData.name}</span> mengeliminasi <span class="v">${this.heroData.name}</span>`
+            );
 
+            // Announcer Streek Checks
             if (!game.firstBloodClaimed) {
                 game.firstBloodClaimed = true;
-                game.sound.announce('First Blood!');
-            } else {
-                game.triggerMultiKillAnnounce(attacker.killStreak, attacker.isHuman);
+                game.sound.announce('First Blood!', true);
+                game.showKillStreakBanner('FIRST BLOOD!');
+            } else if (killer.killStreak === 2) {
+                game.sound.announce('Double Kill!');
+                game.showKillStreakBanner('DOUBLE KILL!');
+            } else if (killer.killStreak === 3) {
+                game.sound.announce('Triple Kill!');
+                game.showKillStreakBanner('TRIPLE KILL!');
+            } else if (killer.killStreak === 4) {
+                game.sound.announce('Maniac!');
+                game.showKillStreakBanner('MANIAC!');
+            } else if (killer.killStreak >= 5) {
+                game.sound.announce('Savage!', true);
+                game.showKillStreakBanner('★ SAVAGE! ★');
             }
         }
     }
@@ -1133,112 +1599,226 @@ class MLBBHeroEntity {
         this.mana = this.maxMana;
         this.x = this.team === 'BLUE' ? 220 : 2780;
         this.y = this.team === 'BLUE' ? 1780 : 220;
-        this.killStreak = 0;
+        game.showDamageText(this.x, this.y - 30, 'RESPAWNED', true, true);
     }
 
     draw(ctx, game) {
         if (!this.alive) return;
-
-        // Hide enemy in bush if player is outside
         if (this.team === 'RED' && this.isInBush && !game.player.isInBush) return;
 
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Recall Animation
+        // Recall Beam Animation
         if (this.isRecalling) {
-            ctx.strokeStyle = '#00f0ff';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.arc(0, 0, this.radius + 10, 0, Math.PI * 2);
+            ctx.arc(0, 0, 36, 0, Math.PI * 2);
             ctx.stroke();
         }
 
-        // Bush Transparency
-        if (this.isInBush) ctx.globalAlpha = 0.55;
+        // Pi Shield Geometric Aura
+        if (this.piShieldTimer > 0) {
+            ctx.strokeStyle = 'rgba(6, 182, 212, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([8, 6]);
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius + 10, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
 
-        // Team Ring
-        ctx.strokeStyle = this.isHuman ? '#22c55e' : (this.team === 'BLUE' ? '#38bdf8' : '#ef4444');
-        ctx.lineWidth = 3;
+        // Hero Base Circle (Team Colored)
+        ctx.fillStyle = this.heroData.avatarBg || (this.team === 'BLUE' ? '#38bdf8' : '#f43f5e');
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Hero Icon Core
-        ctx.fillStyle = this.heroData.avatarColor;
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius - 3, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.font = '16px sans-serif';
+        ctx.strokeStyle = this.isHuman ? '#fbbf24' : (this.team === 'BLUE' ? '#0284c7' : '#be123c');
+        ctx.lineWidth = this.isHuman ? 4 : 2.5;
+        ctx.stroke();
+
+        // Direction indicator pointer
+        ctx.rotate(this.angle);
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(this.radius + 6, 0);
+        ctx.lineTo(this.radius - 2, -5);
+        ctx.lineTo(this.radius - 2, 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.rotate(-this.angle);
+
+        // Hero Icon
+        ctx.font = '20px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.heroData.icon, 0, 0);
 
-        ctx.restore();
-
-        // Health Bar & Level Badge
-        const barW = 46;
+        // HP & Mana Bars above Hero
+        const barW = 48;
         const barH = 5;
-        const barX = this.x - barW / 2;
-        const barY = this.y - this.radius - 14;
-
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(barX, barY, barW, barH);
+        const hpRatio = Math.max(0, this.hp / this.maxHp);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(-barW / 2, -this.radius - 14, barW, barH);
         ctx.fillStyle = this.team === 'BLUE' ? '#22c55e' : '#ef4444';
-        ctx.fillRect(barX, barY, barW * (this.hp / this.maxHp), barH);
+        ctx.fillRect(-barW / 2, -this.radius - 14, barW * hpRatio, barH);
 
-        // Level text
-        ctx.font = 'bold 9px "Plus Jakarta Sans", sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.fillText(`Lv.${this.level} ${this.heroData.name}`, this.x, barY - 3);
+        // Level & Name Label
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText(`${this.heroData.name} Lv.${this.level}`, 0, -this.radius - 18);
+
+        ctx.restore();
     }
 }
 
 /* ==========================================================================
-   Map Structures, Minions, Jungle Monsters, Turrets
+   MINION ENTITY CLASS (3-Lanes Top/Mid/Bot)
    ========================================================================== */
-class MLBBBush {
-    constructor(x, y, w, h) {
+class MLBBMinion {
+    constructor(x, y, team, lane, index) {
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
-    }
-
-    draw(ctx) {
-        ctx.fillStyle = 'rgba(21, 128, 61, 0.45)';
-        ctx.strokeStyle = '#22c55e';
-        ctx.lineWidth = 2;
-        ctx.fillRect(this.x, this.y, this.w, this.h);
-        ctx.strokeRect(this.x, this.y, this.w, this.h);
-
-        ctx.font = '16px sans-serif';
-        ctx.fillText('🌿', this.x + this.w / 2, this.y + this.h / 2 + 5);
-    }
-}
-
-class MLBBJungleMonster {
-    constructor(x, y, type, name, hp) {
-        this.x = x;
-        this.y = y;
-        this.type = type;
-        this.name = name;
-        this.maxHp = hp;
-        this.hp = hp;
-        this.radius = type === 'LORD' ? 45 : (type === 'TURTLE' ? 35 : 24);
-        this.damage = type === 'LORD' ? 140 : 45;
+        this.team = team;
+        this.lane = lane;
+        this.index = index;
+        this.radius = 14;
+        this.maxHp = 600;
+        this.hp = this.maxHp;
+        this.attackDamage = 35;
+        this.attackRange = index === 2 ? 140 : 50; // Siege/Caster or Melee
+        this.moveSpeed = 2.4;
+        this.attackCooldown = 0;
         this.alive = true;
-        this.respawnTimer = 0;
     }
 
     update(dt, game) {
-        if (!this.alive) {
-            this.respawnTimer -= dt;
-            if (this.respawnTimer <= 0) {
-                this.alive = true;
-                this.hp = this.maxHp;
+        if (!this.alive) return;
+        if (this.attackCooldown > 0) this.attackCooldown -= dt;
+
+        // Target Nearest Enemy
+        const enemies = game.getEnemiesOf(this.team);
+        let nearest = null;
+        let minDist = 9999;
+
+        enemies.forEach(e => {
+            const d = Math.hypot(e.x - this.x, e.y - this.y);
+            if (d < minDist) {
+                minDist = d;
+                nearest = e;
+            }
+        });
+
+        if (nearest && minDist <= 240) {
+            if (minDist <= this.attackRange) {
+                if (this.attackCooldown <= 0) {
+                    this.attackCooldown = 1.2;
+                    nearest.takeDamage(this.attackDamage, this, game);
+                    game.createExplosion(nearest.x, nearest.y, this.team === 'BLUE' ? '#38bdf8' : '#f43f5e', 4);
+                }
+            } else {
+                const ang = Math.atan2(nearest.y - this.y, nearest.x - this.x);
+                this.x += Math.cos(ang) * this.moveSpeed * 60 * dt;
+                this.y += Math.sin(ang) * this.moveSpeed * 60 * dt;
+            }
+        } else {
+            // Lane Path Following
+            const target = this.getLaneWaypoint(game);
+            const ang = Math.atan2(target.y - this.y, target.x - this.x);
+            this.x += Math.cos(ang) * this.moveSpeed * 60 * dt;
+            this.y += Math.sin(ang) * this.moveSpeed * 60 * dt;
+        }
+    }
+
+    getLaneWaypoint(game) {
+        const dest = this.team === 'BLUE' ? { x: 2780, y: 220 } : { x: 220, y: 1780 };
+        if (this.lane === 'TOP') {
+            if (this.team === 'BLUE' && this.y > 350) return { x: 300, y: 300 };
+            if (this.team === 'RED' && this.x > 350) return { x: 300, y: 300 };
+        } else if (this.lane === 'BOT') {
+            if (this.team === 'BLUE' && this.x < 2650) return { x: 2700, y: 1750 };
+            if (this.team === 'RED' && this.y < 1650) return { x: 2700, y: 1750 };
+        }
+        return dest;
+    }
+
+    takeDamage(amount, attacker, game) {
+        if (!this.alive) return;
+        this.hp -= amount;
+        if (this.hp <= 0) {
+            this.alive = false;
+            if (attacker && attacker.gainExpAndGold) {
+                attacker.gainExpAndGold(65, 55, game);
+            }
+        }
+    }
+
+    draw(ctx) {
+        if (!this.alive) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        ctx.fillStyle = this.team === 'BLUE' ? '#0284c7' : '#be123c';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // HP bar
+        const barW = 24;
+        const hpRatio = Math.max(0, this.hp / this.maxHp);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-barW / 2, -this.radius - 6, barW, 3);
+        ctx.fillStyle = this.team === 'BLUE' ? '#22c55e' : '#ef4444';
+        ctx.fillRect(-barW / 2, -this.radius - 6, barW * hpRatio, 3);
+
+        ctx.restore();
+    }
+}
+
+/* ==========================================================================
+   TURRET & BASE NEXUS ENTITY CLASSES
+   ========================================================================== */
+class MLBBTurret {
+    constructor(x, y, team, name) {
+        this.x = x;
+        this.y = y;
+        this.team = team;
+        this.name = name;
+        this.radius = 34;
+        this.maxHp = 4500;
+        this.hp = this.maxHp;
+        this.attackDamage = 180;
+        this.attackRange = 260;
+        this.attackCooldown = 0;
+        this.alive = true;
+    }
+
+    update(dt, game) {
+        if (!this.alive) return;
+        if (this.attackCooldown > 0) this.attackCooldown -= dt;
+
+        if (this.attackCooldown <= 0) {
+            const enemies = game.getEnemiesOf(this.team);
+            let target = null;
+            let minDist = 9999;
+
+            enemies.forEach(e => {
+                const d = Math.hypot(e.x - this.x, e.y - this.y);
+                if (d <= this.attackRange && d < minDist) {
+                    minDist = d;
+                    target = e;
+                }
+            });
+
+            if (target) {
+                this.attackCooldown = 1.3;
+                game.projectiles.push(new MLBBProjectile(this.x, this.y, target.x, target.y, this.attackDamage, this.team, this, 14, 'laser'));
+                game.sound.playLaser();
             }
         }
     }
@@ -1250,312 +1830,427 @@ class MLBBJungleMonster {
 
         if (this.hp <= 0) {
             this.alive = false;
-            this.respawnTimer = this.type === 'LORD' ? 180 : 90;
-            game.createExplosion(this.x, this.y, '#fbbf24', 35);
-
-            if (attacker) {
+            game.createExplosion(this.x, this.y, this.team === 'BLUE' ? '#38bdf8' : '#f43f5e', 30);
+            game.addKillFeed(
+                this.team === 'BLUE' ? 'red' : 'blue',
+                `💥 Turret ${this.name} (${this.team}) telah dihancurkan!`
+            );
+            if (attacker && attacker.gainExpAndGold) {
                 attacker.gainExpAndGold(400, 250, game);
-
-                if (this.type === 'TURTLE') {
-                    game.sound.announce('The Turtle has been slain!');
-                    game.getAlliesOf(attacker.team).forEach(a => a.shield += 300);
-                    game.addKillFeed(attacker.heroData.name, 'Mengalahkan Turtle!', 'system');
-                } else if (this.type === 'LORD') {
-                    game.sound.announce('The Lord has been summoned!');
-                    game.sound.playLordRoar();
-                    game.summonedLord = new MLBBLord(this.x, this.y, attacker.team);
-                    game.addKillFeed(attacker.heroData.name, 'Memanggil LORD untuk Push!', 'system');
-                }
             }
         }
     }
 
     draw(ctx) {
         if (!this.alive) return;
-        ctx.fillStyle = this.type === 'LORD' ? '#fbbf24' : (this.type === 'TURTLE' ? '#10b981' : '#a855f7');
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.font = '22px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const icons = { LORD: '👑', TURTLE: '🐢', BLUE_BUFF: '🔷', RED_BUFF: '🔴' };
-        ctx.fillText(icons[this.type] || '👾', this.x, this.y);
-
-        // HP bar
-        const hpPct = Math.max(0, this.hp / this.maxHp);
-        ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.fillRect(this.x - 25, this.y - this.radius - 12, 50, 4);
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(this.x - 25, this.y - this.radius - 12, 50 * hpPct, 4);
-    }
-}
-
-class MLBBLord {
-    constructor(x, y, team) {
-        this.x = x;
-        this.y = y;
-        this.team = team;
-        this.radius = 45;
-        this.maxHp = 10000;
-        this.hp = this.maxHp;
-        this.damage = 220;
-        this.speed = 1.4;
-        this.alive = true;
-    }
-
-    update(dt, game) {
-        const targetX = this.team === 'BLUE' ? 2780 : 220;
-        const targetY = this.team === 'BLUE' ? 220 : 1780;
-        const ang = Math.atan2(targetY - this.y, targetX - this.x);
-
-        this.x += Math.cos(ang) * this.speed * 60 * dt;
-        this.y += Math.sin(ang) * this.speed * 60 * dt;
-
-        // Attack enemy turrets/base
-        game.getEnemiesOf(this.team).forEach(e => {
-            if (Math.hypot(e.x - this.x, e.y - this.y) <= 120) {
-                e.takeDamage(this.damage * dt, null, game);
-            }
-        });
-    }
-
-    takeDamage(amount, attacker, game) {
-        this.hp -= amount;
-        if (this.hp <= 0) {
-            this.alive = false;
-            game.createExplosion(this.x, this.y, '#fbbf24', 40);
-        }
-    }
-
-    draw(ctx) {
         ctx.save();
-        ctx.fillStyle = this.team === 'BLUE' ? '#38bdf8' : '#f43f5e';
-        ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 4;
+        ctx.translate(this.x, this.y);
+
+        ctx.fillStyle = this.team === 'BLUE' ? '#0369a1' : '#9f1239';
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 3;
         ctx.stroke();
 
-        ctx.font = '30px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.font = '22px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('👹', this.x, this.y);
+        ctx.fillText('🗼', 0, 0);
+
+        // HP bar
+        const barW = 50;
+        const hpRatio = Math.max(0, this.hp / this.maxHp);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-barW / 2, -this.radius - 12, barW, 6);
+        ctx.fillStyle = this.team === 'BLUE' ? '#22c55e' : '#ef4444';
+        ctx.fillRect(-barW / 2, -this.radius - 12, barW * hpRatio, 6);
+
         ctx.restore();
     }
 }
 
-class MLBBMinion {
-    constructor(x, y, team, lane, idx) {
-        this.x = x + idx * 15;
-        this.y = y + idx * 15;
-        this.team = team;
-        this.lane = lane;
-        this.radius = 12;
-        this.maxHp = 220;
-        this.hp = this.maxHp;
-        this.speed = 1.7;
-        this.damage = 18;
-        this.alive = true;
-    }
-
-    update(dt, game) {
-        const targetX = this.team === 'BLUE' ? 2780 : 220;
-        const targetY = this.team === 'BLUE' ? 220 : 1780;
-        const ang = Math.atan2(targetY - this.y, targetX - this.x);
-
-        this.x += Math.cos(ang) * this.speed * 60 * dt;
-        this.y += Math.sin(ang) * this.speed * 60 * dt;
-
-        // Attack enemies
-        game.getEnemiesOf(this.team).forEach(e => {
-            if (Math.hypot(e.x - this.x, e.y - this.y) <= 60) {
-                e.takeDamage(this.damage * dt, null, game);
-            }
-        });
-    }
-
-    takeDamage(amount, attacker, game) {
-        this.hp -= amount;
-        if (this.hp <= 0) {
-            this.alive = false;
-            if (attacker) attacker.gainExpAndGold(60, 45, game);
-        }
-    }
-
-    draw(ctx) {
-        ctx.fillStyle = this.team === 'BLUE' ? '#0284c7' : '#be123c';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-class MLBBTurret {
-    constructor(x, y, team, name) {
-        this.x = x;
-        this.y = y;
-        this.team = team;
-        this.name = name;
-        this.radius = 32;
-        this.maxHp = 2200;
-        this.hp = this.maxHp;
-        this.range = 260;
-        this.damage = 110;
-        this.shootTimer = 0;
-        this.alive = true;
-    }
-
-    update(dt, game) {
-        this.shootTimer += dt;
-        if (this.shootTimer >= 1.1) {
-            const targets = game.getEnemiesOf(this.team).filter(e => Math.hypot(e.x - this.x, e.y - this.y) <= this.range);
-            if (targets.length > 0) {
-                this.shootTimer = 0;
-                game.projectiles.push(new MLBBProjectile(this.x, this.y, targets[0].x, targets[0].y, this.damage, this.team, this, 14, 'turret_beam'));
-                game.sound.playLaser();
-            }
-        }
-    }
-
-    takeDamage(amount, attacker, game) {
-        this.hp -= amount;
-        game.showDamageText(this.x, this.y - 25, Math.round(amount));
-        if (this.hp <= 0) {
-            this.alive = false;
-            game.createExplosion(this.x, this.y, '#fbbf24', 35);
-            game.sound.announce(this.team === 'BLUE' ? 'Our turret has been destroyed!' : 'Enemy turret has been destroyed!');
-            game.addKillFeed(attacker ? attacker.heroData.name : 'Team', `${this.name} Hancur!`, 'system');
-        }
-    }
-
-    draw(ctx) {
-        ctx.fillStyle = this.team === 'BLUE' ? '#0c2d48' : '#3d121c';
-        ctx.strokeStyle = this.team === 'BLUE' ? '#38bdf8' : '#f43f5e';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = this.team === 'BLUE' ? '#38bdf8' : '#f43f5e';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
-        ctx.fill();
-
-        // HP bar
-        const hpPct = Math.max(0, this.hp / this.maxHp);
-        ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.fillRect(this.x - 25, this.y - 45, 50, 5);
-        ctx.fillStyle = this.team === 'BLUE' ? '#38bdf8' : '#f43f5e';
-        ctx.fillRect(this.x - 25, this.y - 45, 50 * hpPct, 5);
-    }
-}
-
-class MLBBBaseCrystal {
-    constructor(x, y, team) {
+class MLBBBaseNexus {
+    constructor(x, y, team, maxHp) {
         this.x = x;
         this.y = y;
         this.team = team;
         this.radius = 50;
-        this.maxHp = 4500;
-        this.hp = this.maxHp;
+        this.maxHp = maxHp;
+        this.hp = maxHp;
         this.alive = true;
+        this.pulse = 0;
     }
 
-    update() {}
+    update(dt) {
+        this.pulse += dt * 2.5;
+    }
 
     takeDamage(amount, attacker, game) {
+        if (!this.alive) return;
         this.hp -= amount;
-        game.showDamageText(this.x, this.y - 35, Math.round(amount));
+        game.showDamageText(this.x, this.y - 25, Math.round(amount), true);
+
         if (this.hp <= 0) {
             this.alive = false;
-            game.createExplosion(this.x, this.y, '#ffffff', 50);
+            game.createExplosion(this.x, this.y, '#fbbf24', 60);
         }
     }
 
     draw(ctx) {
-        ctx.fillStyle = this.team === 'BLUE' ? '#0284c7' : '#be123c';
+        if (!this.alive) return;
+        const p = Math.sin(this.pulse) * 6;
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        ctx.fillStyle = this.team === 'BLUE' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(244, 63, 94, 0.4)';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius + p, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.strokeStyle = '#fbbf24';
         ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
         ctx.stroke();
 
-        ctx.font = '28px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.font = '36px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('💎', this.x, this.y);
+        ctx.fillText('💎', 0, 0);
+
+        // HP bar
+        const barW = 80;
+        const hpRatio = Math.max(0, this.hp / this.maxHp);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-barW / 2, -this.radius - 16, barW, 8);
+        ctx.fillStyle = this.team === 'BLUE' ? '#22c55e' : '#ef4444';
+        ctx.fillRect(-barW / 2, -this.radius - 16, barW * hpRatio, 8);
+
+        ctx.restore();
+    }
+}
+
+/* ==========================================================================
+   JUNGLE CAMPS & ANCIENT MATH TITAN LORD
+   ========================================================================== */
+class MLBBJungleMonster {
+    constructor(x, y, type, name, maxHp) {
+        this.x = x;
+        this.y = y;
+        this.startX = x;
+        this.startY = y;
+        this.type = type; // 'BLUE_BUFF', 'RED_BUFF', 'TURTLE', 'LORD'
+        this.name = name;
+        this.maxHp = maxHp;
+        this.hp = maxHp;
+        this.radius = type === 'LORD' ? 44 : (type === 'TURTLE' ? 36 : 26);
+        this.attackDamage = type === 'LORD' ? 220 : (type === 'TURTLE' ? 140 : 80);
+        this.attackRange = 85;
+        this.alive = true;
+        this.respawnTimer = 0;
+        this.attackCooldown = 0;
+    }
+
+    update(dt, game) {
+        if (!this.alive) {
+            this.respawnTimer -= dt;
+            if (this.respawnTimer <= 0) {
+                this.alive = true;
+                this.hp = this.maxHp;
+                this.x = this.startX;
+                this.y = this.startY;
+            }
+            return;
+        }
+
+        if (this.attackCooldown > 0) this.attackCooldown -= dt;
+
+        // Target nearest player or hero attacking it
+        const nearby = game.heroes.filter(h => h.alive && Math.hypot(h.x - this.x, h.y - this.y) <= 200);
+        if (nearby.length > 0) {
+            const target = nearby[0];
+            if (Math.hypot(target.x - this.x, target.y - this.y) <= this.attackRange) {
+                if (this.attackCooldown <= 0) {
+                    this.attackCooldown = 1.3;
+                    target.takeDamage(this.attackDamage, this, game);
+                    game.createExplosion(target.x, target.y, '#fbbf24', 6);
+                }
+            }
+        }
+    }
+
+    takeDamage(amount, attacker, game, isTrueDamage = false) {
+        if (!this.alive) return;
+        this.hp -= amount;
+        game.showDamageText(this.x, this.y - 20, Math.round(amount), isTrueDamage);
+
+        if (this.hp <= 0) {
+            this.die(attacker, game);
+        }
+    }
+
+    die(killer, game) {
+        this.alive = false;
+        this.respawnTimer = this.type === 'LORD' ? 90 : (this.type === 'TURTLE' ? 60 : 35);
+        game.createExplosion(this.x, this.y, '#fbbf24', 35);
+
+        if (killer) {
+            killer.gainExpAndGold(350, 250, game);
+
+            if (this.type === 'LORD') {
+                game.sound.playLordRoar();
+                game.sound.announce('Lord of Numeria has been slain!', true);
+                game.addKillFeed('system', `👑 Tim ${killer.team} telah menundukkan ${this.name}!`);
+                game.summonedLord = new MLBBMathTitan(killer.team, 220, 1780);
+            } else if (this.type === 'TURTLE') {
+                game.sound.announce('Turtle slain!');
+                game.addKillFeed('system', `🐢 Tim ${killer.team} mengeliminasi Turtle (+Gold & Shield Tim)!`);
+                game.getAlliesOf(killer.team).forEach(a => {
+                    if (a.gainExpAndGold) a.gainExpAndGold(200, 150, game);
+                });
+            }
+        }
+    }
+
+    draw(ctx) {
+        if (!this.alive) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        ctx.fillStyle = this.type === 'LORD' ? '#b45309' : (this.type === 'TURTLE' ? '#047857' : '#6d28d9');
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        let icon = '👾';
+        if (this.type === 'LORD') icon = '👑';
+        else if (this.type === 'TURTLE') icon = '🐢';
+        else if (this.type === 'BLUE_BUFF') icon = '🔮';
+        else if (this.type === 'RED_BUFF') icon = '🔥';
+
+        ctx.fillStyle = '#fff';
+        ctx.font = `${this.radius}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(icon, 0, 0);
+
+        // HP bar
+        const barW = this.radius * 2;
+        const hpRatio = Math.max(0, this.hp / this.maxHp);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-barW / 2, -this.radius - 12, barW, 5);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(-barW / 2, -this.radius - 12, barW * hpRatio, 5);
+
+        ctx.restore();
+    }
+}
+
+/* ==========================================================================
+   SUMMONED MATH TITAN (Lord of Numeria Marching Down Mid Lane)
+   ========================================================================== */
+class MLBBMathTitan {
+    constructor(team, x, y) {
+        this.team = team;
+        this.x = team === 'BLUE' ? 300 : 2700;
+        this.y = team === 'BLUE' ? 1700 : 300;
+        this.radius = 42;
+        this.maxHp = 12000;
+        this.hp = this.maxHp;
+        this.attackDamage = 320;
+        this.attackRange = 160;
+        this.moveSpeed = 2.1;
+        this.attackCooldown = 0;
+        this.alive = true;
+    }
+
+    update(dt, game) {
+        if (!this.alive) return;
+        if (this.attackCooldown > 0) this.attackCooldown -= dt;
+
+        const enemies = game.getEnemiesOf(this.team);
+        let nearest = null;
+        let minDist = 9999;
+
+        enemies.forEach(e => {
+            const d = Math.hypot(e.x - this.x, e.y - this.y);
+            if (d < minDist) {
+                minDist = d;
+                nearest = e;
+            }
+        });
+
+        if (nearest && minDist <= 280) {
+            if (minDist <= this.attackRange) {
+                if (this.attackCooldown <= 0) {
+                    this.attackCooldown = 1.5;
+                    nearest.takeDamage(this.attackDamage, this, game, true);
+                    game.createExplosion(nearest.x, nearest.y, '#fbbf24', 25);
+                    game.sound.playThunder();
+                }
+            } else {
+                const ang = Math.atan2(nearest.y - this.y, nearest.x - this.x);
+                this.x += Math.cos(ang) * this.moveSpeed * 60 * dt;
+                this.y += Math.sin(ang) * this.moveSpeed * 60 * dt;
+            }
+        } else {
+            // March down Mid Lane
+            const dest = this.team === 'BLUE' ? { x: 2780, y: 220 } : { x: 220, y: 1780 };
+            const ang = Math.atan2(dest.y - this.y, dest.x - this.x);
+            this.x += Math.cos(ang) * this.moveSpeed * 60 * dt;
+            this.y += Math.sin(ang) * this.moveSpeed * 60 * dt;
+        }
+    }
+
+    takeDamage(amount, attacker, game) {
+        if (!this.alive) return;
+        this.hp -= amount;
+        game.showDamageText(this.x, this.y - 25, Math.round(amount));
+
+        if (this.hp <= 0) {
+            this.alive = false;
+            game.createExplosion(this.x, this.y, '#fbbf24', 50);
+        }
+    }
+
+    draw(ctx) {
+        if (!this.alive) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        ctx.fillStyle = this.team === 'BLUE' ? '#0284c7' : '#be123c';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '32px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🤖', 0, 0);
+
+        // HP bar
+        const barW = 75;
+        const hpRatio = Math.max(0, this.hp / this.maxHp);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-barW / 2, -this.radius - 14, barW, 7);
+        ctx.fillStyle = this.team === 'BLUE' ? '#22c55e' : '#ef4444';
+        ctx.fillRect(-barW / 2, -this.radius - 14, barW * hpRatio, 7);
+
+        ctx.restore();
+    }
+}
+
+/* ==========================================================================
+   BUSH, PROJECTILES, PARTICLES & FLOATING TEXTS
+   ========================================================================== */
+class MLBBBush {
+    constructor(x, y, w, h) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(6, 78, 59, 0.8)';
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.w, this.h, 16);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
     }
 }
 
 class MLBBProjectile {
-    constructor(sx, sy, tx, ty, damage, team, owner, speed, type) {
-        this.x = sx;
-        this.y = sy;
+    constructor(x, y, tx, ty, damage, team, owner, speed = 14, type = 'laser', isMathCrit = false) {
+        this.x = x;
+        this.y = y;
         this.damage = damage;
         this.team = team;
         this.owner = owner;
         this.speed = speed;
         this.type = type;
+        this.isMathCrit = isMathCrit;
+        this.angle = Math.atan2(ty - y, tx - x);
+        this.radius = type === 'global_beam' ? 24 : 8;
         this.alive = true;
-        this.life = 2.5;
-
-        const ang = Math.atan2(ty - sy, tx - sx);
-        this.vx = Math.cos(ang) * speed;
-        this.vy = Math.sin(ang) * speed;
+        this.life = type === 'global_beam' ? 1.5 : 1.0;
     }
 
     update(dt, game) {
         this.life -= dt;
-        if (this.life <= 0) {
-            this.alive = false;
-            return;
-        }
+        if (this.life <= 0) this.alive = false;
 
-        this.x += this.vx * 60 * dt;
-        this.y += this.vy * 60 * dt;
+        this.x += Math.cos(this.angle) * this.speed * 60 * dt;
+        this.y += Math.sin(this.angle) * this.speed * 60 * dt;
 
+        // Collision detection with enemies
         game.getEnemiesOf(this.team).forEach(e => {
-            if (Math.hypot(e.x - this.x, e.y - this.y) < e.radius + 6) {
-                e.takeDamage(this.damage, this.owner, game);
-                this.alive = false;
+            if (Math.hypot(e.x - this.x, e.y - this.y) <= this.radius + e.radius) {
+                e.takeDamage(this.damage, this.owner, game, this.isMathCrit);
+                game.createExplosion(this.x, this.y, this.isMathCrit ? '#38bdf8' : '#fbbf24', 8);
+                if (this.type !== 'global_beam') {
+                    this.alive = false;
+                }
             }
         });
     }
 
     draw(ctx) {
-        ctx.fillStyle = this.team === 'BLUE' ? '#38bdf8' : '#f43f5e';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
-        ctx.fill();
+        if (!this.alive) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        ctx.fillStyle = this.isMathCrit ? '#38bdf8' : (this.team === 'BLUE' ? '#06b6d4' : '#f43f5e');
+        if (this.type === 'global_beam') {
+            ctx.fillRect(-40, -12, 80, 24);
+        } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
     }
 }
 
 class MLBBParticle {
-    constructor(x, y, vx, vy, color, radius, life) {
+    constructor(x, y, color) {
         this.x = x;
         this.y = y;
-        this.vx = vx;
-        this.vy = vy;
         this.color = color;
-        this.radius = radius;
-        this.life = life;
-        this.maxLife = life;
+        this.vx = (Math.random() - 0.5) * 8;
+        this.vy = (Math.random() - 0.5) * 8;
+        this.life = 0.5 + Math.random() * 0.3;
+        this.maxLife = this.life;
+        this.radius = 2 + Math.random() * 3;
         this.alive = true;
     }
 
     update(dt) {
         this.life -= dt;
+        if (this.life <= 0) this.alive = false;
         this.x += this.vx;
         this.y += this.vy;
-        if (this.life <= 0) this.alive = false;
     }
 
     draw(ctx) {
+        if (!this.alive) return;
         ctx.save();
         ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
         ctx.fillStyle = this.color;
@@ -1567,26 +2262,28 @@ class MLBBParticle {
 }
 
 class MLBBFloatingText {
-    constructor(x, y, text, isCrit, isHeal) {
-        this.x = x + (Math.random() - 0.5) * 15;
+    constructor(x, y, text, isCrit = false, isHeal = false) {
+        this.x = x + (Math.random() - 0.5) * 20;
         this.y = y;
         this.text = text;
         this.isCrit = isCrit;
         this.isHeal = isHeal;
-        this.life = 0.8;
+        this.life = 1.0;
+        this.maxLife = 1.0;
         this.alive = true;
     }
 
     update(dt) {
         this.life -= dt;
-        this.y -= 25 * dt;
         if (this.life <= 0) this.alive = false;
+        this.y -= 35 * dt;
     }
 
     draw(ctx) {
+        if (!this.alive) return;
         ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life / 0.8);
-        ctx.font = `bold ${this.isCrit ? '16px' : '13px'} "Outfit", sans-serif`;
+        ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+        ctx.font = this.isCrit ? 'bold 18px sans-serif' : 'bold 14px sans-serif';
         ctx.fillStyle = this.isHeal ? '#22c55e' : (this.isCrit ? '#fbbf24' : '#ffffff');
         ctx.textAlign = 'center';
         ctx.fillText(this.text, this.x, this.y);
@@ -1594,7 +2291,7 @@ class MLBBFloatingText {
     }
 }
 
-// Attach globally
+// Global initialization
 window.addEventListener('DOMContentLoaded', () => {
     window.mlbbGame = new MLBBGameEngine();
 });

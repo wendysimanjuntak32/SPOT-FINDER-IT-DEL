@@ -666,7 +666,17 @@ class SpotFinderApp {
         const modalDot = document.getElementById('modal-mqtt-dot');
         const modalBadge = document.getElementById('modal-mqtt-status-badge');
 
-        const label = brokerUrl.includes('emqx') ? 'Online (EMQX Public)' : (brokerUrl ? brokerUrl.split('//')[1].split('/')[0] : '76.13.19.250');
+        let label = '76.13.19.250';
+        if (typeof brokerUrl === 'string' && brokerUrl.trim()) {
+            if (brokerUrl.includes('//')) {
+                const parts = brokerUrl.split('//');
+                if (parts.length > 1 && parts[1]) {
+                    label = parts[1].split('/')[0];
+                }
+            } else {
+                label = brokerUrl.trim();
+            }
+        }
 
         if (dot && text) {
             if (connected) {
@@ -674,7 +684,7 @@ class SpotFinderApp {
                 text.textContent = `MQTT: ${label}`;
             } else {
                 dot.style.background = '#f59e0b';
-                text.textContent = 'MQTT: Siap Sambung';
+                text.textContent = 'MQTT: 76.13.19.250';
             }
         }
 
@@ -688,7 +698,7 @@ class SpotFinderApp {
                 modalDot.style.background = '#ef4444';
                 modalBadge.style.color = '#ef4444';
                 modalBadge.style.background = 'rgba(239, 68, 68, 0.15)';
-                modalBadge.textContent = `🔴 Terputus (Mode Simulator)`;
+                modalBadge.textContent = `🔴 Menunggu Respon 76.13.19.250`;
             }
         }
     }

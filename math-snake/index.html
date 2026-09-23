@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MATH SNAKE: Ular Pintar Aritmatika — Penjumlahan & Perkalian</title>
+    <meta name="description" content="Game Ular Pintar Aritmatika! Navigasikan ular untuk memakan angka hasil penjumlahan dan perkalian yang tepat. Hindari jawaban salah, raih kombo tertinggi!">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="game-wrapper">
+        
+        <!-- Header & Mode Tabs -->
+        <header class="game-header">
+            <div class="math-badge">
+                <i class="fa-solid fa-calculator"></i> EDUKASI & AKSI ARITMATIKA
+            </div>
+            <h1 class="game-title">MATH SNAKE</h1>
+            <p style="font-size: 0.88rem; color: #94a3b8;">Kendalikan ular untuk memakan buah berangka jawaban yang benar!</p>
+
+            <div class="mode-selector-row">
+                <button class="btn-mode active" data-mode="ADDITION" onclick="window.mathSnakeGame.setMode('ADDITION')">
+                    <i class="fa-solid fa-plus"></i> Penjumlahan Ceria
+                </button>
+                <button class="btn-mode" data-mode="MULTIPLICATION" onclick="window.mathSnakeGame.setMode('MULTIPLICATION')">
+                    <i class="fa-solid fa-xmark"></i> Perkalian Kilat
+                </button>
+                <button class="btn-mode" data-mode="MIXED" onclick="window.mathSnakeGame.setMode('MIXED')">
+                    <i class="fa-solid fa-bolt"></i> Campuran Master (+ & ×)
+                </button>
+            </div>
+        </header>
+
+        <!-- Top HUD Dashboard -->
+        <div class="hud-dashboard">
+            <!-- Left: Lives & Multiplier -->
+            <div class="hud-stat-box">
+                <span class="stat-label">Nyawa & Kombo</span>
+                <div class="lives-container" id="hudLivesContainer">❤️❤️❤️</div>
+                <span class="combo-badge" id="hudComboBadge" style="display: none;">🔥 2x Multiplier</span>
+            </div>
+
+            <!-- Center: Target Math Equation -->
+            <div class="math-equation-box">
+                <span class="eq-label"><i class="fa-solid fa-crosshairs"></i> Target Soal</span>
+                <div class="eq-formula" id="hudEquationText">8 × 7 = ?</div>
+            </div>
+
+            <!-- Right: Score & Highscore -->
+            <div class="hud-stat-box right">
+                <span class="stat-label">Skor / Rekor</span>
+                <div class="stat-val" id="hudScoreVal">0</div>
+                <span style="font-size: 0.72rem; color: #94a3b8;">High: <strong id="hudHighScoreVal" style="color: var(--snake-gold);">0</strong></span>
+            </div>
+        </div>
+
+        <!-- Canvas Arena Container -->
+        <div class="canvas-container">
+            <canvas id="snakeCanvas"></canvas>
+            <div class="streak-toast" id="streakToast">🔥 COMBO 3X!</div>
+        </div>
+
+        <!-- Bottom Controls Bar -->
+        <div class="bottom-controls-bar">
+            <button class="btn-game-action" onclick="window.mathSnakeGame.resetGame()">
+                <i class="fa-solid fa-rotate-right"></i> Ulang
+            </button>
+            <button class="btn-game-action" onclick="window.mathSnakeGame.togglePause()">
+                <i class="fa-solid fa-pause"></i> Jeda (Spasi)
+            </button>
+            <a href="../index.html" class="btn-game-action" style="text-decoration: none;">
+                <i class="fa-solid fa-house"></i> Portal Utama
+            </a>
+        </div>
+
+        <!-- Mobile Touch Virtual D-Pad -->
+        <div class="touch-dpad-container">
+            <button class="dpad-btn" id="dpadUp"><i class="fa-solid fa-chevron-up"></i></button>
+            <div class="dpad-row">
+                <button class="dpad-btn" id="dpadLeft"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="dpad-btn" id="dpadDown"><i class="fa-solid fa-chevron-down"></i></button>
+                <button class="dpad-btn" id="dpadRight"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL: PAUSE -->
+    <div class="modal-overlay" id="modalPause">
+        <div class="modal-card">
+            <h2 class="modal-title">⏸️ PERMAINAN DIJEDA</h2>
+            <p style="color: #94a3b8; font-size: 0.95rem;">Gunakan tombol panah atau W, A, S, D pada keyboard untuk mengarahkan ular.</p>
+            <button class="btn-primary-action" onclick="window.mathSnakeGame.togglePause()">
+                <i class="fa-solid fa-play"></i> Lanjutkan
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: GAME OVER -->
+    <div class="modal-overlay" id="modalGameOver">
+        <div class="modal-card">
+            <h2 class="modal-title" style="color: var(--snake-rose);">💀 GAME OVER</h2>
+            <div class="modal-stats-box">
+                <div class="stat-row-item">
+                    <span>Skor Akhir:</span>
+                    <strong id="finalScoreText" style="color: var(--snake-green); font-size: 1.2rem;">0</strong>
+                </div>
+                <div class="stat-row-item">
+                    <span>Rekor Tertinggi:</span>
+                    <strong id="finalHighScoreText" style="color: var(--snake-gold);">0</strong>
+                </div>
+                <div class="stat-row-item">
+                    <span>Kombo Beruntun:</span>
+                    <strong id="finalStreakText">0</strong>
+                </div>
+            </div>
+            <button class="btn-primary-action" onclick="window.mathSnakeGame.resetGame()">
+                <i class="fa-solid fa-rotate-right"></i> MAIN LAGI
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TIME RAIDERS — 5v5 Chrono Battle Arena</title>
+    <meta name="description" content="Game arena 5 lawan 5 bertema manipulasi waktu. Pilih hero Fighter, Tank, Marksman, Support, atau Time Mage, dan gunakan kemampuan Time Rewind untuk membalikkan posisi ke masa lalu!">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Game Canvas (60 FPS Battle Arena) -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- SCREEN 1: HERO SELECTION & LOBBY DRAFT -->
+    <div class="hero-select-screen" id="screenHeroSelect">
+        <div class="hero-select-header">
+            <div class="game-logo-badge">
+                <i class="fa-solid fa-hourglass-half"></i> 5v5 CHRONO MOBA ARENA
+            </div>
+            <h1 class="game-title">TIME RAIDERS</h1>
+            <p class="game-subtitle">
+                Pilih peran hero Anda. Setiap pemain memiliki kemampuan <strong>Time Rewind (Memutar Waktu)</strong> untuk memulihkan HP dan posisi 3 detik ke masa lalu!
+            </p>
+        </div>
+
+        <!-- 5 Hero Cards Grid -->
+        <div class="hero-cards-grid">
+            
+            <!-- Hero 1: Fighter -->
+            <div class="hero-card selected" data-hero="fighter" 
+                 style="--hero-color: #f43f5e; --hero-glow: rgba(244, 63, 94, 0.4);">
+                <div class="hero-icon-circle">⚔️</div>
+                <span class="hero-card-role">FIGHTER</span>
+                <h3 class="hero-card-name">Vael</h3>
+                <p class="hero-card-desc">Damage tebasan waktu masif, leap stun, dan badai tebasan Chrono Storm 360°.</p>
+            </div>
+
+            <!-- Hero 2: Tank -->
+            <div class="hero-card" data-hero="tank" 
+                 style="--hero-color: #eab308; --hero-glow: rgba(234, 179, 8, 0.4);">
+                <div class="hero-icon-circle">🛡️</div>
+                <span class="hero-card-role">TANK</span>
+                <h3 class="hero-card-name">Titan</h3>
+                <p class="hero-card-desc">Pertahanan tebal, graviton pull penarik musuh, dan kubah pelindung imunitas.</p>
+            </div>
+
+            <!-- Hero 3: Marksman -->
+            <div class="hero-card" data-hero="marksman" 
+                 style="--hero-color: #06b6d4; --hero-glow: rgba(6, 182, 212, 0.4);">
+                <div class="hero-icon-circle">🏹</div>
+                <span class="hero-card-role">MARKSMAN</span>
+                <h3 class="hero-card-name">Lyra</h3>
+                <p class="hero-card-desc">Penembak jitu jarak jauh, panah laser penembus barisan, dan Paradox Railgun global.</p>
+            </div>
+
+            <!-- Hero 4: Support -->
+            <div class="hero-card" data-hero="support" 
+                 style="--hero-color: #10b981; --hero-glow: rgba(16, 185, 129, 0.4);">
+                <div class="hero-icon-circle">💚</div>
+                <span class="hero-card-role">SUPPORT</span>
+                <h3 class="hero-card-name">Aelia</h3>
+                <p class="hero-card-desc">Regenerasi HP waktu instan, akselerasi kecepatan gerak tim, dan Time Stasis imunitas.</p>
+            </div>
+
+            <!-- Hero 5: Time Mage -->
+            <div class="hero-card" data-hero="timemage" 
+                 style="--hero-color: #a855f7; --hero-glow: rgba(168, 85, 247, 0.4);">
+                <div class="hero-icon-circle">🌀</div>
+                <span class="hero-card-role">TIME MAGE</span>
+                <h3 class="hero-card-name">Zeno</h3>
+                <p class="hero-card-desc">Master manipulasi waktu, kubah Chrono Freeze melambatkan musuh 80%, & Reality Collapse.</p>
+            </div>
+
+        </div>
+
+        <button class="btn-start-battle" id="btnStartBattle">
+            <i class="fa-solid fa-play"></i> MASUK ARENA 5v5
+        </button>
+    </div>
+
+    <!-- SCREEN 2: BATTLE HUD OVERLAY -->
+    <div class="battle-hud" id="screenBattleHUD">
+        
+        <!-- Top Match Info Bar -->
+        <div class="top-match-header">
+            <span class="team-score blue" id="scoreBlueTeam">0</span>
+            <div class="match-time" id="matchTimer">00:00</div>
+            <span class="team-score red" id="scoreRedTeam">0</span>
+        </div>
+
+        <!-- Live Kill Feed -->
+        <div class="kill-feed" id="killFeedContainer"></div>
+
+        <!-- Minimap Radar Frame -->
+        <div class="minimap-wrapper">
+            <canvas id="minimapCanvas" width="180" height="105"></canvas>
+        </div>
+
+        <!-- Bottom Control Dock (Player Bar, Skills & Rewind Master Button) -->
+        <div class="bottom-control-dock">
+            
+            <div class="player-status-box">
+                <div class="player-icon" id="hudHeroIcon">⚔️</div>
+                <div class="player-bars">
+                    <span id="hudHeroName" style="font-size: 0.8rem; font-weight: 800; color: #fff;">Vael (Chrono Blade)</span>
+                    <div class="hp-bar-wrap">
+                        <div class="hp-bar-fill" id="playerHpFill" style="width: 100%;"></div>
+                        <span class="hp-text" id="playerHpText">650 / 650</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skills-deck">
+                <!-- Skill 1 -->
+                <div class="skill-slot" id="skillBtn0" onclick="window.timeRaiders.castPlayerSkill(0)">
+                    <span class="skill-key" id="skillKey0">Q</span>
+                    <span class="skill-title" id="skillName0">Slash</span>
+                    <div class="cd-overlay" id="skillCdText0"></div>
+                </div>
+
+                <!-- Skill 2 -->
+                <div class="skill-slot" id="skillBtn1" onclick="window.timeRaiders.castPlayerSkill(1)">
+                    <span class="skill-key" id="skillKey1">W</span>
+                    <span class="skill-title" id="skillName1">Dash</span>
+                    <div class="cd-overlay" id="skillCdText1"></div>
+                </div>
+
+                <!-- MASTER TIME REWIND BUTTON (CENTERPIECE) -->
+                <div class="rewind-master-btn" id="btnTimeRewind" onclick="window.timeRaiders.triggerPlayerRewind()" title="Tekan SPACE untuk Memutar Waktu!">
+                    <i class="fa-solid fa-rotate-left rewind-icon"></i>
+                    <span class="rewind-sub" id="rewindCdText">SPACE</span>
+                </div>
+
+                <!-- Skill 3 -->
+                <div class="skill-slot" id="skillBtn2" onclick="window.timeRaiders.castPlayerSkill(2)">
+                    <span class="skill-key" id="skillKey2">E</span>
+                    <span class="skill-title" id="skillName2">Shield</span>
+                    <div class="cd-overlay" id="skillCdText2"></div>
+                </div>
+
+                <!-- Ultimate Skill -->
+                <div class="skill-slot" id="skillBtn3" onclick="window.timeRaiders.castPlayerSkill(3)">
+                    <span class="skill-key" id="skillKey3">R</span>
+                    <span class="skill-title" id="skillName3">Ultimate</span>
+                    <div class="cd-overlay" id="skillCdText3"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL: VICTORY / DEFEAT -->
+    <div class="game-over-overlay" id="screenGameOver">
+        <div class="game-over-card">
+            <h2 class="game-over-title" id="gameOverTitle">🏆 VICTORY!</h2>
+            <p class="game-over-desc" id="gameOverDesc">Tim Biru Anda berhasil menghancurkan Nexus Waktu musuh!</p>
+            <button class="btn-play-again" onclick="location.reload()">
+                <i class="fa-solid fa-rotate-right"></i> MAIN LAGI
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="heroes.js"></script>
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+
+    <script>
+        // Hero Selection Screen Logic
+        let selectedHeroKey = 'fighter';
+        const heroCards = document.querySelectorAll('.hero-card');
+
+        heroCards.forEach(card => {
+            card.addEventListener('click', () => {
+                heroCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedHeroKey = card.getAttribute('data-hero');
+            });
+        });
+
+        document.getElementById('btnStartBattle').addEventListener('click', () => {
+            if (window.timeRaiders) {
+                window.timeRaiders.startMatch(selectedHeroKey);
+            }
+        });
+    </script>
+</body>
+</html>

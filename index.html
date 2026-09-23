@@ -544,13 +544,13 @@
                     <i class="fa-solid fa-shapes"></i> Master Web App Directory
                 </div>
                 <div class="live-count-badge">
-                    <span class="pulse-dot"></span> 10 Aplikasi Siap Diakses
+                    <span class="pulse-dot"></span> 11 Aplikasi Siap Diakses
                 </div>
             </div>
             
             <h1 class="hero-title">Pusat Aplikasi & Game Web</h1>
             <p class="hero-subtitle">
-                Akses instan seluruh ekosistem aplikasi web: Pengukur Suhu & Pengingat Hujan, Layanan Kampus, Produktivitas RPG, Karir Magang, dan Game Edukasi Interaktif.
+                Akses instan seluruh ekosistem aplikasi web: Game MOBA 5v5 Time Raiders, Pengukur Suhu & Pengingat Hujan, Layanan Kampus, Produktivitas RPG, Karir Magang, dan Game Edukasi Interaktif.
             </p>
         </header>
 
@@ -559,7 +559,7 @@
             <div class="controls-top-row">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Cari nama aplikasi atau topik (misal: cuaca, payung, rpg, kamar, cv, matematika)...">
+                    <input type="text" id="searchInput" placeholder="Cari nama aplikasi atau topik (misal: time raiders, 5v5, moba, cuaca, rpg, cv)...">
                 </div>
                 <button class="btn-copy-all" id="btnCopyAllLinks">
                     <i class="fa-solid fa-copy"></i> Salin Semua Link
@@ -568,7 +568,10 @@
 
             <div class="filter-tabs">
                 <button class="tab-btn active" data-category="all">
-                    <i class="fa-solid fa-layer-group"></i> Semua (10)
+                    <i class="fa-solid fa-layer-group"></i> Semua (11)
+                </button>
+                <button class="tab-btn" data-category="game">
+                    <i class="fa-solid fa-gamepad"></i> Game 5v5 & Edukasi
                 </button>
                 <button class="tab-btn" data-category="utilitas">
                     <i class="fa-solid fa-cloud-sun-rain"></i> Cuaca & Utilitas
@@ -579,16 +582,41 @@
                 <button class="tab-btn" data-category="produktivitas">
                     <i class="fa-solid fa-trophy"></i> Karir & RPG
                 </button>
-                <button class="tab-btn" data-category="game">
-                    <i class="fa-solid fa-gamepad"></i> Game & Edukasi
-                </button>
             </div>
         </div>
 
         <!-- Applications Grid -->
         <main class="apps-grid" id="appsGrid">
 
-            <!-- APP 1: CuacaSmart (FLAGSHIP FEATURED) -->
+            <!-- APP 0: TIME RAIDERS 5v5 (NEW FLAGSHIP 5v5 MOBA) -->
+            <div class="app-card card-featured-large" data-category="game" data-tags="time raiders 5v5 moba game waktu rewind chrono freeze fighter tank marksman support timemage pvp arena battle"
+                 style="--card-color: #00f0ff; --card-glow: rgba(0, 240, 255, 0.4); --icon-bg: rgba(0, 240, 255, 0.15); --icon-border: rgba(0, 240, 255, 0.35); --icon-glow: rgba(0, 240, 255, 0.3);">
+                <div class="card-top">
+                    <div class="icon-wrap" style="color: #00f0ff; border-color: #00f0ff; box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-special" style="background: linear-gradient(135deg, #00f0ff, #a855f7); color: #000; font-weight: 900;">⚡ GAME BARU 5v5</span>
+                        <span class="tag-category">Chrono MOBA Arena</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">TIME RAIDERS: 5v5 Chrono Battle Arena</h2>
+                    <p class="card-desc">
+                        Pertempuran arena 5 lawan 5 dengan manipulasi waktu! Pilih hero Fighter, Tank, Marksman, Support, atau Time Mage. Gunakan kemampuan <strong>Time Rewind (SPACE)</strong> untuk mengembalikan posisi & HP ke 3 detik lalu, dan ciptakan kubah <strong>Chrono Freeze</strong> untuk memperlambat musuh 80%!
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="time-raiders/index.html" class="btn-launch" style="background: linear-gradient(135deg, #00f0ff, #a855f7); color: #000; font-weight: 900;">
+                        <i class="fa-solid fa-gamepad"></i> Mainkan TIME RAIDERS 5v5
+                    </a>
+                    <button class="btn-copy-link" data-url="time-raiders/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 1: CuacaSmart -->
             <div class="app-card card-featured-large" data-category="utilitas" data-tags="cuaca suhu termometer payung hujan angin uv panas reminder"
                  style="--card-color: #06b6d4; --card-glow: rgba(6, 182, 212, 0.4); --icon-bg: rgba(6, 182, 212, 0.15); --icon-border: rgba(6, 182, 212, 0.35); --icon-glow: rgba(6, 182, 212, 0.3);">
                 <div class="card-top">
@@ -954,20 +982,21 @@
         btnCopyAll.addEventListener('click', () => {
             const origin = window.location.origin;
             const linksList = [
-                `1. CuacaSmart (Pengukur Suhu & Pengingat Payung): ${origin}/cuaca-smart/index.html`,
-                `2. LifeQuest RPG Rutinitas: ${origin}/life-quest/index.html`,
-                `3. InternReady (Persiapan Magang & CV): ${origin}/intern-ready/index.html`,
-                `4. RoomCheck IT Del: ${origin}/room-check/index.html`,
-                `5. Teman Seperjalanan (Tebengan): ${origin}/teman-seperjalanan/index.html`,
-                `6. SpotFinder IT Del: ${origin}/spot-finder/index.html`,
-                `7. LeaveCheck: ${origin}/leave-check/index.html`,
-                `8. KataMaster: ${origin}/kata-master/index.html`,
-                `9. Math Adventure RPG: ${origin}/math-adventure/index.html`,
-                `10. PolaMatika: ${origin}/polamatika/index.html`
+                `1. TIME RAIDERS 5v5 (Chrono MOBA Arena): ${origin}/time-raiders/index.html`,
+                `2. CuacaSmart (Pengukur Suhu & Pengingat Payung): ${origin}/cuaca-smart/index.html`,
+                `3. LifeQuest RPG Rutinitas: ${origin}/life-quest/index.html`,
+                `4. InternReady (Persiapan Magang & CV): ${origin}/intern-ready/index.html`,
+                `5. RoomCheck IT Del: ${origin}/room-check/index.html`,
+                `6. Teman Seperjalanan (Tebengan): ${origin}/teman-seperjalanan/index.html`,
+                `7. SpotFinder IT Del: ${origin}/spot-finder/index.html`,
+                `8. LeaveCheck: ${origin}/leave-check/index.html`,
+                `9. KataMaster: ${origin}/kata-master/index.html`,
+                `10. Math Adventure RPG: ${origin}/math-adventure/index.html`,
+                `11. PolaMatika: ${origin}/polamatika/index.html`
             ].join('\n');
 
             navigator.clipboard.writeText(linksList).then(() => {
-                showToast('Daftar 10 tautan aplikasi berhasil disalin!');
+                showToast('Daftar 11 tautan aplikasi berhasil disalin!');
             }).catch(() => {
                 showToast('Gagal menyalin daftar link');
             });

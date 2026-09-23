@@ -1,0 +1,537 @@
+/* ==========================================================================
+   TIME RAIDERS 5v5 - Cyberpunk Chrono Sci-Fi Stylesheet
+   ========================================================================== */
+
+:root {
+    --bg-dark: #070a13;
+    --neon-blue: #00f0ff;
+    --neon-purple: #a855f7;
+    --neon-rose: #f43f5e;
+    --neon-gold: #fbbf24;
+    --neon-green: #22c55e;
+    
+    --font-heading: 'Outfit', sans-serif;
+    --font-main: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: #fff;
+    font-family: var(--font-main);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+#gameCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    z-index: 1;
+}
+
+/* ==========================================================================
+   SCREEN 1: Hero Selection Screen
+   ========================================================================== */
+.hero-select-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at 50% 30%, #151b33 0%, #070a13 100%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.5rem 2rem;
+    overflow-y: auto;
+}
+
+.hero-select-header {
+    text-align: center;
+}
+
+.game-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    padding: 0.4rem 1.25rem;
+    border-radius: 9999px;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+    margin-bottom: 0.75rem;
+}
+
+.game-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 30%, #00f0ff 70%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+}
+
+.game-subtitle {
+    font-size: 1.05rem;
+    color: #94a3b8;
+    max-width: 650px;
+    margin-top: 0.25rem;
+}
+
+/* Hero Cards Grid */
+.hero-cards-grid {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 1.5rem 0;
+}
+
+.hero-card {
+    background: rgba(18, 24, 43, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 1.5rem 1.25rem;
+    width: 215px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    backdrop-filter: blur(15px);
+}
+
+.hero-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--hero-color, var(--neon-blue));
+    box-shadow: 0 15px 35px var(--hero-glow, rgba(0, 240, 255, 0.35));
+    background: rgba(28, 38, 68, 0.9);
+}
+
+.hero-card.selected {
+    border-color: var(--hero-color, var(--neon-blue));
+    box-shadow: 0 0 25px var(--hero-glow, rgba(0, 240, 255, 0.6));
+    background: rgba(28, 38, 68, 0.95);
+}
+
+.hero-icon-circle {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid var(--hero-color, var(--neon-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    box-shadow: 0 0 15px var(--hero-glow, rgba(0, 240, 255, 0.4));
+}
+
+.hero-card-role {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--hero-color, var(--neon-blue));
+    letter-spacing: 0.05em;
+}
+
+.hero-card-name {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.hero-card-desc {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
+.btn-start-battle {
+    background: linear-gradient(135deg, #00f0ff, #a855f7);
+    border: none;
+    color: #000;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 900;
+    padding: 1rem 3.5rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btn-start-battle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 45px rgba(168, 85, 247, 0.7);
+    color: #fff;
+}
+
+/* ==========================================================================
+   SCREEN 2: Battle HUD Overlay
+   ========================================================================== */
+.battle-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 10;
+    display: none;
+}
+
+/* Top Match Header */
+.top-match-header {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: rgba(10, 15, 25, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+.team-score {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 900;
+}
+
+.team-score.blue { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.6); }
+.team-score.red { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.6); }
+
+.match-time {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    letter-spacing: 0.05em;
+}
+
+/* Kill Feed Container */
+.kill-feed {
+    position: absolute;
+    top: 1rem;
+    left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.feed-item {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: feedSlide 0.3s ease-out;
+}
+
+.feed-item.system {
+    color: var(--neon-blue);
+    border-color: rgba(0, 240, 255, 0.3);
+}
+
+.k-name { color: #38bdf8; }
+.v-name { color: #f43f5e; }
+
+@keyframes feedSlide {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Minimap Box */
+.minimap-wrapper {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: rgba(7, 10, 19, 0.9);
+    border: 2px solid rgba(0, 240, 255, 0.4);
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+#minimapCanvas {
+    display: block;
+    border-radius: 8px;
+}
+
+/* Bottom Controls & Skills Bar */
+.bottom-control-dock {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    pointer-events: auto;
+}
+
+/* Player Status Info Bar */
+.player-status-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(10, 15, 25, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    backdrop-filter: blur(15px);
+}
+
+.player-icon {
+    font-size: 1.4rem;
+}
+
+.player-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    width: 220px;
+}
+
+.hp-bar-wrap {
+    height: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #22c55e);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    transition: width 0.15s ease;
+}
+
+.hp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Skills Deck & Time Rewind Button */
+.skills-deck {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.skill-slot {
+    position: relative;
+    width: 62px;
+    height: 62px;
+    background: rgba(18, 24, 43, 0.9);
+    border: 2px solid rgba(0, 240, 255, 0.4);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.skill-slot:hover {
+    transform: translateY(-4px);
+    border-color: #00f0ff;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+}
+
+.skill-key {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #00f0ff;
+}
+
+.skill-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    padding: 0 4px;
+    margin-top: 8px;
+}
+
+.skill-slot.on-cd {
+    filter: grayscale(0.8);
+    pointer-events: none;
+}
+
+.cd-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #fbbf24;
+}
+
+.skill-slot.on-cd .cd-overlay {
+    display: flex;
+}
+
+/* SPECIAL TIME REWIND FLASHBACK BUTTON */
+.rewind-master-btn {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #0284c7 0%, #082f49 100%);
+    border: 3px solid #00f0ff;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+    animation: rewindPulse 2.5s infinite;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+@keyframes rewindPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+    50% { box-shadow: 0 0 35px rgba(0, 240, 255, 0.9); }
+}
+
+.rewind-master-btn:hover {
+    transform: scale(1.08);
+}
+
+.rewind-master-btn.disabled {
+    filter: grayscale(1);
+    animation: none;
+    pointer-events: none;
+}
+
+.rewind-icon {
+    font-size: 1.8rem;
+    color: #00f0ff;
+}
+
+.rewind-sub {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #fff;
+    margin-top: -2px;
+}
+
+/* ==========================================================================
+   GAME OVER MODAL
+   ========================================================================== */
+.game-over-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(3, 7, 18, 0.88);
+    backdrop-filter: blur(15px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-over-card {
+    background: rgba(18, 24, 43, 0.95);
+    border: 2px solid var(--neon-blue);
+    border-radius: 24px;
+    padding: 2.5rem 3rem;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(0, 240, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    max-width: 480px;
+}
+
+.game-over-title {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.game-over-desc {
+    font-size: 1rem;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+.btn-play-again {
+    background: linear-gradient(135deg, #00f0ff, #a855f7);
+    border: none;
+    color: #000;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 900;
+    padding: 0.85rem 2.5rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    transition: all 0.2s ease;
+}
+
+.btn-play-again:hover {
+    transform: scale(1.05);
+    color: #fff;
+}

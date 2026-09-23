@@ -19,22 +19,50 @@
 </head>
 <body>
 
+    <!-- Gorga Batak Cultural Motif Top Ribbon -->
+    <div class="gorga-motif-bar"></div>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
         <a href="#" class="brand">
-            <div class="brand-icon-wrapper">🎓</div>
-            <div class="brand-title">SpotFinder <span>IT Del</span></div>
+            <!-- IT Del Official Crest Shield Badge -->
+            <div class="del-logo-badge">
+                <svg viewBox="0 0 100 100" class="del-shield-svg" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="delGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f59e0b"/>
+                            <stop offset="100%" stop-color="#d97706"/>
+                        </linearGradient>
+                        <linearGradient id="delBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0284c7"/>
+                            <stop offset="100%" stop-color="#0f172a"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Outer Shield -->
+                    <path d="M50 5 L90 20 L90 60 C90 80 50 95 50 95 C50 95 10 80 10 60 L10 20 Z" fill="url(#delBlue)" stroke="url(#delGold)" stroke-width="4"/>
+                    <!-- Inner Core -->
+                    <path d="M50 14 L82 26 L82 58 C82 74 50 86 50 86 C50 86 18 74 18 58 L18 26 Z" fill="#0f172a" opacity="0.9"/>
+                    <!-- Letter 'D' & Lake Toba Waves Motif -->
+                    <text x="50" y="52" font-family="'Plus Jakarta Sans', 'Outfit', sans-serif" font-size="34" font-weight="900" fill="#f59e0b" text-anchor="middle" dominant-baseline="central">DEL</text>
+                    <!-- Golden Star -->
+                    <polygon points="50,20 53,27 60,27 54,31 56,38 50,34 44,38 46,31 40,27 47,27" fill="#fbbf24"/>
+                </svg>
+            </div>
+            <div>
+                <div class="brand-title">SpotFinder <span>IT Del</span></div>
+                <span class="brand-sub">MarTuhan • Marroha • Marbisuk</span>
+            </div>
         </a>
 
         <div class="nav-actions">
             <!-- MQTT Status Badge -->
             <div class="live-beacon" id="mqtt-status-beacon" title="Koneksi MQTT Broker (76.13.19.250)">
-                <span class="pulse-dot" id="mqtt-dot" style="background: #f59e0b;"></span>
+                <span class="pulse-dot" id="mqtt-dot" style="background: #10b981;"></span>
                 <span id="mqtt-status-text">MQTT: 76.13.19.250</span>
             </div>
             
-            <button class="btn-secondary" id="btn-open-esp32-code" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px; display:inline-flex; align-items:center; gap:6px; background: rgba(99, 102, 241, 0.12); color: var(--accent); border-color: var(--accent);">
-                📡 Kode ESP32 LCD
+            <button class="btn-secondary" id="btn-open-esp32-code" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px; display:inline-flex; align-items:center; gap:6px; background: rgba(2, 132, 199, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">
+                🔘 Hardware ESP32 Counter
             </button>
 
             <a href="../index.html" class="btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px;">
@@ -44,29 +72,44 @@
         </div>
     </nav>
 
-    <!-- Hero Header -->
+    <!-- Hero Header with Lake Toba Panoramic Background -->
     <header class="hero-section">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
-            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(99, 102, 241, 0.12); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-size: 0.82rem; font-weight: 800;">
-                🏛️ Institut Teknologi Del • Laguboti, Toba
-            </div>
-            <button id="btn-detect-location" class="btn-secondary" style="padding: 4px 12px; font-size: 0.8rem; border-radius: 9999px;">
-                📍 Lokasi: Kampus IT Del (Sitoluama)
-            </button>
-        </div>
+        <div class="toba-panoramic-hero">
+            <div class="toba-hero-overlay"></div>
+            <div class="toba-hero-content">
+                <div class="del-pill-tag">
+                    <span class="pulse-emerald"></span>
+                    <span>🏛️ Kampus Institut Teknologi Del • Tepian Danau Toba, Sitoluama, Laguboti</span>
+                </div>
 
-        <h1 class="hero-title">Spot Belajar Kosong di <span>Perpus & Kampus IT Del</span></h1>
-        <p class="hero-desc">Pantau ketersediaan kursi di <strong>Perpustakaan IT Del</strong>, Ruang Belajar GD, Lab Komputer, dan Kantin Del secara real-time tanpa perlu muter-muter mencari tempat!</p>
+                <h1 class="hero-title">
+                    Spot Belajar & Gazebo <span>Danau Toba IT Del</span>
+                </h1>
+                
+                <p class="hero-desc">
+                    Pantau ketersediaan kursi di <strong>Gazebo View Danau Toba</strong>, Perpustakaan Del, Ruang Belajar GD 5/7/9, dan Kantin secara real-time tersinkronisasi sensor IoT & Wireless Counter.
+                </p>
 
-        <!-- Live Ticker Bar -->
-        <div style="background: var(--border-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 16px; margin-bottom: 24px; font-size: 0.88rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-            <div id="live-ticker-text">
-                📢 <strong>Live Kampus IT Del:</strong> Perpustakaan IT Del (Lt. 2) tersisa 8 tempat kosong • Ruang Belajar GD 7 tersisa 3 kursi • Kantin Del ramai
+                <!-- Live Ticker Bar with Gorga Accent -->
+                <div class="del-ticker-box">
+                    <span class="ticker-badge">📢 LIVE TOBA</span>
+                    <div id="live-ticker-text" class="ticker-text">
+                        Gazebo View Danau Toba tersisa 12 kursi kosong • Angin sejuk & ombak danau tenang • Siap untuk belajar
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Quick Summary Stats -->
         <div class="summary-grid">
+            <div class="summary-card card-toba-highlight">
+                <div class="summary-icon blue">🏞️</div>
+                <div class="summary-info">
+                    <h4>Gazebo Danau Toba</h4>
+                    <div class="stat-num" id="stat-gazebo-empty" style="color: #0284c7;">12 Kursi Kosong</div>
+                </div>
+            </div>
+
             <div class="summary-card">
                 <div class="summary-icon green">📚</div>
                 <div class="summary-info">
@@ -96,17 +139,17 @@
         <div class="control-bar">
             <div class="search-input-wrapper">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="spot-search" class="search-input" placeholder="Cari spot di IT Del (misal: 'Perpus', 'GD 7', 'GD 9', 'Danau Toba', 'Colokan')...">
+                <input type="text" id="spot-search" class="search-input" placeholder="Cari spot di IT Del (misal: 'Gazebo', 'Danau Toba', 'Perpus', 'GD 7', 'GD 9', 'Colokan')...">
             </div>
 
             <div class="filter-pills">
                 <button class="filter-pill active" data-filter="all">Semua Spot IT Del</button>
+                <button class="filter-pill" data-filter="outdoor">🏞️ View Danau Toba (Gazebo)</button>
                 <button class="filter-pill" data-filter="perpus">📚 Perpustakaan Del</button>
                 <button class="filter-pill" data-filter="empty-only">🟢 Hanya yang Kosong</button>
                 <button class="filter-pill" data-filter="silent">🤫 Sangat Hening (Zona Skripsi)</button>
                 <button class="filter-pill" data-filter="outlets">🔌 Ada Colokan Listrik</button>
                 <button class="filter-pill" data-filter="group">👥 Diskusi Proyek / PA</button>
-                <button class="filter-pill" data-filter="outdoor">🏞️ View Danau Toba</button>
             </div>
         </div>
     </header>

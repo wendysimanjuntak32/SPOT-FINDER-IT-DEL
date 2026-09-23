@@ -41,6 +41,12 @@ class SpotFinderApp {
         const quietest = this.spots.filter(s => s.availableSeats > 0).sort((a, b) => a.noiseScore - b.noiseScore)[0];
         const withOutlets = this.spots.filter(s => s.powerOutlets && s.availableSeats > 0).reduce((acc, s) => acc + s.availableSeats, 0);
 
+        const gazeboSpot = this.spots.find(s => s.id === 'spot-gazebo-danau');
+        const statGazeboEl = document.getElementById('stat-gazebo-empty');
+        if (statGazeboEl && gazeboSpot) {
+            statGazeboEl.textContent = `${gazeboSpot.availableSeats} Kursi Kosong`;
+        }
+
         const statTotalEl = document.getElementById('stat-total-empty');
         const statQuietEl = document.getElementById('stat-quiet-spot');
         const statOutletEl = document.getElementById('stat-outlet-empty');

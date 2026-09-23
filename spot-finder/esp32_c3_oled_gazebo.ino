@@ -50,10 +50,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // ==========================================
 // 2. KONFIGURASI WIFI & MQTT BROKER
 // ==========================================
-const char *ssid = "iPhone";              // Hotspot / WiFi yang sedang tersambung
-const char *password = "Akubisa2026!";    // Password WiFi
-const char *mqtt_server = "76.13.19.250"; // IP Broker MQTT
-const int mqtt_port = 1883;               // Port MQTT Standar
+const char *ssid = "iPhone";           // Hotspot / WiFi yang sedang tersambung
+const char *password = "Akubisa2026!"; // Password WiFi
+const char *mqtt_server = "76.13.19.250";       // IP Broker MQTT
+const int mqtt_port = 1883;                     // Port MQTT Standar
 const char *mqtt_topic = "itdel/gazebo/status"; // Topik MQTT Gazebo IT Del
 
 WiFiClient espClient;
@@ -61,8 +61,8 @@ PubSubClient client(espClient);
 
 // Variabel data terkini
 String currentRoom = "Gazebo Toba";
-int currentEmpty = 12; // Jumlah kursi kosong
-int currentTotal = 20; // Total kapasitas
+int currentEmpty = 12;   // Jumlah kursi kosong
+int currentTotal = 20;   // Total kapasitas
 int currentOccupied = 8; // Jumlah orang saat ini di Gazebo (Total - Empty)
 int currentPercent = 40;
 
@@ -224,7 +224,8 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
     currentEmpty = doc["kosong"] | 0;
     currentTotal = doc["total"] | 20;
     currentOccupied = currentTotal - currentEmpty;
-    currentPercent = doc["persen"] | (int)(((float)currentOccupied / currentTotal) * 100);
+    currentPercent =
+        doc["persen"] | (int)(((float)currentOccupied / currentTotal) * 100);
 
     // Render ke Layar OLED secara Real-Time
     renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
@@ -273,9 +274,11 @@ void checkBootButton() {
     if ((millis() - lastDebounceTime) > debounceDelay) {
       lastDebounceTime = millis();
 
-      Serial.println("\n[TOMBOL BOOT DITEKAN!] Menambahkan 1 orang di Gazebo IT Del...");
+      Serial.println(
+          "\n[TOMBOL BOOT DITEKAN!] Menambahkan 1 orang di Gazebo IT Del...");
 
-      // Jika masih ada kursi kosong, kurangi 1 kursi kosong (artinya orang bertambah 1)
+      // Jika masih ada kursi kosong, kurangi 1 kursi kosong (artinya orang
+      // bertambah 1)
       if (currentEmpty > 0) {
         currentEmpty--;
       } else {
@@ -365,4 +368,3 @@ void loop() {
   // Pantau penekanan tombol BOOT ESP32-C3
   checkBootButton();
 }
-

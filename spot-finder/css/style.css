@@ -125,12 +125,17 @@ body.dark-mode .navbar {
 }
 
 .del-logo-badge {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    padding: 2px;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    border: 1.5px solid rgba(2, 132, 199, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0 4px 10px rgba(2, 132, 199, 0.35));
     transition: transform 0.25s ease;
 }
 
@@ -138,9 +143,11 @@ body.dark-mode .navbar {
     transform: scale(1.08) rotate(3deg);
 }
 
-.del-shield-svg {
+.del-logo-img {
     width: 100%;
     height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
 }
 
 .brand-title {
@@ -237,7 +244,7 @@ body.dark-mode .live-beacon {
 }
 
 /* ==========================================================================
-   Lake Toba Panoramic Hero Section
+   Lake Toba & IT Del Panoramic Hero Section with Background Photo
    ========================================================================== */
 .hero-section {
     padding: 24px 20px 20px;
@@ -248,18 +255,26 @@ body.dark-mode .live-beacon {
 
 .toba-panoramic-hero {
     position: relative;
-    background: linear-gradient(135deg, #032038 0%, #0c4a6e 60%, #075985 100%);
-    background-image: 
-        radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.45), transparent 45%),
-        radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.25), transparent 45%),
-        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 24px);
-    border: 2px solid rgba(56, 189, 248, 0.35);
+    background: linear-gradient(135deg, rgba(3, 32, 56, 0.88) 0%, rgba(12, 74, 110, 0.82) 60%, rgba(7, 89, 133, 0.85) 100%),
+                url('../assets/kampus-del-danau-toba.jpg') center center / cover no-repeat;
+    border: 2px solid rgba(56, 189, 248, 0.45);
     border-radius: 24px;
-    padding: 36px 32px;
+    padding: 44px 36px;
     margin-bottom: 28px;
     overflow: hidden;
-    box-shadow: 0 16px 40px rgba(3, 32, 56, 0.4);
+    box-shadow: 0 20px 45px rgba(3, 32, 56, 0.5);
     color: #ffffff;
+}
+
+.toba-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 15% 25%, rgba(2, 132, 199, 0.4), transparent 50%),
+                linear-gradient(to right, rgba(3, 32, 56, 0.92) 0%, rgba(3, 32, 56, 0.6) 100%);
+    pointer-events: none;
 }
 
 .toba-hero-content {

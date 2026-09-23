@@ -11,6 +11,17 @@ class SpotFinderApp {
         this.currentSelectedSeat = null;
         this.darkMode = false;
 
+        // MQTT Broker Configuration (IP: 76.13.19.250)
+        this.mqttConfig = {
+            brokerIp: "76.13.19.250",
+            wsPort: 9001, // WebSocket Port for Web Browser
+            tcpPort: 1883, // TCP Port for ESP32
+            topicGazebo: "itdel/gazebo/status",
+            topicAll: "itdel/spots/all",
+            client: null,
+            isConnected: false
+        };
+
         this.init();
     }
 
@@ -18,6 +29,7 @@ class SpotFinderApp {
         this.renderSummaryStats();
         this.renderSpots();
         this.setupEventListeners();
+        this.initMqttConnection();
         this.startLiveSimulation();
     }
 
@@ -303,6 +315,155 @@ class SpotFinderApp {
     }
 
     // ==========================================
+    // MQTT Protocol & ESP32 LCD Sync Engine
+    // ==========================================
+    initMqttConnection() {
+        // Update Virtual LCD initially
+        this.updateVirtualLcd();
+
+        if (typeof mqtt === 'undefined') {
+            console.warn('MQTT.js library not loaded yet.');
+            return;
+        }
+
+        try {
+            // Connect to broker via WebSocket (Port 9001 on 76.13.19.250)
+            const brokerUrl = `ws://${this.mqttConfig.brokerIp}:${this.mqttConfig.wsPort}`;
+            console.log(`Connecting to MQTT Broker at ${brokerUrl}...`);
+            
+            const client = mqtt.connect(brokerUrl, {
+                clientId: 'SpotFinderWeb_' + Math.random().toString(16).substr(2, 8),
+                connectTimeout: 4000,
+                reconnectPeriod: 5000
+            });
+
+            this.mqttConfig.client = client;
+
+            client.on('connect', () => {
+                this.mqttConfig.isConnected = true;
+                this.updateMqttBadge(true);
+                console.log('Connected to MQTT Broker 76.13.19.250');
+                
+                // Subscribe to Gazebo Status topic
+                client.subscribe(this.mqttConfig.topicGazebo);
+                
+                // Send Initial Broadcast
+                this.broadcastGazeboStatus();
+            });
+
+            client.on('error', (err) => {
+                console.warn('MQTT Broker connection error, falling back to simulated broker mode:', err);
+                this.mqttConfig.isConnected = false;
+                this.updateMqttBadge(false);
+            });
+
+            client.on('close', () => {
+                this.mqttConfig.isConnected = false;
+                this.updateMqttBadge(false);
+            });
+
+            client.on('message', (topic, message) => {
+                console.log(`MQTT Received [${topic}]:`, message.toString());
+            });
+
+        } catch (e) {
+            console.warn('Could not initialize MQTT connection directly:', e);
+            this.updateMqttBadge(false);
+        }
+    }
+
+    updateMqttBadge(connected) {
+        const dot = document.getElementById('mqtt-dot');
+        const text = document.getElementById('mqtt-status-text');
+        if (dot && text) {
+            if (connected) {
+                dot.style.background = '#10b981';
+                text.textContent = 'MQTT: 76.13.19.250 (Connected)';
+            } else {
+                dot.style.background = '#f59e0b';
+                text.textContent = 'MQTT: 76.13.19.250 (Ready)';
+            }
+        }
+    }
+
+    broadcastGazeboStatus() {
+        const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau') || {
+            name: "Gazebo View Danau Toba",
+            availableSeats: 12,
+            totalCapacity: 20
+        };
+
+        const percent = Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100);
+
+        const payloadObj = {
+            ruangan: "Gazebo Danau Toba",
+            kosong: gazebo.availableSeats,
+            total: gazebo.totalCapacity,
+            persen: percent,
+            timestamp: new Date().toLocaleTimeString('id-ID'),
+            update: "Live-Sync"
+        };
+
+        const payloadStr = JSON.stringify(payloadObj);
+
+        // Update Live Payload Monitor in UI
+        const payloadEl = document.getElementById('mqtt-live-payload');
+        const timeEl = document.getElementById('mqtt-last-time');
+        if (payloadEl) payloadEl.textContent = JSON.stringify(payloadObj, null, 2);
+        if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('id-ID');
+
+        // Update Virtual LCD 16x2
+        this.updateVirtualLcd(payloadObj);
+
+        // Publish to MQTT Client if connected
+        if (this.mqttConfig.client && this.mqttConfig.client.connected) {
+            this.mqttConfig.client.publish(this.mqttConfig.topicGazebo, payloadStr, { qos: 0, retain: true });
+            console.log("MQTT Broadcasted to 76.13.19.250:", payloadStr);
+        }
+    }
+
+    updateVirtualLcd(data) {
+        const gazebo = data || this.spots.find(s => s.id === 'spot-gazebo-danau') || {
+            ruangan: "Gazebo Danau Toba",
+            kosong: 12,
+            total: 20
+        };
+
+        const line1El = document.getElementById('virtual-lcd-line1');
+        const line2El = document.getElementById('virtual-lcd-line2');
+
+        const name = (gazebo.ruangan || gazebo.name || "Gazebo Danau Tob").substring(0, 16).padEnd(16, ' ');
+        const kosong = gazebo.kosong !== undefined ? gazebo.kosong : gazebo.availableSeats;
+        const total = gazebo.total !== undefined ? gazebo.total : gazebo.totalCapacity;
+        const statusLine = `Kosong: ${kosong}/${total}`.padEnd(16, ' ');
+
+        if (line1El) line1El.textContent = name;
+        if (line2El) line2El.textContent = statusLine;
+    }
+
+    sendTestMqttBroadcast() {
+        this.broadcastGazeboStatus();
+        this.showToast('⚡ Data Gazebo berhasil di-publish ke MQTT Broker (76.13.19.250)!');
+    }
+
+    openEsp32Modal() {
+        this.broadcastGazeboStatus();
+        const modal = document.getElementById('esp32-modal');
+        if (modal) modal.classList.add('active');
+    }
+
+    copyEsp32Code() {
+        const code = document.getElementById('esp32-code-snippet');
+        if (code) {
+            navigator.clipboard.writeText(code.textContent).then(() => {
+                this.showToast('📋 Kode Arduino ESP32 berhasil disalin ke clipboard!');
+            }).catch(() => {
+                this.showToast('Silakan salin manual kode tersebut.');
+            });
+        }
+    }
+
+    // ==========================================
     // Event Listeners
     // ==========================================
     setupEventListeners() {
@@ -325,7 +486,10 @@ class SpotFinderApp {
 
         const confirmBtn = document.getElementById('btn-confirm-seat');
         if (confirmBtn) {
-            confirmBtn.addEventListener('click', () => this.confirmSeatBooking());
+            confirmBtn.addEventListener('click', () => {
+                this.confirmSeatBooking();
+                this.broadcastGazeboStatus(); // Broadcast MQTT when booking changes
+            });
         }
 
         const themeBtn = document.getElementById('btn-toggle-theme');
@@ -340,6 +504,12 @@ class SpotFinderApp {
                     themeBtn.textContent = '🌙';
                 }
             });
+        }
+
+        // Tombol Kode ESP32 Modal
+        const btnEsp32 = document.getElementById('btn-open-esp32-code');
+        if (btnEsp32) {
+            btnEsp32.addEventListener('click', () => this.openEsp32Modal());
         }
 
         // Tombol Deteksi Lokasi

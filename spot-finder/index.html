@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- MQTT.js WebSocket Client -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
     <!-- Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -24,10 +27,16 @@
         </a>
 
         <div class="nav-actions">
-            <div class="live-beacon" title="Terhubung ke Jaringan Kampus IT Del">
-                <span class="pulse-dot"></span>
-                <span>Institut Teknologi Del (Sitoluama)</span>
+            <!-- MQTT Status Badge -->
+            <div class="live-beacon" id="mqtt-status-beacon" title="Koneksi MQTT Broker (76.13.19.250)">
+                <span class="pulse-dot" id="mqtt-dot" style="background: #f59e0b;"></span>
+                <span id="mqtt-status-text">MQTT: 76.13.19.250</span>
             </div>
+            
+            <button class="btn-secondary" id="btn-open-esp32-code" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px; display:inline-flex; align-items:center; gap:6px; background: rgba(99, 102, 241, 0.12); color: var(--accent); border-color: var(--accent);">
+                📡 Kode ESP32 LCD
+            </button>
+
             <a href="../index.html" class="btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px;">
                 🏠 Portal Utama
             </a>
@@ -183,6 +192,139 @@
             </div>
 
             <button class="btn-secondary modal-cancel" style="width: 100%;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 3: ESP32 + LCD I2C MQTT Code Viewer
+         ========================================== -->
+    <div class="modal-overlay" id="esp32-modal">
+        <div class="seat-modal-card" style="max-width: 680px; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; display:flex; align-items:center; gap:8px;">
+                        <span>📡</span> Kode ESP32 LCD I2C (MQTT: 76.13.19.250)
+                    </h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+                        Sketch Arduino C++ untuk menerima data Gazebo & Spot IT Del ke LCD 16x2 / 20x4
+                    </p>
+                </div>
+                <button class="modal-close">✕</button>
+            </div>
+
+            <!-- MQTT Active Broadcast Monitor -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                    <strong style="color: var(--primary); font-size: 0.88rem;">🟢 Live Payload Terakhir (Topic: <code>itdel/gazebo/status</code>):</strong>
+                    <span id="mqtt-last-time" style="font-size: 0.75rem; color: var(--text-muted);">Baru saja</span>
+                </div>
+                <pre id="mqtt-live-payload" style="background: #0f172a; color: #34d399; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap;">{"ruangan":"Gazebo Danau Toba","kosong":12,"total":20,"persen":40,"update":"Auto-Sync"}</pre>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button class="btn-primary" onclick="app.sendTestMqttBroadcast()" style="padding: 6px 14px; font-size: 0.8rem;">
+                        ⚡ Kirim Ulang Paket MQTT Sekarang
+                    </button>
+                </div>
+            </div>
+
+            <!-- Virtual LCD Simulator Preview -->
+            <div style="margin-bottom: 16px;">
+                <h4 style="font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted);">Simulasi Layar LCD I2C 16x2:</h4>
+                <div style="background: #022c22; border: 4px solid #1e293b; border-radius: 8px; padding: 12px 18px; font-family: 'Courier New', Courier, monospace; color: #4ade80; font-weight: bold; font-size: 1.1rem; letter-spacing: 2px; box-shadow: inset 0 0 15px rgba(0,0,0,0.8);">
+                    <div id="virtual-lcd-line1">Gazebo Danau Tob</div>
+                    <div id="virtual-lcd-line2">Kosong: 12/20   </div>
+                </div>
+            </div>
+
+            <!-- Pinout Info -->
+            <div style="background: var(--border-subtle); border-radius: var(--radius-md); padding: 10px 14px; font-size: 0.82rem; margin-bottom: 12px;">
+                <strong>📌 Koneksi Pin ESP32:</strong> SDA ➔ <code>GPIO 21</code> • SCL ➔ <code>GPIO 22</code> • VCC ➔ <code>VIN (5V)</code> • GND ➔ <code>GND</code>
+            </div>
+
+            <!-- Code Block -->
+            <div style="position: relative;">
+                <button class="btn-secondary" onclick="app.copyEsp32Code()" style="position: absolute; top: 10px; right: 10px; font-size: 0.75rem; padding: 4px 10px;">
+                    📋 Salin Kode C++
+                </button>
+                <pre style="background: #0f172a; color: #f8fafc; padding: 14px; border-radius: var(--radius-md); font-family: monospace; font-size: 0.78rem; overflow-x: auto; max-height: 280px;"><code id="esp32-code-snippet">#include &lt;WiFi.h&gt;
+#include &lt;PubSubClient.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+#include &lt;ArduinoJson.h&gt;
+
+// --- KONFIGURASI WIFI & MQTT ---
+const char* ssid        = "NAMA_WIFI_ANDA";
+const char* password    = "PASSWORD_WIFI";
+const char* mqtt_server = "76.13.19.250"; // Alamat IP Broker MQTT
+const int   mqtt_port   = 1883;
+const char* mqtt_topic  = "itdel/gazebo/status";
+
+// LCD I2C 16x2 (Address 0x27)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void setup_wifi() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("WiFi Connecting");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    lcd.print(".");
+  }
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("WiFi Terhubung!");
+}
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  String message = "";
+  for (int i = 0; i &lt; length; i++) message += (char)payload[i];
+  
+  StaticJsonDocument&lt;256&gt; doc;
+  if (!deserializeJson(doc, message)) {
+    const char* ruangan = doc["ruangan"];
+    int kosong = doc["kosong"];
+    int total = doc["total"];
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(ruangan);
+    lcd.setCursor(0, 1);
+    lcd.print("Kosong: ");
+    lcd.print(kosong);
+    lcd.print("/");
+    lcd.print(total);
+  }
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    String clientId = "ESP32_Gazebo-" + String(random(0xffff), HEX);
+    if (client.connect(clientId.c_str())) {
+      client.subscribe(mqtt_topic);
+    } else {
+      delay(2000);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  lcd.init();
+  lcd.backlight();
+  setup_wifi();
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(callback);
+}
+
+void loop() {
+  if (!client.connected()) reconnect();
+  client.loop();
+}</code></pre>
+            </div>
+
+            <button class="btn-secondary modal-cancel" style="width: 100%; margin-top: 14px;">Tutup</button>
         </div>
     </div>
 

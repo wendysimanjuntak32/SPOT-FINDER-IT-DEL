@@ -6,7 +6,7 @@
  * PROTOKOL: MQTT (Broker IP: 76.13.19.250, Port: 1883)
  * TOPIK: itdel/gazebo/status
  * ======================================================================================
- * 
+ *
  * WIRING PINOUT ESP32-C3 SuperMini ke OLED I2C:
  * ------------------------------------------------
  * OLED GND  -----> ESP32-C3 GND
@@ -14,7 +14,7 @@
  * OLED SCL  -----> ESP32-C3 GPIO 9 (Pin 9)
  * OLED SDA  -----> ESP32-C3 GPIO 8 (Pin 8)
  * ------------------------------------------------
- * 
+ *
  * LIBRARY YANG DIBUTUHKAN (Install via Arduino Library Manager):
  * 1. Adafruit SSD1306 (oleh Adafruit)
  * 2. Adafruit GFX Library (oleh Adafruit)
@@ -23,19 +23,19 @@
  * ======================================================================================
  */
 
-#include <WiFi.h>
-#include <PubSubClient.h>
-#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <ArduinoJson.h>
+#include <PubSubClient.h>
+#include <WiFi.h>
+#include <Wire.h>
 
 // ==========================================
 // 1. KONFIGURASI LAYAR OLED SSD1306
 // ==========================================
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-#define OLED_RESET    -1
+#define OLED_RESET -1
 #define SCREEN_ADDRESS 0x3C // Alamat I2C umum OLED SSD1306 (0x3C atau 0x3D)
 
 // Pin I2C Hardware ESP32-C3 SuperMini
@@ -47,25 +47,26 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // ==========================================
 // 2. KONFIGURASI WIFI & MQTT BROKER
 // ==========================================
-const char* ssid        = "NAMA_WIFI_ANDA";     // Ganti dengan Nama WiFi Anda
-const char* password    = "PASSWORD_WIFI";      // Ganti dengan Password WiFi Anda
-const char* mqtt_server = "76.13.19.250";       // IP Broker MQTT
-const int   mqtt_port   = 1883;                 // Port MQTT Standar
-const char* mqtt_topic  = "itdel/gazebo/status";// Topik MQTT Gazebo IT Del
+const char *ssid = "PELATIHAN_AI2";       // Ganti dengan Nama WiFi Anda
+const char *password = "AI23456";         // Ganti dengan Password WiFi Anda
+const char *mqtt_server = "76.13.19.250"; // IP Broker MQTT
+const int mqtt_port = 1883;               // Port MQTT Standar
+const char *mqtt_topic = "itdel/gazebo/status"; // Topik MQTT Gazebo IT Del
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 // Variabel data terkini
 String currentRoom = "Gazebo Toba";
-int currentEmpty   = 12;
-int currentTotal   = 20;
+int currentEmpty = 12;
+int currentTotal = 20;
 int currentPercent = 40;
 
 // ==========================================
 // 3. FUNGSI RENDER TAMPILAN OLED 128x64
 // ==========================================
-void renderOledDisplay(String roomName, int emptySeats, int totalSeats, int fillPercent, String statusMsg) {
+void renderOledDisplay(String roomName, int emptySeats, int totalSeats,
+                       int fillPercent, String statusMsg) {
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
 
@@ -73,7 +74,7 @@ void renderOledDisplay(String roomName, int emptySeats, int totalSeats, int fill
   display.setTextSize(1);
   display.setCursor(0, 0);
   display.print(F("SPOTFINDER IT DEL"));
-  
+
   // Ikon / Indikator WiFi di pojok kanan atas
   display.setCursor(108, 0);
   display.print(WiFi.status() == WL_CONNECTED ? F("OK") : F("NO"));
@@ -156,7 +157,7 @@ void setup_wifi() {
 // ==========================================
 // 5. CALLBACK PENERIMA PESAN MQTT
 // ==========================================
-void mqttCallback(char* topic, byte* payload, unsigned int length) {
+void mqttCallback(char *topic, byte *payload, unsigned int length) {
   String message = "";
   for (int i = 0; i < length; i++) {
     message += (char)payload[i];
@@ -173,13 +174,14 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   DeserializationError error = deserializeJson(doc, message);
 
   if (!error) {
-    currentRoom    = doc["ruangan"] | "Gazebo Toba";
-    currentEmpty   = doc["kosong"] | 0;
-    currentTotal   = doc["total"] | 20;
+    currentRoom = doc["ruangan"] | "Gazebo Toba";
+    currentEmpty = doc["kosong"] | 0;
+    currentTotal = doc["total"] | 20;
     currentPercent = doc["persen"] | 0;
 
     // Render ke Layar OLED secara Real-Time
-    renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent, "MQTT:OK");
+    renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
+                      "MQTT:OK");
   } else {
     Serial.println("Gagal parsing JSON!");
   }
@@ -191,21 +193,23 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 void reconnectMqtt() {
   while (!client.connected()) {
     Serial.print("Menghubungi MQTT Broker 76.13.19.250...");
-    
+
     String clientId = "ESP32C3_GazeboClient-" + String(random(0xffff), HEX);
-    
+
     if (client.connect(clientId.c_str())) {
       Serial.println(" Terhubung!");
       client.subscribe(mqtt_topic);
-      
+
       // Update status tampilan OLED
-      renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent, "MQTT:OK");
+      renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
+                        "MQTT:OK");
     } else {
       Serial.print(" Gagal, rc=");
       Serial.print(client.state());
       Serial.println(" Coba lagi dalam 3 detik...");
-      
-      renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent, "MQTT:RETRY");
+
+      renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
+                        "MQTT:RETRY");
       delay(3000);
     }
   }
@@ -224,7 +228,8 @@ void setup() {
   // Inisialisasi Display OLED
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("Gagal menemukan layar OLED SSD1306!"));
-    for (;;);
+    for (;;)
+      ;
   }
 
   // Tampilan Booting Awal
@@ -246,7 +251,8 @@ void setup() {
   client.setCallback(mqttCallback);
 
   // Render Display Pertama
-  renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent, "READY");
+  renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
+                    "READY");
 }
 
 // ==========================================
@@ -262,6 +268,6 @@ void loop() {
   if (!client.connected()) {
     reconnectMqtt();
   }
-  
+
   client.loop();
 }

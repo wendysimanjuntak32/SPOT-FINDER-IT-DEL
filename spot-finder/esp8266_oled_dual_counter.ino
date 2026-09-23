@@ -261,23 +261,37 @@ void setup() {
   pinMode(PIN_BTN_MASUK, INPUT_PULLUP);  // Pin 14
   pinMode(PIN_BTN_KELUAR, INPUT_PULLUP); // Pin 12
 
-  // Inisialisasi I2C Wire untuk ESP8266 (SDA=4, SCL=5)
+  // Inisialisasi I2C Wire untuk ESP8266 (SDA = GPIO 4 / Pin D2, SCL = GPIO 5 / Pin D1)
   Wire.begin(PIN_OLED_SDA, PIN_OLED_SCL);
+  Wire.setClock(100000); // 100kHz standard I2C clock
 
-  // Inisialisasi Display OLED
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F(" [ERROR] OLED SSD1306 tidak ditemukan! Periksa wiring!"));
+  // Inisialisasi Display OLED (Coba 0x3C dulu, jika gagal coba 0x3D)
+  bool oledFound = false;
+  if (display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    oledFound = true;
+    Serial.println(F(" [OK] OLED SSD1306 Ditemukan pada Alamat I2C: 0x3C"));
+  } else if (display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) {
+    oledFound = true;
+    Serial.println(F(" [OK] OLED SSD1306 Ditemukan pada Alamat I2C: 0x3D"));
+  }
+
+  if (!oledFound) {
+    Serial.println(F(" [ERROR] OLED SSD1306 TIDAK TERDETEKSI!"));
+    Serial.println(F(" -> Periksa Kabel:"));
+    Serial.println(F("    - OLED SDA ke Pin D2 (GPIO 4)"));
+    Serial.println(F("    - OLED SCL ke Pin D1 (GPIO 5)"));
+    Serial.println(F("    - OLED VCC ke Pin 3V3 atau VIN (5V)"));
+    Serial.println(F("    - OLED GND ke Pin GND"));
   } else {
-    Serial.println(F(" [OK] OLED SSD1306 Siap."));
     display.clearDisplay();
     display.setTextColor(SSD1306_WHITE);
     display.setTextSize(1);
-    display.setCursor(10, 16);
-    display.print(F("INSTITUT TEKNOLOGI"));
-    display.setCursor(38, 28);
-    display.print(F("DEL"));
-    display.setCursor(18, 44);
-    display.print(F("Menghubungkan WiFi.."));
+    display.setCursor(8, 14);
+    display.print(F("SPOTFINDER IT DEL"));
+    display.setCursor(24, 30);
+    display.print(F("GAZEBO TOBA"));
+    display.setCursor(14, 48);
+    display.print(F("Menghubungkan..."));
     display.display();
   }
 

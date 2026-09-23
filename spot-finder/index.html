@@ -203,10 +203,10 @@
             <div class="modal-header">
                 <div>
                     <h3 style="font-size: 1.25rem; font-weight: 800; display:flex; align-items:center; gap:8px;">
-                        <span>📟</span> ESP32-C3 SuperMini + OLED I2C (SSD1306 128x64)
+                        <span>🔘</span> ESP32-C3 Wireless People Counter (Tanpa LCD)
                     </h3>
                     <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
-                        MQTT Broker: <code>76.13.19.250</code> • Topic: <code>itdel/gazebo/status</code>
+                        Alat Clicker Counter Nirkabel via MQTT Broker <code>76.13.19.250</code> • Topic: <code>itdel/gazebo/status</code>
                     </p>
                 </div>
                 <button class="modal-close">✕</button>
@@ -215,45 +215,27 @@
             <!-- MQTT Active Broadcast Monitor -->
             <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                    <strong style="color: var(--primary); font-size: 0.88rem;">🟢 Live Payload Terakhir (MQTT: 76.13.19.250):</strong>
+                    <strong style="color: var(--primary); font-size: 0.88rem;">🟢 Live Payload MQTT (Broker: 76.13.19.250):</strong>
                     <span id="mqtt-last-time" style="font-size: 0.75rem; color: var(--text-muted);">Baru saja</span>
                 </div>
-                <pre id="mqtt-live-payload" style="background: #0f172a; color: #34d399; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap;">{"ruangan":"Gazebo Danau Toba","kosong":12,"total":20,"persen":40,"update":"Auto-Sync"}</pre>
+                <pre id="mqtt-live-payload" style="background: #0f172a; color: #34d399; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap;">{"ruangan":"Gazebo Danau Toba","kosong":12,"total":20,"terisi":8,"persen":40,"source":"ESP32_BOOT_BUTTON"}</pre>
                 <div style="display: flex; gap: 8px; margin-top: 10px;">
                     <button class="btn-primary" onclick="app.sendTestMqttBroadcast()" style="padding: 6px 14px; font-size: 0.8rem;">
-                        ⚡ Kirim Ulang Paket MQTT Sekarang
+                        ⚡ Test Kirim Paket Counter MQTT
                     </button>
                 </div>
             </div>
 
-            <!-- Virtual OLED 128x64 Simulator Preview -->
-            <div style="margin-bottom: 16px;">
-                <h4 style="font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted);">Simulasi Layar OLED I2C 128x64 (SSD1306):</h4>
-                <div style="background: #000000; border: 4px solid #334155; border-radius: 12px; padding: 14px 18px; font-family: 'Courier New', Courier, monospace; color: #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.25); min-height: 120px; display:flex; flex-direction:column; justify-content:space-between;">
-                    <div style="display:flex; justify-content:space-between; border-bottom: 1px dashed #0284c7; padding-bottom: 4px; font-size: 0.75rem;">
-                        <span id="virtual-oled-header">SPOTFINDER IT DEL</span>
-                        <span id="virtual-oled-wifi">📶 WiFi OK</span>
-                    </div>
-                    <div style="text-align: center; margin: 6px 0;">
-                        <div id="virtual-oled-title" style="font-size: 1.05rem; font-weight: bold; color: #ffffff;">GAZEBO TOBA</div>
-                        <div id="virtual-oled-status" style="font-size: 1.4rem; font-weight: 900; color: #4ade80; margin: 4px 0;">12 / 20 KOSONG</div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size: 0.72rem; color: #94a3b8; border-top: 1px solid #1e293b; padding-top: 4px;">
-                        <span id="virtual-oled-percent">Keterisian: 40%</span>
-                        <span id="virtual-oled-ip">76.13.19.250</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pinout Info ESP32-C3 Mini -->
-            <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--accent); border-radius: var(--radius-md); padding: 12px 14px; font-size: 0.82rem; margin-bottom: 12px; color: var(--text-main);">
-                <strong style="color: var(--accent); display:block; margin-bottom:4px;">📌 Skema Pin ESP32-C3 SuperMini ➔ OLED I2C:</strong>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px; font-family: monospace;">
-                    <div>• <strong>SDA</strong> ➔ <code>GPIO 8</code> (atau GPIO 4)</div>
-                    <div>• <strong>SCL</strong> ➔ <code>GPIO 9</code> (atau GPIO 5)</div>
-                    <div>• <strong>VCC</strong> ➔ <code>3.3V / 5V</code></div>
-                    <div>• <strong>GND</strong> ➔ <code>GND</code></div>
-                </div>
+            <!-- Standalone Clicker Hardware Guide -->
+            <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--accent); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
+                <h4 style="font-size: 0.95rem; color: var(--accent); margin-bottom: 6px; font-weight:800;">
+                    🔘 Cara Menggunakan Alat Counter Wireless:
+                </h4>
+                <ul style="padding-left: 20px; font-size: 0.84rem; color: var(--text-main); line-height: 1.6;">
+                    <li><strong>Tanpa Kabel Layar Tambahan:</strong> Cukup board ESP32-C3 SuperMini dicolok daya (USB / Baterai / Powerbank).</li>
+                    <li><strong>Tekan Tombol Fisik BOOT (GPIO 9):</strong> Setiap kali tombol ditekan, LED onboard berkedip & jumlah orang di Gazebo bertambah +1.</li>
+                    <li><strong>Sinkron Otomatis:</strong> Website SpotFinder IT Del langsung memperbarui sisa kursi secara real-time.</li>
+                </ul>
             </div>
 
             <!-- Code Block -->

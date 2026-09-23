@@ -91,6 +91,20 @@
                         Gazebo View Danau Toba tersisa 12 kursi kosong • Angin sejuk & ombak danau tenang • Siap untuk belajar
                     </div>
                 </div>
+
+                <!-- Lost & Found Quick Action Bar -->
+                <div class="del-lost-found-banner" onclick="app.openLostFoundModal()">
+                    <div class="lf-banner-left">
+                        <span class="lf-banner-icon">📦</span>
+                        <div>
+                            <strong>Layanan Barang Tertinggal (Lost & Found IT Del)</strong>
+                            <p>Kehilangan atau menemukan <strong>Laptop, HP, KTM, Charger, atau barang lainnya</strong> di spot kampus? Cek & lapor di sini.</p>
+                        </div>
+                    </div>
+                    <button class="btn-primary lf-banner-btn" onclick="event.stopPropagation(); app.openLostFoundModal();">
+                        🔍 Cek & Lapor Barang (<span id="lf-hero-count">5</span> Item)
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -457,12 +471,23 @@ void loop() {
 
             <!-- TAB 1: Daftar Barang Ditemukan -->
             <div id="lf-tab-list-view">
+                <!-- Search & Category Filters -->
+                <div style="margin: 12px 0 8px;">
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 0.95rem; opacity: 0.6;">🔍</span>
+                        <input type="text" id="lf-modal-search" placeholder="Cari barang (misal: Laptop ASUS, iPhone, KTM, Charger, Tumbler)..." class="search-input" style="padding-left: 38px; width: 100%;" oninput="app.searchLostFound(this.value)">
+                    </div>
+                </div>
+
                 <!-- Category Filter Pills -->
-                <div style="display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 14px; scrollbar-width: none;">
+                <div style="display: flex; gap: 6px; overflow-x: auto; padding: 6px 0 14px; scrollbar-width: none;">
                     <button class="filter-pill active lf-filter-pill" onclick="app.filterLostFound('all', this)">Semua Barang</button>
+                    <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('laptop', this)">💻 Laptop</button>
+                    <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('smartphone', this)">📱 HP & Tablet</button>
+                    <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('elektronik', this)">🔌 Charger & Aksesoris</button>
+                    <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('ktm', this)">🪪 Dompet & KTM</button>
                     <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('tumbler', this)">🥤 Tumbler</button>
-                    <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('ktm', this)">🪪 KTM & Kartu</button>
-                    <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('elektronik', this)">🔌 Elektronik</button>
+                    <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('tas', this)">🎒 Tas & Ransel</button>
                     <button class="filter-pill lf-filter-pill" onclick="app.filterLostFound('pakaian', this)">🧥 Pakaian</button>
                 </div>
 
@@ -474,12 +499,16 @@ void loop() {
 
             <!-- TAB 2: Form Lapor Barang Temuan Baru -->
             <div id="lf-tab-form-view" style="display: none;">
-                <form id="lf-report-form" onsubmit="app.handleLostFoundSubmit(event)" style="display: flex; flex-direction: column; gap: 14px; padding-top: 8px;">
+                <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; font-size: 0.83rem; color: var(--text-muted);">
+                    💡 <strong>Tips Kejujuran IT Del:</strong> Jika Anda menemukan barang berharga seperti <strong>Laptop, HP, Dompet, atau KTM</strong>, segera laporkan dan titipkan ke <strong>Pos Satpam</strong> atau <strong>Laboran/Pustakawan terdekat</strong> agar pemilik dapat segera mengambilnya.
+                </div>
+
+                <form id="lf-report-form" onsubmit="app.handleLostFoundSubmit(event)" style="display: flex; flex-direction: column; gap: 14px; padding-top: 4px;">
                     <div>
                         <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
-                            Nama Barang & Ciri-Ciri *
+                            Nama Barang & Ciri Khusus *
                         </label>
-                        <input type="text" id="lf-input-item" required placeholder="Contoh: Tumbler IT Del Biru / Flashdisk SanDisk 32GB" class="search-input" style="padding-left:16px;">
+                        <input type="text" id="lf-input-item" required placeholder="Contoh: Laptop ASUS VivoBook 14 Silver / iPhone 13 Hitam / Dompet Kulit" class="search-input" style="padding-left:16px;">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -488,11 +517,14 @@ void loop() {
                                 Kategori Barang *
                             </label>
                             <select id="lf-input-category" required class="search-input" style="padding-left:14px; cursor:pointer;">
+                                <option value="laptop">💻 Laptop / Komputer Portabel</option>
+                                <option value="smartphone">📱 HP / Smartphone / Tablet</option>
+                                <option value="elektronik">🔌 Charger Laptop / HP & Elektronik</option>
+                                <option value="ktm">🪪 Dompet / KTM / Kartu Identitas</option>
                                 <option value="tumbler">🥤 Botol Minum / Tumbler</option>
-                                <option value="ktm">🪪 KTM / Kartu Identitas</option>
-                                <option value="elektronik">🔌 Charger / Elektronik</option>
-                                <option value="pakaian">🧥 Jaket / Almamater</option>
-                                <option value="buku">📖 Buku / Binder Catatan</option>
+                                <option value="tas">🎒 Tas Ransel / Laptop / Tote Bag</option>
+                                <option value="pakaian">🧥 Jaket / Almamater / Pakaian</option>
+                                <option value="buku">📖 Buku / Binder Catatan Kuliah</option>
                                 <option value="lainnya">📦 Barang Lainnya</option>
                             </select>
                         </div>
@@ -511,29 +543,38 @@ void loop() {
                         </div>
                     </div>
 
-                    <div>
-                        <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
-                            Detail Posisi Meja / Titik Ditemukan *
-                        </label>
-                        <input type="text" id="lf-input-location" required placeholder="Contoh: Di bawah meja Gazebo GZ-2 dekat colokan" class="search-input" style="padding-left:16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
+                                Detail Posisi Meja / Titik Ditemukan *
+                            </label>
+                            <input type="text" id="lf-input-location" required placeholder="Contoh: Meja Gazebo GZ-4 dekat colokan" class="search-input" style="padding-left:16px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
+                                Dititipkan di Mana Sekarang? *
+                            </label>
+                            <input type="text" id="lf-input-kept" required placeholder="Contoh: Pos Satpam Danau (Pak Simanjuntak)" class="search-input" style="padding-left:16px;">
+                        </div>
                     </div>
 
-                    <div>
-                        <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
-                            Dititipkan di Mana Sekarang? *
-                        </label>
-                        <input type="text" id="lf-input-kept" required placeholder="Contoh: Dititip di Pos Satpam Danau / Resepsionis Perpus" class="search-input" style="padding-left:16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
+                                Nama Penemu / Pelapor *
+                            </label>
+                            <input type="text" id="lf-input-finder" required placeholder="Contoh: Mahasiswa IF '23 / Petugas" class="search-input" style="padding-left:16px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
+                                Syarat Verifikasi Klaim
+                            </label>
+                            <input type="text" id="lf-input-verification" placeholder="Contoh: Sebutkan password lockscreen / tunjukkan KTM" class="search-input" style="padding-left:16px;">
+                        </div>
                     </div>
 
-                    <div>
-                        <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:6px; color:var(--text-main);">
-                            Nama Penemu / Petugas *
-                        </label>
-                        <input type="text" id="lf-input-finder" required placeholder="Contoh: Mahasiswa IF '23 / Pak Satpam" class="search-input" style="padding-left:16px;">
-                    </div>
-
-                    <div style="display: flex; gap: 10px; margin-top: 6px;">
-                        <button type="submit" class="btn-primary" style="flex: 1; justify-content: center; padding: 12px;">
+                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                        <button type="submit" class="btn-primary" style="flex: 1; justify-content: center; padding: 12px; font-weight: 700;">
                             📢 Publikasikan Laporan Temuan
                         </button>
                         <button type="button" class="btn-secondary" onclick="app.switchLostFoundTab('list')" style="padding: 12px 20px;">

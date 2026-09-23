@@ -604,12 +604,15 @@ void loop() {
     <div class="toast-container" id="toast-container"></div>
 
     <!-- MQTT Live Incoming Data Popup (Muncul saat data MQTT masuk) -->
-    <div id="mqtt-incoming-popup" class="mqtt-incoming-popup" onclick="app.openEsp32Modal()">
+    <div id="mqtt-incoming-popup" class="mqtt-incoming-popup">
         <div class="mqtt-pop-header">
-            <strong><span class="pulse-dot" style="background:#10b981; width:8px; height:8px; display:inline-block; border-radius:50%;"></span> 📡 DATA MQTT DITERIMA!</strong>
-            <span id="mqtt-pop-time" style="font-size:0.75rem; color:#38bdf8;">--:--:--</span>
+            <strong><span class="pulse-dot" style="background:#10b981; width:8px; height:8px; display:inline-block; border-radius:50%;"></span> 📡 DATA MQTT MASUK!</strong>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="mqtt-pop-time" style="font-size:0.75rem; color:#38bdf8; font-weight:700;">--:--:--</span>
+                <button type="button" onclick="document.getElementById('mqtt-incoming-popup').classList.remove('show')" style="background:none; border:none; color:#ffffff; font-size:0.9rem; cursor:pointer; padding:0 4px;">✕</button>
+            </div>
         </div>
-        <div class="mqtt-pop-body">
+        <div class="mqtt-pop-body" onclick="app.openEsp32Modal()" style="cursor: pointer;">
             <div id="mqtt-pop-action" class="mqtt-pop-action">⚡ Update dari ESP Counter</div>
             <div id="mqtt-pop-stats" class="mqtt-pop-stats">Gazebo Terisi: <strong>--</strong> • Sisa Kursi: <strong style="color:#10b981;">-- Kosong</strong></div>
             <div id="mqtt-pop-raw" class="mqtt-pop-code">Menunggu payload...</div>

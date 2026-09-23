@@ -582,6 +582,9 @@ class SpotFinderApp {
                 const actionLabel = parsedData.lastAction || parsedData.action || (parsedData.source ? parsedData.source : (topic ? "Topik: " + topic : "Update Counter ESP"));
                 const deviceName = parsedData.device || "ESP8266-Counter";
 
+                // Play Audio Chime Notification
+                this.playMqttChime();
+
                 // Trigger Prominent Floating MQTT Live Incoming Popup
                 const popup = document.getElementById('mqtt-incoming-popup');
                 const popTime = document.getElementById('mqtt-pop-time');
@@ -599,7 +602,7 @@ class SpotFinderApp {
                     if (this.mqttPopupTimeout) clearTimeout(this.mqttPopupTimeout);
                     this.mqttPopupTimeout = setTimeout(() => {
                         popup.classList.remove('show');
-                    }, 6000);
+                    }, 8000);
                 }
 
                 // Add Card Flash Animation to Gazebo Card
@@ -610,9 +613,28 @@ class SpotFinderApp {
                     gazeboCard.classList.add('spot-card-mqtt-flash');
                 }
                 
-                this.showToast(`📡 [MQTT MASUK: ${actionLabel}] Gazebo Terisi: ${peopleCount} org • Sisa: ${gazebo.availableSeats} kursi`);
+                this.showToast(`📡 [DATA MQTT MASUK] ${actionLabel} • Gazebo Terisi: ${peopleCount} org (Sisa: ${gazebo.availableSeats} kursi)`);
             }
         }
+    }
+
+    playMqttChime() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+            osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12); // E6 note
+            gain.gain.setValueAtTime(0.18, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.28);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.28);
+        } catch(e) {}
     }
 
     // Manual / Testing Counter Action from Web

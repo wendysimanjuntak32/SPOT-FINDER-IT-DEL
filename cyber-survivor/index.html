@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYBER SURVIVOR: Protocol Zero — Roguelite Bullet-Hell Action RPG</title>
+    <meta name="description" content="Game aksi roguelite bullet-hell cyberpunk 2088! Bertahan hidup dari ribuan robot liar, kuasai 6 senjata bersinergi, kembangkan Super Evolution, dan kalahkan AI Overlord Protocol Zero!">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Game Canvas -->
+    <canvas id="gameCanvas"></canvas>
+    <div class="scanlines-overlay"></div>
+
+    <!-- SCREEN 1: TITLE & CHARACTER SELECT -->
+    <div class="screen-container" id="screenTitle">
+        <div class="title-header">
+            <div class="cyber-badge">
+                <i class="fa-solid fa-microchip"></i> CYBERPUNK 2088 • ROGUELITE ACTION RPG
+            </div>
+            <h1 class="cyber-title">CYBER SURVIVOR</h1>
+            <p class="cyber-sub">PROTOCOL ZERO — Bertahan dari Serangan Ribuan AI Roguelite, Evolusikan Senjata & Bebaskan Kota Neo-Tokyo!</p>
+        </div>
+
+        <!-- Hero Selection Cards Grid -->
+        <div class="hero-selection-grid" id="heroGrid">
+            
+            <div class="hero-select-card selected" data-hero="samurai">
+                <div class="hero-avatar-circle" style="background: linear-gradient(135deg, #ff007f, #7928ca);">⚔️</div>
+                <span class="hero-card-role">Cyber Assassin</span>
+                <h3 class="hero-card-name">Ren "Shadow"</h3>
+                <p class="hero-card-desc">Pendekar pedang cyborg dengan tebasan pisau berfrekuensi tinggi dan critical damage mematikan.</p>
+                <div class="hero-stat-pills">
+                    <span class="stat-pill"><i class="fa-solid fa-heart" style="color:#f43f5e;"></i> HP 120</span>
+                    <span class="stat-pill"><i class="fa-solid fa-bolt" style="color:#ffe600;"></i> Speed 4.2</span>
+                    <span class="stat-pill"><i class="fa-solid fa-bullseye" style="color:#00f0ff;"></i> Crit 15%</span>
+                </div>
+            </div>
+
+            <div class="hero-select-card" data-hero="hacker">
+                <div class="hero-avatar-circle" style="background: linear-gradient(135deg, #00f0ff, #0070f3);">💻</div>
+                <span class="hero-card-role">Quantum Hacker</span>
+                <h3 class="hero-card-name">Aria "Glitch"</h3>
+                <p class="hero-card-desc">Mengendalikan drone serang bersinergi kuantum, pengurangan cooldown skill tercepat, dan magnet XP luas.</p>
+                <div class="hero-stat-pills">
+                    <span class="stat-pill"><i class="fa-solid fa-heart" style="color:#f43f5e;"></i> HP 100</span>
+                    <span class="stat-pill"><i class="fa-solid fa-clock" style="color:#00f0ff;"></i> -20% CDR</span>
+                    <span class="stat-pill"><i class="fa-solid fa-magnet" style="color:#a855f7;"></i> Magnet +40%</span>
+                </div>
+            </div>
+
+            <div class="hero-select-card" data-hero="mecha">
+                <div class="hero-avatar-circle" style="background: linear-gradient(135deg, #f59e0b, #b45309);">🤖</div>
+                <span class="hero-card-role">Heavy Vanguard</span>
+                <h3 class="hero-card-name">Goliath-7</h3>
+                <p class="hero-card-desc">Unit mecha lapis baja berat dengan daya tahan ekstrem dan senjata senjata balistik kaliber besar.</p>
+                <div class="hero-stat-pills">
+                    <span class="stat-pill"><i class="fa-solid fa-heart" style="color:#f43f5e;"></i> HP 200</span>
+                    <span class="stat-pill"><i class="fa-solid fa-shield" style="color:#f59e0b;"></i> Armor 25</span>
+                    <span class="stat-pill"><i class="fa-solid fa-bomb" style="color:#f43f5e;"></i> Big Blast</span>
+                </div>
+            </div>
+
+            <div class="hero-select-card" data-hero="psionic">
+                <div class="hero-avatar-circle" style="background: linear-gradient(135deg, #a855f7, #6b21a8);">🔮</div>
+                <span class="hero-card-role">Singularity Mage</span>
+                <h3 class="hero-card-name">Nyx Voidwalker</h3>
+                <p class="hero-card-desc">Manipulator gravitasi kosmik yang menciptakan lubang hitam mikro dan menghisap gelombang musuh.</p>
+                <div class="hero-stat-pills">
+                    <span class="stat-pill"><i class="fa-solid fa-heart" style="color:#f43f5e;"></i> HP 110</span>
+                    <span class="stat-pill"><i class="fa-solid fa-circle-dot" style="color:#a855f7;"></i> AoE +35%</span>
+                    <span class="stat-pill"><i class="fa-solid fa-snowflake" style="color:#00f0ff;"></i> Slow Aura</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="screen-actions-dock">
+            <button class="btn-cyber-secondary" id="btnOpenTechLab">
+                <i class="fa-solid fa-flask-vial"></i> CYBER TECH LAB
+            </button>
+            <button class="btn-cyber-primary" id="btnStartGame">
+                <i class="fa-solid fa-play"></i> MULAI PROTOCOL ZERO
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: BATTLE HUD LAYER -->
+    <div class="battle-hud-layer" id="battleHUD">
+        
+        <!-- EXP Top Bar -->
+        <div class="hud-exp-container">
+            <div class="hud-exp-bar" id="hudExpBar"></div>
+        </div>
+
+        <!-- Top Dashboard -->
+        <div class="hud-top-dashboard">
+            <div class="hud-stat-item" style="color: #f43f5e;">
+                <i class="fa-solid fa-skull"></i> <span id="hudKillCount">0</span>
+            </div>
+            <div class="hud-timer-clock" id="hudTimerClock">00:00</div>
+            <div class="hud-stat-item" style="color: #ffe600;">
+                <i class="fa-solid fa-coins"></i> <span id="hudGoldCount">0</span> G
+            </div>
+            <div class="hud-stat-item" style="color: var(--neon-cyan);">
+                <i class="fa-solid fa-angles-up"></i> <span id="hudPlayerLevelText">Lv.1</span>
+            </div>
+        </div>
+
+        <!-- Boss Alert Warning -->
+        <div class="boss-alert-banner" id="bossAlertBanner">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="bossAlertName">BOSS DETECTED!</span>
+        </div>
+
+        <!-- Boss HP Bar -->
+        <div class="boss-hp-container" id="bossHpContainer">
+            <div class="boss-hp-label">
+                <span id="bossNameLabel">Titan Goliath Mech</span>
+                <span>BOSS</span>
+            </div>
+            <div class="boss-hp-bar-wrap">
+                <div class="boss-hp-fill" id="bossHpFill"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Status & Equipment Dock -->
+        <div class="hud-bottom-status-deck">
+            <!-- Player Health Bar -->
+            <div class="hud-player-core-box">
+                <i class="fa-solid fa-heart" style="color: #22c55e;"></i>
+                <div class="hud-hp-bar-wrap">
+                    <div class="hud-hp-bar-fill" id="hudPlayerHpBar"></div>
+                </div>
+                <span style="font-size: 0.78rem; font-weight: 800;" id="hudPlayerHpText">120 / 120</span>
+            </div>
+
+            <!-- Weapons Slots Row -->
+            <div class="hud-loadout-slots" id="hudWeaponsRow"></div>
+
+            <!-- Passives Slots Row -->
+            <div class="hud-loadout-slots" id="hudPassivesRow"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: LEVEL UP CHOICES -->
+    <div class="level-up-modal-overlay" id="levelUpModal">
+        <h2 class="level-up-title"><i class="fa-solid fa-angles-up"></i> LEVEL UP!</h2>
+        <p style="color: #94a3b8; font-size: 1rem; margin-top: -1rem;">Pilih peningkatan senjata atau augmentasi cyberware:</p>
+        <div class="level-up-cards-row" id="levelUpCardsRow"></div>
+    </div>
+
+    <!-- MODAL: CYBER TECH LAB (PERMANENT META UPGRADES) -->
+    <div class="tech-lab-modal" id="techLabModal">
+        <div class="tech-lab-card">
+            <div class="tech-lab-header">
+                <div>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--neon-cyan);">
+                        <i class="fa-solid fa-flask-vial"></i> CYBER TECH LAB
+                    </h2>
+                    <p style="font-size: 0.85rem; color: #94a3b8;">Tingkatkan modul genetik dan cyberware permanen menggunakan Gold yang Anda kumpulkan!</p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.25rem; font-weight: 900; color: #ffe600;" id="techLabGoldText">0 Gold</div>
+                    <button onclick="document.getElementById('techLabModal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="tech-grid" id="techGridContainer"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: GAME OVER / VICTORY -->
+    <div class="gameover-modal" id="gameOverModal">
+        <div class="gameover-card">
+            <h2 id="gameOverTitle" style="font-family: var(--font-heading); font-size: 2.4rem; font-weight: 900; margin-bottom: 1rem;">💀 PROTOCOL TERMINATED</h2>
+            <div id="gameOverStats" style="background: rgba(0,0,0,0.4); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; text-align: left; line-height: 1.8; font-size: 0.95rem;"></div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn-cyber-primary" onclick="location.reload()" style="flex: 1; justify-content: center; font-size: 1.1rem; padding: 0.85rem;">
+                    <i class="fa-solid fa-rotate-right"></i> MAIN LAGI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data-weapons.js"></script>
+    <script src="audio.js"></script>
+    <script src="game-engine.js"></script>
+
+    <script>
+        let selectedHeroId = 'samurai';
+
+        // Hero Select Cards
+        document.querySelectorAll('.hero-select-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.hero-select-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedHeroId = card.getAttribute('data-hero');
+            });
+        });
+
+        // Start Game
+        document.getElementById('btnStartGame').addEventListener('click', () => {
+            if (window.cyberEngine) {
+                window.cyberEngine.startMatch(selectedHeroId);
+            }
+        });
+
+        // Open Tech Lab
+        document.getElementById('btnOpenTechLab').addEventListener('click', () => {
+            renderTechLab();
+            document.getElementById('techLabModal').style.display = 'flex';
+        });
+
+        function renderTechLab() {
+            if (!window.cyberEngine) return;
+            const meta = window.cyberEngine.metaUpgrades;
+            document.getElementById('techLabGoldText').textContent = `${meta.gold} Gold`;
+            const container = document.getElementById('techGridContainer');
+            container.innerHTML = '';
+
+            const upgrades = [
+                { key: 'attackBonus', name: 'Quantum Core Damage', icon: '⚔️', desc: '+10% All Damage per Level', max: 5, cost: 50 },
+                { key: 'healthBonus', name: 'Titanium Armor Frame', icon: '🛡️', desc: '+25 Max HP per Level', max: 5, cost: 40 },
+                { key: 'speedBonus', name: 'Hydraulic Thrusters', icon: '👟', desc: '+6% Movement Speed per Level', max: 5, cost: 35 },
+                { key: 'cdrBonus', name: 'Overclock Neural Link', icon: '💾', desc: '+8% Cooldown Reduction per Level', max: 5, cost: 60 },
+                { key: 'magnetBonus', name: 'Hyper Magnet Array', icon: '🧲', desc: '+40 XP Magnet Range per Level', max: 5, cost: 30 }
+            ];
+
+            upgrades.forEach(u => {
+                const currentLvl = meta[u.key] || 0;
+                const cost = u.cost * (currentLvl + 1);
+                const isMax = currentLvl >= u.max;
+                const canAfford = meta.gold >= cost && !isMax;
+
+                const row = document.createElement('div');
+                row.className = 'tech-item-row';
+                row.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <span style="font-size: 1.8rem;">${u.icon}</span>
+                        <div>
+                            <h4 style="font-size: 0.95rem; color:#fff;">${u.name} <span style="color:var(--neon-cyan); font-size:0.8rem;">[Lv.${currentLvl}/${u.max}]</span></h4>
+                            <p style="font-size: 0.75rem; color:#94a3b8;">${u.desc}</p>
+                        </div>
+                    </div>
+                    <button class="btn-tech-upgrade" ${!canAfford ? 'disabled' : ''}>
+                        ${isMax ? 'MAX' : `${cost} G`}
+                    </button>
+                `;
+
+                if (canAfford) {
+                    row.querySelector('.btn-tech-upgrade').onclick = () => {
+                        meta.gold -= cost;
+                        meta[u.key] = currentLvl + 1;
+                        window.cyberEngine.saveMetaUpgrades();
+                        renderTechLab();
+                    };
+                }
+
+                container.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MASTER GAME SUITE — Konsol Arcade & Seluruh Game</title>
+    <meta name="description" content="Pusat Konsol Arcade All-in-One: Mainkan seluruh game (Chrono Matika 5v5, Cyber Survivor 2088, Math Snake, Time Raiders, Math Adventure, Kata Master, PolaMatika, LifeQuest RPG) dalam satu konsol terpadu!">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff007f;
+            --neon-gold: #fbbf24;
+            --neon-green: #10b981;
+            --neon-purple: #8b5cf6;
+            
+            --bg-dark: #070a14;
+            --panel-dark: rgba(13, 19, 36, 0.95);
+            --border-glass: rgba(0, 240, 255, 0.35);
+            
+            --font-heading: 'Outfit', sans-serif;
+            --font-arcade: 'Orbitron', monospace;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: var(--font-main);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Arcade Console Navigation Bar */
+        .arcade-top-navbar {
+            height: 60px;
+            background: rgba(9, 14, 28, 0.98);
+            border-bottom: 2px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.25rem;
+            z-index: 50;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.7);
+        }
+
+        .arcade-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .brand-logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+
+        .brand-title {
+            font-family: var(--font-arcade);
+            font-size: 1.15rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.05em;
+        }
+
+        /* Game Switcher Tabs in Nav */
+        .arcade-game-tabs {
+            display: flex;
+            gap: 0.45rem;
+            overflow-x: auto;
+            max-width: 60%;
+            padding: 0.2rem 0;
+        }
+
+        .game-tab-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .game-tab-chip:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .game-tab-chip.active {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #000;
+            border-color: var(--neon-cyan);
+            font-weight: 900;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+
+        /* Action Buttons on Right */
+        .arcade-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-arcade-action {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 0.4rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-arcade-action:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            border-color: var(--neon-cyan);
+        }
+
+        /* Main Game Stage Viewport (Iframe) */
+        .arcade-viewport-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #gameIframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Loading Spinner */
+        .iframe-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--neon-cyan);
+            font-family: var(--font-arcade);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 240, 255, 0.2);
+            border-top-color: var(--neon-cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Mobile Drawer */
+        @media (max-width: 900px) {
+            .arcade-game-tabs {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Console Navbar -->
+    <header class="arcade-top-navbar">
+        <a href="index.html" class="arcade-brand" title="Kembali ke Portal Hub">
+            <div class="brand-logo-icon">🎮</div>
+            <span class="brand-title">GAME SUITE</span>
+        </a>
+
+        <!-- Quick Game Switcher Chips -->
+        <nav class="arcade-game-tabs" id="gameTabsContainer">
+            <button class="game-tab-chip active" data-src="mlbb-web/index.html">
+                ⚔️ Chrono Matika 5v5
+            </button>
+            <button class="game-tab-chip" data-src="cyber-survivor/index.html">
+                🔥 Cyber Survivor
+            </button>
+            <button class="game-tab-chip" data-src="math-snake/index.html">
+                🐍 Math Snake
+            </button>
+            <button class="game-tab-chip" data-src="time-raiders/index.html">
+                ⏳ Time Raiders
+            </button>
+            <button class="game-tab-chip" data-src="math-adventure/index.html">
+                🧮 Math Adventure
+            </button>
+            <button class="game-tab-chip" data-src="kata-master/index.html">
+                📝 Kata Master
+            </button>
+            <button class="game-tab-chip" data-src="polamatika/index.html">
+                🔢 PolaMatika
+            </button>
+            <button class="game-tab-chip" data-src="life-quest/index.html">
+                🛡️ LifeQuest RPG
+            </button>
+        </nav>
+
+        <!-- Right Action Controls -->
+        <div class="arcade-actions">
+            <button class="btn-arcade-action" id="btnReloadGame" title="Muat Ulang Game">
+                <i class="fa-solid fa-rotate-right"></i> Reload
+            </button>
+            <button class="btn-arcade-action" id="btnFullscreen" title="Layar Penuh">
+                <i class="fa-solid fa-expand"></i> Fullscreen
+            </button>
+            <a href="index.html" class="btn-arcade-action" style="background: rgba(251, 191, 36, 0.2); border-color: var(--neon-gold); color: var(--neon-gold);">
+                <i class="fa-solid fa-house"></i> Portal
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Game Viewport -->
+    <main class="arcade-viewport-container">
+        <div class="iframe-loader" id="loader">
+            <div class="spinner"></div>
+            <span>MEMUAT GAME...</span>
+        </div>
+        <iframe id="gameIframe" src="mlbb-web/index.html" allowfullscreen></iframe>
+    </main>
+
+    <script>
+        const iframe = document.getElementById('gameIframe');
+        const loader = document.getElementById('loader');
+        const tabs = document.querySelectorAll('.game-tab-chip');
+
+        // Game Tab Switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const targetSrc = tab.getAttribute('data-src');
+                loader.style.display = 'flex';
+                iframe.src = targetSrc;
+            });
+        });
+
+        iframe.addEventListener('load', () => {
+            loader.style.display = 'none';
+        });
+
+        // Reload current game
+        document.getElementById('btnReloadGame').addEventListener('click', () => {
+            loader.style.display = 'flex';
+            iframe.contentWindow.location.reload();
+        });
+
+        // Fullscreen Mode
+        document.getElementById('btnFullscreen').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        });
+
+        // URL query parameter support (e.g. arcade.html?game=cyber-survivor)
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameParam = urlParams.get('game');
+        if (gameParam) {
+            const matchingTab = Array.from(tabs).find(t => t.getAttribute('data-src').includes(gameParam));
+            if (matchingTab) matchingTab.click();
+        }
+    </script>
+</body>
+</html>

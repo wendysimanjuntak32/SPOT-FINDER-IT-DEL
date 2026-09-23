@@ -390,16 +390,32 @@ class SpotFinderApp {
                     if (data && data.kosong !== undefined) {
                         const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
                         if (gazebo) {
+                            const prevEmpty = gazebo.availableSeats;
                             gazebo.availableSeats = data.kosong;
                             if (data.total !== undefined) gazebo.totalCapacity = data.total;
                             
+                            // Synchronize individual seats in seat map
+                            if (gazebo.seats && gazebo.seats.length > 0) {
+                                let seatsToOccupy = gazebo.totalCapacity - gazebo.availableSeats;
+                                gazebo.seats.forEach((st, idx) => {
+                                    if (idx < seatsToOccupy) {
+                                        st.status = 'occupied';
+                                        if (!st.user) st.user = 'Mahasiswa (Counter ESP32)';
+                                    } else {
+                                        st.status = 'available';
+                                        delete st.user;
+                                    }
+                                });
+                            }
+
                             // Re-render UI & Summary Stats
                             this.renderSummaryStats();
                             this.renderSpots();
                             this.updateVirtualLcd(data);
 
-                            if (data.source === 'ESP32_BOOT_BUTTON') {
-                                this.showToast(`🔔 [Hardware ESP32] Tombol BOOT ditekan: 1 orang baru masuk ke ${gazebo.name} (Tersisa: ${gazebo.availableSeats} kursi)!`);
+                            if (data.source === 'ESP32_BOOT_BUTTON' || data.action === 'PERSON_ENTERED') {
+                                const peopleCount = (data.terisi !== undefined) ? data.terisi : (gazebo.totalCapacity - gazebo.availableSeats);
+                                this.showToast(`🔘 [ESP32 Clicker] Tombol ditekan: Orang di Gazebo bertambah (+1)! Sekarang ada ${peopleCount} orang (Sisa ${gazebo.availableSeats} kursi).`);
                             }
                         }
                     }

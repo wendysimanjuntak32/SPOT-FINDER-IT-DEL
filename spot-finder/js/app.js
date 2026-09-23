@@ -409,10 +409,12 @@ class SpotFinderApp {
                     this.updateMqttBadge(true, "76.13.19.250");
                     console.log(`✅ Berhasil terhubung ke Broker 76.13.19.250 (Port ${port})`);
                     
-                    // Subscribe to Gazebo Status topic
+                    // Subscribe to Gazebo Status topic & wildcards
                     client.subscribe(this.mqttConfig.topicGazebo);
-                    client.subscribe("itdel/+/status");
+                    client.subscribe("itdel/gazebo/status");
+                    client.subscribe("itdel/gazebo/#");
                     client.subscribe("itdel/#");
+                    client.subscribe("#"); // Global wildcard catch-all
                     
                     // Send Initial Broadcast
                     this.broadcastGazeboStatus();
@@ -438,8 +440,9 @@ class SpotFinderApp {
                     const msgStr = message.toString();
                     console.log(`📡 [76.13.19.250] MQTT Received [${topic}]:`, msgStr);
                     try {
-                        const data = JSON.parse(msgStr);
-                        this.handleIncomingMqttData(data);
+                        let parsed = msgStr;
+                        try { parsed = JSON.parse(msgStr); } catch(e) {}
+                        this.handleIncomingMqttData(parsed, topic);
                     } catch (err) {
                         console.warn('Error parsing incoming MQTT message:', err);
                     }
@@ -486,7 +489,9 @@ class SpotFinderApp {
                 this.mqttConfig.activeBroker = finalBrokerUrl;
                 this.updateMqttBadge(true, "76.13.19.250");
                 client.subscribe(this.mqttConfig.topicGazebo);
+                client.subscribe("itdel/gazebo/status");
                 client.subscribe("itdel/#");
+                client.subscribe("#");
                 this.showToast(`✅ Berhasil terhubung ke Broker 76.13.19.250!`);
             });
 
@@ -497,8 +502,9 @@ class SpotFinderApp {
 
             client.on('message', (topic, message) => {
                 try {
-                    const data = JSON.parse(message.toString());
-                    this.handleIncomingMqttData(data);
+                    let parsed = message.toString();
+                    try { parsed = JSON.parse(parsed); } catch(e){}
+                    this.handleIncomingMqttData(parsed, topic);
                 } catch(e){}
             });
         } catch(e) {
@@ -506,19 +512,36 @@ class SpotFinderApp {
         }
     }
 
-    handleIncomingMqttData(data) {
+    handleIncomingMqttData(data, topic = '') {
+        console.log("Processing MQTT Data:", data, "Topic:", topic);
+
+        let parsedData = data;
+        if (typeof data === 'string') {
+            try {
+                parsedData = JSON.parse(data);
+            } catch(e) {
+                const num = parseInt(data.trim());
+                if (!isNaN(num)) {
+                    parsedData = { empty: num };
+                } else {
+                    parsedData = { raw: data };
+                }
+            }
+        }
+
         // Support both Bahasa and English key formats (kosong / empty, terisi / occupied)
         let emptySeats = undefined;
-        if (data.empty !== undefined) emptySeats = parseInt(data.empty);
-        else if (data.kosong !== undefined) emptySeats = parseInt(data.kosong);
-        else if (data.occupied !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.occupied);
-        else if (data.terisi !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.terisi);
+        if (parsedData.empty !== undefined) emptySeats = parseInt(parsedData.empty);
+        else if (parsedData.kosong !== undefined) emptySeats = parseInt(parsedData.kosong);
+        else if (parsedData.occupied !== undefined && parsedData.total !== undefined) emptySeats = parseInt(parsedData.total) - parseInt(parsedData.occupied);
+        else if (parsedData.terisi !== undefined && parsedData.total !== undefined) emptySeats = parseInt(parsedData.total) - parseInt(parsedData.terisi);
+        else if (typeof parsedData === 'number') emptySeats = parsedData;
 
         if (emptySeats !== undefined && !isNaN(emptySeats)) {
             const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
             if (gazebo) {
                 gazebo.availableSeats = Math.max(0, Math.min(gazebo.totalCapacity, emptySeats));
-                if (data.total !== undefined) gazebo.totalCapacity = parseInt(data.total);
+                if (parsedData.total !== undefined) gazebo.totalCapacity = parseInt(parsedData.total);
                 
                 // Synchronize individual seats in seat map
                 if (gazebo.seats && gazebo.seats.length > 0) {
@@ -534,11 +557,15 @@ class SpotFinderApp {
                     });
                 }
 
+                // Update summary stat header
+                const statGazeboEl = document.getElementById('stat-gazebo-empty');
+                if (statGazeboEl) statGazeboEl.textContent = `${gazebo.availableSeats} Kursi Kosong`;
+
                 // Re-render UI & Summary Stats
                 this.renderSummaryStats();
                 this.renderSpots();
                 this.updateVirtualLcd({
-                    ruangan: data.room || data.ruangan || "Gazebo View Danau Toba",
+                    ruangan: parsedData.room || parsedData.ruangan || "Gazebo View Danau Toba",
                     kosong: gazebo.availableSeats,
                     total: gazebo.totalCapacity,
                     persen: Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100)
@@ -548,12 +575,12 @@ class SpotFinderApp {
                 const payloadEl = document.getElementById('mqtt-live-payload');
                 const timeEl = document.getElementById('mqtt-last-time');
                 const nowTime = new Date().toLocaleTimeString('id-ID');
-                if (payloadEl) payloadEl.textContent = JSON.stringify(data, null, 2);
+                if (payloadEl) payloadEl.textContent = JSON.stringify(parsedData, null, 2);
                 if (timeEl) timeEl.textContent = nowTime;
 
-                const peopleCount = (data.occupied !== undefined) ? data.occupied : (data.terisi !== undefined ? data.terisi : (gazebo.totalCapacity - gazebo.availableSeats));
-                const actionLabel = data.lastAction || data.action || (data.source ? data.source : "Update Counter ESP");
-                const deviceName = data.device || "ESP8266-Counter";
+                const peopleCount = (parsedData.occupied !== undefined) ? parsedData.occupied : (parsedData.terisi !== undefined ? parsedData.terisi : (gazebo.totalCapacity - gazebo.availableSeats));
+                const actionLabel = parsedData.lastAction || parsedData.action || (parsedData.source ? parsedData.source : (topic ? "Topik: " + topic : "Update Counter ESP"));
+                const deviceName = parsedData.device || "ESP8266-Counter";
 
                 // Trigger Prominent Floating MQTT Live Incoming Popup
                 const popup = document.getElementById('mqtt-incoming-popup');
@@ -566,7 +593,7 @@ class SpotFinderApp {
                     popTime.textContent = nowTime + " WIB";
                     popAction.textContent = `⚡ [${deviceName}] ${actionLabel}`;
                     popStats.innerHTML = `Gazebo Terisi: <strong>${peopleCount} Orang</strong> • Sisa: <strong style="color:#10b981;">${gazebo.availableSeats} Kursi Kosong</strong>`;
-                    popRaw.textContent = JSON.stringify(data);
+                    popRaw.textContent = JSON.stringify(parsedData);
                     
                     popup.classList.add('show');
                     if (this.mqttPopupTimeout) clearTimeout(this.mqttPopupTimeout);

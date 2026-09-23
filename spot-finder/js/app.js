@@ -384,15 +384,23 @@ class SpotFinderApp {
             });
 
             client.on('message', (topic, message) => {
-                console.log(`MQTT Received [${topic}]:`, message.toString());
+                const msgStr = message.toString();
+                console.log(`MQTT Received [${topic}]:`, msgStr);
                 try {
-                    const data = JSON.parse(message.toString());
-                    if (data && data.kosong !== undefined) {
+                    const data = JSON.parse(msgStr);
+                    
+                    // Support both Bahasa and English key formats (kosong / empty, terisi / occupied)
+                    let emptySeats = undefined;
+                    if (data.kosong !== undefined) emptySeats = parseInt(data.kosong);
+                    else if (data.empty !== undefined) emptySeats = parseInt(data.empty);
+                    else if (data.occupied !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.occupied);
+                    else if (data.terisi !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.terisi);
+
+                    if (emptySeats !== undefined && !isNaN(emptySeats)) {
                         const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
                         if (gazebo) {
-                            const prevEmpty = gazebo.availableSeats;
-                            gazebo.availableSeats = data.kosong;
-                            if (data.total !== undefined) gazebo.totalCapacity = data.total;
+                            gazebo.availableSeats = Math.max(0, Math.min(gazebo.totalCapacity, emptySeats));
+                            if (data.total !== undefined) gazebo.totalCapacity = parseInt(data.total);
                             
                             // Synchronize individual seats in seat map
                             if (gazebo.seats && gazebo.seats.length > 0) {
@@ -400,7 +408,7 @@ class SpotFinderApp {
                                 gazebo.seats.forEach((st, idx) => {
                                     if (idx < seatsToOccupy) {
                                         st.status = 'occupied';
-                                        if (!st.user) st.user = 'Mahasiswa (Counter ESP32)';
+                                        if (!st.user) st.user = 'Mahasiswa (ESP Counter)';
                                     } else {
                                         st.status = 'available';
                                         delete st.user;
@@ -411,12 +419,23 @@ class SpotFinderApp {
                             // Re-render UI & Summary Stats
                             this.renderSummaryStats();
                             this.renderSpots();
-                            this.updateVirtualLcd(data);
+                            this.updateVirtualLcd({
+                                ruangan: data.room || data.ruangan || "Gazebo View Danau Toba",
+                                kosong: gazebo.availableSeats,
+                                total: gazebo.totalCapacity,
+                                persen: Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100)
+                            });
 
-                            if (data.source === 'ESP32_BOOT_BUTTON' || data.action === 'PERSON_ENTERED') {
-                                const peopleCount = (data.terisi !== undefined) ? data.terisi : (gazebo.totalCapacity - gazebo.availableSeats);
-                                this.showToast(`🔘 [ESP32 Clicker] Tombol ditekan: Orang di Gazebo bertambah (+1)! Sekarang ada ${peopleCount} orang (Sisa ${gazebo.availableSeats} kursi).`);
-                            }
+                            // Update payload display box
+                            const payloadEl = document.getElementById('mqtt-live-payload');
+                            const timeEl = document.getElementById('mqtt-last-time');
+                            if (payloadEl) payloadEl.textContent = JSON.stringify(data, null, 2);
+                            if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('id-ID');
+
+                            const peopleCount = (data.occupied !== undefined) ? data.occupied : (data.terisi !== undefined ? data.terisi : (gazebo.totalCapacity - gazebo.availableSeats));
+                            const actionLabel = data.lastAction || data.action || (data.source ? data.source : "Update Counter");
+                            
+                            this.showToast(`📡 [ESP Counter: ${actionLabel}] Gazebo Terisi: ${peopleCount} orang (Tersedia: ${gazebo.availableSeats} kursi)`);
                         }
                     }
                 } catch (err) {

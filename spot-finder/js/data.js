@@ -232,3 +232,66 @@ const IT_DEL_LIVE_UPDATES = [
     { text: "Kantin IT Del: Antrean makan siang sedang padat (Penuh)", time: "5 mnt lalu" },
     { text: "Gazebo Danau Toba: 12 kursi kosong dengan angin sepoi-sepoi", time: "7 mnt lalu" }
 ];
+
+const IT_DEL_LOST_FOUND = [
+    {
+        id: "lf-1",
+        item: "Tumbler IT Del Warna Biru Navy (Logo Emas)",
+        category: "tumbler",
+        categoryLabel: "🥤 Botol Minum / Tumbler",
+        spotId: "spot-gazebo-danau",
+        spotName: "Gazebo View Danau Toba",
+        locationDetail: "Tertinggal di Meja Gazebo GZ-3 dekat tiang stopkontak",
+        timeFound: "Hari ini, 13:45 WIB",
+        status: "unclaimed",
+        keptAt: "Pos Satpam Gerbang Danau IT Del",
+        finder: "Petugas Kebersihan Kampus",
+        icon: "🥤",
+        contactNote: "Bawa bukti identitas/KTM untuk mengambil di Pos Satpam."
+    },
+    {
+        id: "lf-2",
+        item: "Kartu Tanda Mahasiswa (KTM) Informatika 2023",
+        category: "ktm",
+        categoryLabel: "🪪 Kartu Mahasiswa / Identitas",
+        spotId: "spot-perpus-itdel",
+        spotName: "Perpustakaan IT Del (Lantai 2)",
+        locationDetail: "Meja Partisi P-05 Area Skripsi",
+        timeFound: "Hari ini, 11:20 WIB",
+        status: "unclaimed",
+        keptAt: "Meja Resepsionis Perpustakaan Lt. 1",
+        finder: "Pustakawan Del",
+        icon: "🪪",
+        contactNote: "Bisa langsung diambil di Meja Sirkulasi Perpus."
+    },
+    {
+        id: "lf-3",
+        item: "Charger Laptop Type-C 65W (Warna Hitam)",
+        category: "elektronik",
+        categoryLabel: "🔌 Aksesoris / Elektronik",
+        spotId: "spot-gd7-study",
+        spotName: "Ruang Belajar Bersama (Gedung 7)",
+        locationDetail: "Di stopkontak bawah papan tulis GD 712",
+        timeFound: "Kemarin, 19:10 WIB",
+        status: "unclaimed",
+        keptAt: "Laboran Gedung 7 (Pak Sihombing)",
+        finder: "Mahasiswa Sistem Informasi",
+        icon: "🔌",
+        contactNote: "Sebutkan merk charger saat mengambil."
+    },
+    {
+        id: "lf-4",
+        item: "Jaket Almamater IT Del (Ukuran L)",
+        category: "pakaian",
+        categoryLabel: "🧥 Pakaian / Jaket",
+        spotId: "spot-sopo-del",
+        spotName: "Sopo Del Student Lounge",
+        locationDetail: "Disandarkan di sofa sudut dekat pintu",
+        timeFound: "2 hari lalu",
+        status: "claimed",
+        keptAt: "Sudah dikembalikan ke pemilik (Mahasiswa TE)",
+        finder: "Pengurus Himpunan",
+        icon: "🧥",
+        contactNote: "Status: Sudah Berhasil Diklaim"
+    }
+];

@@ -1006,3 +1006,106 @@ body.dark-mode .status-pill.available { color: var(--primary); }
     .spot-footer { flex-direction: column; }
     .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
 }
+
+/* ==========================================================================
+   Lost & Found (Barang Tertinggal) Component Styling
+   ========================================================================== */
+.lf-item-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.lf-item-card:hover {
+    border-color: var(--del-cyan);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.lf-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.lf-item-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.3;
+}
+
+.lf-badge {
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.lf-badge.unclaimed {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.lf-badge.claimed {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.lf-info-row {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--border-subtle);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+}
+
+.lf-info-row strong {
+    color: var(--text-main);
+}
+
+.lf-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.spot-lost-alert {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+
+.spot-lost-alert:hover {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+}

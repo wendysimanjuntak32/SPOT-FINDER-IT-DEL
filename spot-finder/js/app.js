@@ -5,7 +5,9 @@
 class SpotFinderApp {
     constructor() {
         this.spots = JSON.parse(JSON.stringify(IT_DEL_SPOTS));
+        this.lostFoundItems = JSON.parse(localStorage.getItem('itdel_lost_found')) || (typeof IT_DEL_LOST_FOUND !== 'undefined' ? JSON.parse(JSON.stringify(IT_DEL_LOST_FOUND)) : []);
         this.selectedFilter = 'all';
+        this.selectedLfFilter = 'all';
         this.searchQuery = '';
         this.currentSelectedSpot = null;
         this.currentSelectedSeat = null;
@@ -31,6 +33,7 @@ class SpotFinderApp {
         this.setupEventListeners();
         this.initMqttConnection();
         this.startLiveSimulation();
+        this.updateLostFoundBadges();
     }
 
     // ==========================================
@@ -171,6 +174,19 @@ class SpotFinderApp {
                         ${spot.outdoor ? '<span class="facility-chip">🍃 Outdoor / View Danau</span>' : ''}
                         <span class="facility-chip">⏰ ${spot.openHours}</span>
                     </div>
+
+                    ${(() => {
+                        const lostItems = this.lostFoundItems.filter(item => item.spotId === spot.id && item.status === 'unclaimed');
+                        if (lostItems.length > 0) {
+                            return `
+                                <div class="spot-lost-alert" onclick="app.openLostFoundModal('${spot.id}')" title="Klik untuk melihat barang tertinggal di lokasi ini">
+                                    <span>📦 <strong>${lostItems.length} Barang Tertinggal</strong> di lokasi ini</span>
+                                    <span style="font-size:0.75rem; text-decoration:underline;">Lihat Detail ➔</span>
+                                </div>
+                            `;
+                        }
+                        return '';
+                    })()}
                 </div>
 
                 <div class="spot-footer">
@@ -539,6 +555,189 @@ class SpotFinderApp {
     }
 
     // ==========================================
+    // Portal Barang Tertinggal (Lost & Found)
+    // ==========================================
+    openLostFoundModal(filterSpotId = null) {
+        this.renderLostFoundItems(filterSpotId);
+        this.switchLostFoundTab('list');
+        const modal = document.getElementById('lost-found-modal');
+        if (modal) modal.classList.add('active');
+    }
+
+    closeLostFoundModal() {
+        const modal = document.getElementById('lost-found-modal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    switchLostFoundTab(tab) {
+        const listView = document.getElementById('lf-tab-list-view');
+        const formView = document.getElementById('lf-tab-form-view');
+        const listBtn = document.getElementById('lf-tab-btn-list');
+        const formBtn = document.getElementById('lf-tab-btn-form');
+
+        if (tab === 'list') {
+            if (listView) listView.style.display = 'block';
+            if (formView) formView.style.display = 'none';
+            if (listBtn) { listBtn.className = 'btn-primary'; }
+            if (formBtn) { formBtn.className = 'btn-secondary'; }
+            this.renderLostFoundItems();
+        } else {
+            if (listView) listView.style.display = 'none';
+            if (formView) formView.style.display = 'block';
+            if (listBtn) { listBtn.className = 'btn-secondary'; }
+            if (formBtn) { formBtn.className = 'btn-primary'; }
+        }
+    }
+
+    filterLostFound(category, btnEl) {
+        this.selectedLfFilter = category;
+        document.querySelectorAll('.lf-filter-pill').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        this.renderLostFoundItems();
+    }
+
+    renderLostFoundItems(filterSpotId = null) {
+        const grid = document.getElementById('lf-items-grid');
+        const countEl = document.getElementById('lf-tab-count');
+        if (!grid) return;
+
+        let items = this.lostFoundItems;
+        if (filterSpotId) {
+            items = items.filter(i => i.spotId === filterSpotId);
+        }
+
+        if (this.selectedLfFilter !== 'all') {
+            items = items.filter(i => i.category === this.selectedLfFilter);
+        }
+
+        const unclaimedTotal = this.lostFoundItems.filter(i => i.status === 'unclaimed').length;
+        if (countEl) countEl.textContent = unclaimedTotal;
+
+        if (items.length === 0) {
+            grid.innerHTML = `
+                <div style="text-align:center; padding:36px 16px; color:var(--text-muted);">
+                    <div style="font-size:2.5rem; margin-bottom:8px;">✨</div>
+                    <h4>Tidak ada barang tertinggal yang cocok</h4>
+                    <p style="font-size:0.85rem; margin-top:4px;">Semua barang telah diambil atau belum ada laporan baru.</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = items.map(item => `
+            <div class="lf-item-card">
+                <div class="lf-card-header">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size: 1.6rem; background:var(--border-subtle); width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                            ${item.icon || '📦'}
+                        </span>
+                        <div>
+                            <h4 class="lf-item-title">${item.item}</h4>
+                            <span style="font-size: 0.78rem; color: var(--del-cyan); font-weight:700;">${item.categoryLabel || item.category}</span>
+                        </div>
+                    </div>
+                    <span class="lf-badge ${item.status}">
+                        ${item.status === 'unclaimed' ? '🟡 Belum Diambil' : '🟢 Sudah Diklaim'}
+                    </span>
+                </div>
+
+                <div class="lf-info-row">
+                    <div>📍 <strong>Lokasi Temuan:</strong> ${item.spotName} (${item.locationDetail})</div>
+                    <div>🕒 <strong>Waktu Temuan:</strong> ${item.timeFound} • Oleh: <em>${item.finder}</em></div>
+                    <div>🏢 <strong>Dititipkan di:</strong> <span style="color:#f59e0b; font-weight:800;">${item.keptAt}</span></div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">ℹ️ ${item.contactNote || 'Silakan ambil dengan menunjukkan identitas.'}</div>
+                </div>
+
+                <div class="lf-card-footer">
+                    ${item.status === 'unclaimed' ? `
+                        <button class="btn-primary" onclick="app.claimLostFoundItem('${item.id}')" style="font-size:0.82rem; padding:6px 14px;">
+                            ✅ Tandai Sudah Diambil / Diklaim
+                        </button>
+                    ` : `
+                        <span style="font-size:0.82rem; color:var(--emerald); font-weight:700;">
+                            ✨ Barang ini telah dikembalikan ke pemiliknya
+                        </span>
+                    `}
+                    <button class="btn-secondary" onclick="app.showToast('ℹ️ Silakan langsung temui petugas di: ' + '${item.keptAt}')" style="font-size:0.82rem; padding:6px 12px;">
+                        📞 Hubungi Lokasi Penitipan
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    handleLostFoundSubmit(event) {
+        event.preventDefault();
+        const nameInput = document.getElementById('lf-input-item');
+        const catInput = document.getElementById('lf-input-category');
+        const spotInput = document.getElementById('lf-input-spot');
+        const locInput = document.getElementById('lf-input-location');
+        const keptInput = document.getElementById('lf-input-kept');
+        const finderInput = document.getElementById('lf-input-finder');
+
+        if (!nameInput || !nameInput.value.trim()) return;
+
+        const selectedSpot = this.spots.find(s => s.id === spotInput.value) || { name: spotInput.options[spotInput.selectedIndex].text };
+
+        const iconMap = {
+            tumbler: "🥤",
+            ktm: "🪪",
+            elektronik: "🔌",
+            pakaian: "🧥",
+            buku: "📖",
+            lainnya: "📦"
+        };
+
+        const newItem = {
+            id: 'lf-' + Date.now(),
+            item: nameInput.value.trim(),
+            category: catInput.value,
+            categoryLabel: catInput.options[catInput.selectedIndex].text,
+            spotId: spotInput.value,
+            spotName: selectedSpot.name,
+            locationDetail: locInput.value.trim(),
+            timeFound: "Baru saja (" + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + " WIB)",
+            status: "unclaimed",
+            keptAt: keptInput.value.trim(),
+            finder: finderInput.value.trim(),
+            icon: iconMap[catInput.value] || "📦",
+            contactNote: "Ditemukan oleh civitas Del. Silakan hubungi tempat penitipan."
+        };
+
+        this.lostFoundItems.unshift(newItem);
+        localStorage.setItem('itdel_lost_found', JSON.stringify(this.lostFoundItems));
+
+        this.updateLostFoundBadges();
+        this.renderSpots();
+        this.switchLostFoundTab('list');
+
+        this.showToast(`📢 Laporan temuan "${newItem.item}" berhasil dipublikasikan!`);
+        document.getElementById('lf-report-form').reset();
+    }
+
+    claimLostFoundItem(itemId) {
+        const item = this.lostFoundItems.find(i => i.id === itemId);
+        if (!item) return;
+
+        item.status = 'claimed';
+        localStorage.setItem('itdel_lost_found', JSON.stringify(this.lostFoundItems));
+
+        this.updateLostFoundBadges();
+        this.renderLostFoundItems();
+        this.renderSpots();
+        this.showToast(`🎉 Status barang "${item.item}" berhasil diubah menjadi Sudah Diklaim!`);
+    }
+
+    updateLostFoundBadges() {
+        const unclaimedCount = this.lostFoundItems.filter(i => i.status === 'unclaimed').length;
+        const badgeEl = document.getElementById('lost-found-count-badge');
+        const tabCountEl = document.getElementById('lf-tab-count');
+
+        if (badgeEl) badgeEl.textContent = unclaimedCount;
+        if (tabCountEl) tabCountEl.textContent = unclaimedCount;
+    }
+
+    // ==========================================
     // Event Listeners
     // ==========================================
     setupEventListeners() {
@@ -585,6 +784,12 @@ class SpotFinderApp {
         const btnEsp32 = document.getElementById('btn-open-esp32-code');
         if (btnEsp32) {
             btnEsp32.addEventListener('click', () => this.openEsp32Modal());
+        }
+
+        // Tombol Barang Tertinggal (Lost & Found)
+        const btnLostFound = document.getElementById('btn-open-lost-found');
+        if (btnLostFound) {
+            btnLostFound.addEventListener('click', () => this.openLostFoundModal());
         }
 
         // Tombol Deteksi Lokasi

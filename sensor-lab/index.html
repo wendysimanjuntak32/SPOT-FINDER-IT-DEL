@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SENSOR LAB ULTIMATE — Laboratorium Telemetri & Sensor Digital</title>
+    <meta name="description" content="Aplikasi Sensor Hardware & Telemetri Lengkap: Akselerometer G-Force, Giroskop 3D Compass, Sound Decibel Meter, Fotodioda Cahaya Lux, Termometer Barometrik, GPS Kecepatan, dan Export Data CSV!">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header & Top Action Controls -->
+        <header class="lab-header">
+            <div class="brand-section">
+                <div class="lab-logo-icon">📡</div>
+                <div class="lab-title-text">
+                    <h1>SENSOR LAB ULTIMATE</h1>
+                    <p>Pusat Pemantauan Telemetri Sensor Hardware & Fisika Digital 60 FPS</p>
+                </div>
+            </div>
+
+            <div class="lab-controls-row">
+                <button class="btn-lab" id="btnMicToggle" onclick="window.sensorEngine.toggleMicrophone()">
+                    <i class="fa-solid fa-microphone"></i> Aktifkan Mic Asli
+                </button>
+                <button class="btn-lab" id="btnRecordLogs" onclick="window.sensorEngine.toggleRecording()">
+                    <i class="fa-solid fa-circle-dot"></i> Rekam Data (CSV)
+                </button>
+                <a href="../index.html" class="btn-lab" style="background: rgba(245, 158, 11, 0.15); border-color: var(--neon-gold); color: var(--neon-gold);">
+                    <i class="fa-solid fa-house"></i> Portal Utama
+                </a>
+            </div>
+        </header>
+
+        <!-- Sensor Category Filter Tabs -->
+        <nav class="sensor-tabs-row">
+            <button class="sensor-tab active" onclick="window.sensorEngine.filterCategory('ALL', this)">
+                <i class="fa-solid fa-layer-group"></i> Semua Sensor (8)
+            </button>
+            <button class="sensor-tab" onclick="window.sensorEngine.filterCategory('MOTION', this)">
+                <i class="fa-solid fa-arrows-up-down-left-right"></i> Gerak & Orientasi (G-Force, Gyro)
+            </button>
+            <button class="sensor-tab" onclick="window.sensorEngine.filterCategory('ENVIRONMENT', this)">
+                <i class="fa-solid fa-cloud-sun"></i> Lingkungan & Akustik (Decibel, Lux, Temp)
+            </button>
+            <button class="sensor-tab" onclick="window.sensorEngine.filterCategory('HARDWARE', this)">
+                <i class="fa-solid fa-microchip"></i> Hardware & Lokasi (Baterai, GPS, Network)
+            </button>
+        </nav>
+
+        <!-- Main Telemetry Sensor Grid -->
+        <main class="sensor-grid" id="sensorGrid">
+
+            <!-- SENSOR 1: ACCELEROMETER & G-FORCE -->
+            <div class="sensor-card" data-cat="MOTION" style="--card-accent: #06b6d4;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap"><i class="fa-solid fa-gauge-high"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Akselerometer G-Force</h3>
+                            <span class="sensor-type-sub">3-Axis Inertial Motion Unit</span>
+                        </div>
+                    </div>
+                    <span class="status-badge" id="statusAccel"><i class="fa-solid fa-circle"></i> Active</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valAccel">1.00</div>
+                    <span class="value-unit">G (Gravitasi)</span>
+                </div>
+
+                <div class="gauge-bar-wrap">
+                    <div class="gauge-bar-fill" id="gaugeAccel" style="width: 40%;"></div>
+                </div>
+
+                <!-- Live Oscilloscope Chart -->
+                <div class="chart-canvas-wrap">
+                    <canvas class="chart-canvas" id="chartAccel" width="320" height="100"></canvas>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <span>X-Axis:</span>
+                        <strong id="metricAccelX">0.00 m/s²</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Y-Axis:</span>
+                        <strong id="metricAccelY">0.00 m/s²</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Z-Axis:</span>
+                        <strong id="metricAccelZ">9.80 m/s²</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSOR 2: GYROSCOPE & 3D COMPASS -->
+            <div class="sensor-card" data-cat="MOTION" style="--card-accent: #8b5cf6;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #8b5cf6;"><i class="fa-solid fa-compass"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Giroskop & Kompas Digital</h3>
+                            <span class="sensor-type-sub">Rotational Yaw/Pitch/Roll</span>
+                        </div>
+                    </div>
+                    <span class="status-badge" style="color: #8b5cf6; border-color: #8b5cf6;"><i class="fa-solid fa-circle"></i> Tracking</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valGyro" style="color: #c084fc;">0°</div>
+                    <span class="value-unit" style="color: #8b5cf6;">Heading (Alpha)</span>
+                </div>
+
+                <!-- 3D Compass Visualizer -->
+                <div class="compass-3d-wrap">
+                    <div class="compass-ring" id="compassNeedleRing">
+                        <div class="compass-needle"></div>
+                        <span style="position: absolute; top: 4px; font-size: 0.65rem; font-weight: 900; color: #f43f5e;">N</span>
+                    </div>
+                </div>
+
+                <!-- Live Oscilloscope Chart -->
+                <div class="chart-canvas-wrap">
+                    <canvas class="chart-canvas" id="chartGyro" width="320" height="100"></canvas>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <span>Pitch (Beta):</span>
+                        <strong id="metricGyroPitch">0°</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Roll (Gamma):</span>
+                        <strong id="metricGyroRoll">0°</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSOR 3: ACOUSTIC SOUND DECIBEL METER -->
+            <div class="sensor-card" data-cat="ENVIRONMENT" style="--card-accent: #10b981;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #10b981;"><i class="fa-solid fa-volume-high"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Sound Decibel Meter</h3>
+                            <span class="sensor-type-sub">Acoustic SPL Intensity</span>
+                        </div>
+                    </div>
+                    <span class="status-badge" id="statusMic"><i class="fa-solid fa-circle"></i> Tenang</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valMic" style="color: #34d399;">32</div>
+                    <span class="value-unit" style="color: #10b981;">dB (Decibel SPL)</span>
+                </div>
+
+                <div class="gauge-bar-wrap">
+                    <div class="gauge-bar-fill" id="gaugeMic" style="width: 32%; background: #10b981;"></div>
+                </div>
+
+                <!-- Live Oscilloscope Chart -->
+                <div class="chart-canvas-wrap">
+                    <canvas class="chart-canvas" id="chartMic" width="320" height="100"></canvas>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <span>Noise Floor:</span>
+                        <strong>25 dB</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Threshold Alarm:</span>
+                        <strong style="color: var(--neon-rose);">80 dB</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSOR 4: AMBIENT LIGHT PHOTODIODE -->
+            <div class="sensor-card" data-cat="ENVIRONMENT" style="--card-accent: #f59e0b;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #f59e0b;"><i class="fa-solid fa-sun"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Sensor Intensitas Cahaya</h3>
+                            <span class="sensor-type-sub">Ambient Photodiode Lux</span>
+                        </div>
+                    </div>
+                    <span class="status-badge" style="color: #f59e0b; border-color: #f59e0b;"><i class="fa-solid fa-circle"></i> Terang</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valLight" style="color: #fbbf24;">350</div>
+                    <span class="value-unit" style="color: #f59e0b;">Lux (Kecerahan)</span>
+                </div>
+
+                <div class="gauge-bar-wrap">
+                    <div class="gauge-bar-fill" id="gaugeLight" style="width: 35%; background: #f59e0b;"></div>
+                </div>
+
+                <!-- Live Oscilloscope Chart -->
+                <div class="chart-canvas-wrap">
+                    <canvas class="chart-canvas" id="chartLight" width="320" height="100"></canvas>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <span>Penerangan:</span>
+                        <strong>Ruang Terang</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>UV Index:</span>
+                        <strong>4.2 (Sedang)</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSOR 5: TEMPERATURE & BAROMETER -->
+            <div class="sensor-card" data-cat="ENVIRONMENT" style="--card-accent: #f43f5e;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #f43f5e;"><i class="fa-solid fa-temperature-half"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Suhu & Barometer Tekanan</h3>
+                            <span class="sensor-type-sub">Atmospheric Climate Telemetry</span>
+                        </div>
+                    </div>
+                    <span class="status-badge" style="color: #f43f5e; border-color: #f43f5e;"><i class="fa-solid fa-circle"></i> Normal</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valTemp" style="color: #fb7185;">28.5</div>
+                    <span class="value-unit" style="color: #f43f5e;">°C (Celsius)</span>
+                </div>
+
+                <div class="gauge-bar-wrap">
+                    <div class="gauge-bar-fill" id="gaugeTemp" style="width: 45%; background: #f43f5e;"></div>
+                </div>
+
+                <!-- Live Oscilloscope Chart -->
+                <div class="chart-canvas-wrap">
+                    <canvas class="chart-canvas" id="chartTemp" width="320" height="100"></canvas>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <span>Kelembapan:</span>
+                        <strong id="metricHumidity">65%</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Tekanan Udara:</span>
+                        <strong id="metricPressure">1013.25 hPa</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSOR 6: GPS & SPEEDOMETER -->
+            <div class="sensor-card" data-cat="HARDWARE" style="--card-accent: #3b82f6;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #3b82f6;"><i class="fa-solid fa-location-crosshairs"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">GPS & Speedometer</h3>
+                            <span class="sensor-type-sub">Global Positioning Telemetry</span>
+                        </div>
+                    </div>
+                    <span class="status-badge" id="statusGpsBadge"><i class="fa-solid fa-satellite"></i> Live GPS</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valGpsSpeed" style="color: #60a5fa;">0 km/h</div>
+                    <span class="value-unit" style="color: #3b82f6;">Kecepatan</span>
+                </div>
+
+                <div class="metrics-row" style="flex-direction: column; gap: 0.4rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Latitude:</span>
+                        <strong id="valGpsLat">-6.2088</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Longitude:</span>
+                        <strong id="valGpsLng">106.8456</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Ketinggian (Altitude):</span>
+                        <strong id="valGpsAlt">18 m</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSOR 7: BATTERY HEALTH & POWER -->
+            <div class="sensor-card" data-cat="HARDWARE" style="--card-accent: #10b981;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #10b981;"><i class="fa-solid fa-battery-three-quarters"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Baterai & Daya Sistem</h3>
+                            <span class="sensor-type-sub">Power Management Bus</span>
+                        </div>
+                    </div>
+                    <span class="status-badge"><i class="fa-solid fa-bolt"></i> Optimal</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valBattery" style="color: #34d399;">100</div>
+                    <span class="value-unit" style="color: #10b981;">% (Daya)</span>
+                </div>
+
+                <div class="gauge-bar-wrap">
+                    <div class="gauge-bar-fill" id="gaugeBattery" style="width: 100%; background: #10b981;"></div>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <span>Status Pengisian:</span>
+                        <strong id="metricBatCharging">⚡ Yes</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Kondisi Baterai:</span>
+                        <strong>Sehat (Good)</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSOR 8: NETWORK DIAGNOSTICS -->
+            <div class="sensor-card" data-cat="HARDWARE" style="--card-accent: #8b5cf6;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #8b5cf6;"><i class="fa-solid fa-wifi"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Jaringan & Latensi Sinyal</h3>
+                            <span class="sensor-type-sub">Network Diagnostics Telemetry</span>
+                        </div>
+                    </div>
+                    <span class="status-badge"><i class="fa-solid fa-circle-check"></i> Online</span>
+                </div>
+
+                <div class="sensor-value-row">
+                    <div class="main-value" id="valNetType" style="color: #c084fc; font-size: 2.2rem;">Wi-Fi / 4G</div>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-item">
+                        <span>Latensi (RTT):</span>
+                        <strong id="metricNetLatency">25 ms</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Estimasi Downlink:</span>
+                        <strong id="metricNetSpeed">18.5 Mbps</strong>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="sensor-engine.js"></script>
+</body>
+</html>

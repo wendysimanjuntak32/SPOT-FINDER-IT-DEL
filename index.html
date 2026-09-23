@@ -544,19 +544,22 @@
                     <i class="fa-solid fa-shapes"></i> Master Web App Directory
                 </div>
                 <div class="live-count-badge">
-                    <span class="pulse-dot"></span> 14 Aplikasi Siap Diakses
+                    <span class="pulse-dot"></span> 15 Aplikasi Siap Diakses
                 </div>
             </div>
             
             <h1 class="hero-title">Pusat Aplikasi & Game Web</h1>
             <p class="hero-subtitle">
-                Akses instan seluruh ekosistem aplikasi web dan game dalam satu konsol terpadu: Math Snake Ular Aritmatika, Cyber Survivor 2088 Roguelite, Chrono Matika 5v5 MOBA, Time Raiders, Pengukur Suhu Cerdas, Layanan Kampus, Produktivitas RPG, Karir Magang, dan Game Edukasi.
+                Akses instan seluruh ekosistem aplikasi web, game, dan sensor telemetri dalam satu konsol terpadu: Sensor Lab Ultimate, Math Snake, Cyber Survivor 2088, Chrono Matika 5v5 MOBA, Time Raiders, Cuaca Cerdas, Layanan Kampus, dan RPG.
             </p>
 
             <!-- Master Unified Arcade Suite Launch Button -->
             <div style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
                 <a href="arcade.html" style="background: linear-gradient(135deg, #00f0ff, #ff007f); color: #000; font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 900; padding: 0.95rem 2.5rem; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.75rem; box-shadow: 0 0 30px rgba(0, 240, 255, 0.5); transition: all 0.25s ease;">
                     <i class="fa-solid fa-gamepad" style="font-size: 1.4rem;"></i> 🎮 BUKA KONSOL ARCADE TERPADU (SEMUA GAME)
+                </a>
+                <a href="sensor-lab/index.html" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: #000; font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 900; padding: 0.95rem 2.5rem; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.75rem; box-shadow: 0 0 30px rgba(6, 182, 212, 0.5); transition: all 0.25s ease;">
+                    <i class="fa-solid fa-satellite-dish" style="font-size: 1.4rem;"></i> 📡 BUKA SENSOR LAB ULTIMATE
                 </a>
             </div>
         </header>
@@ -565,7 +568,7 @@
         <div class="controls-card">
             <div class="controls-top-row">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Cari nama aplikasi atau topik (misal: ular, snake, penjumlahan, perkalian, cyber survivor, moba, cuaca, rpg, cv)...">
+                    <input type="text" id="searchInput" placeholder="Cari nama aplikasi atau topik (misal: sensor, akselerometer, giroskop, decibel, cuaca, ular, moba)...">
                 </div>
                 <button class="btn-copy-all" id="btnCopyAllLinks">
                     <i class="fa-solid fa-copy"></i> Salin Semua Link
@@ -574,7 +577,10 @@
 
             <div class="filter-tabs">
                 <button class="tab-btn active" data-category="all">
-                    <i class="fa-solid fa-layer-group"></i> Semua (14)
+                    <i class="fa-solid fa-layer-group"></i> Semua (15)
+                </button>
+                <button class="tab-btn" data-category="sensor">
+                    <i class="fa-solid fa-satellite-dish"></i> Sensor & Hardware
                 </button>
                 <button class="tab-btn" data-category="game">
                     <i class="fa-solid fa-gamepad"></i> Game Aksi & Edukasi
@@ -593,6 +599,34 @@
 
         <!-- Applications Grid -->
         <main class="apps-grid" id="appsGrid">
+
+            <!-- APP SPECIAL: SENSOR LAB ULTIMATE -->
+            <div class="app-card card-featured-large" data-category="sensor" data-tags="sensor lab ultimate hardware telemetri akselerometer giroskop sound meter decibel lux cahaya baterai gps barometer suhu csv export"
+                 style="--card-color: #06b6d4; --card-glow: rgba(6, 182, 212, 0.45); --icon-bg: rgba(6, 182, 212, 0.15); --icon-border: rgba(6, 182, 212, 0.4); --icon-glow: rgba(6, 182, 212, 0.35);">
+                <div class="card-top">
+                    <div class="icon-wrap" style="color: #06b6d4; border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-special" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: #000; font-weight: 900;">📡 SENSOR & TELEMETRI HARDWARE</span>
+                        <span class="tag-category">Real-Time Sensor Lab</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">SENSOR LAB ULTIMATE</h2>
+                    <p class="card-desc">
+                        Aplikasi Sensor Hardware & Telemetri Lengkap berskala laboratorium! Membaca sensor fisik perangkat secara langsung (Akselerometer 3-Axis G-Force, Giroskop Kompas 3D, Sound Decibel Meter SPL, Fotodioda Intensitas Cahaya Lux, Termometer Barometrik, GPS Speedometer, Status Baterai, dan Diagnostik Jaringan). Dilengkapi grafik osiloskop 60 FPS real-time dan <strong>fitur Ekspor Rekaman Data CSV</strong>!
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="sensor-lab/index.html" class="btn-launch" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: #000; font-weight: 900; font-size: 0.95rem;">
+                        <i class="fa-solid fa-satellite-dish"></i> Buka SENSOR LAB ULTIMATE
+                    </a>
+                    <button class="btn-copy-link" data-url="sensor-lab/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
 
             <!-- APP SPECIAL: MATH SNAKE (ULAR PINTAR ARITMATIKA) -->
             <div class="app-card card-featured-large" data-category="game" data-tags="math snake ular pintar matematika penjumlahan perkalian edukasi game anak logika hitung cepat skor kombo"

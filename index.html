@@ -544,13 +544,13 @@
                     <i class="fa-solid fa-shapes"></i> Master Web App Directory
                 </div>
                 <div class="live-count-badge">
-                    <span class="pulse-dot"></span> 11 Aplikasi Siap Diakses
+                    <span class="pulse-dot"></span> 12 Aplikasi Siap Diakses
                 </div>
             </div>
             
             <h1 class="hero-title">Pusat Aplikasi & Game Web</h1>
             <p class="hero-subtitle">
-                Akses instan seluruh ekosistem aplikasi web: Game MOBA 5v5 Time Raiders, Pengukur Suhu & Pengingat Hujan, Layanan Kampus, Produktivitas RPG, Karir Magang, dan Game Edukasi Interaktif.
+                Akses instan seluruh ekosistem aplikasi web: Mobile Legends 5v5 Web MOBA, Time Raiders, Pengukur Suhu Cerdas, Layanan Kampus, Produktivitas RPG, Karir Magang, dan Game Edukasi.
             </p>
         </header>
 
@@ -559,7 +559,7 @@
             <div class="controls-top-row">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Cari nama aplikasi atau topik (misal: time raiders, 5v5, moba, cuaca, rpg, cv)...">
+                    <input type="text" id="searchInput" placeholder="Cari nama aplikasi atau topik (misal: mobile legends, mlbb, 5v5, moba, cuaca, rpg, cv)...">
                 </div>
                 <button class="btn-copy-all" id="btnCopyAllLinks">
                     <i class="fa-solid fa-copy"></i> Salin Semua Link
@@ -568,7 +568,7 @@
 
             <div class="filter-tabs">
                 <button class="tab-btn active" data-category="all">
-                    <i class="fa-solid fa-layer-group"></i> Semua (11)
+                    <i class="fa-solid fa-layer-group"></i> Semua (12)
                 </button>
                 <button class="tab-btn" data-category="game">
                     <i class="fa-solid fa-gamepad"></i> Game 5v5 & Edukasi
@@ -588,7 +588,35 @@
         <!-- Applications Grid -->
         <main class="apps-grid" id="appsGrid">
 
-            <!-- APP 0: TIME RAIDERS 5v5 (NEW FLAGSHIP 5v5 MOBA) -->
+            <!-- APP 0: MOBILE LEGENDS 5v5 (FLAGSHIP MLBB MOBA) -->
+            <div class="app-card card-featured-large" data-category="game" data-tags="mobile legends mlbb 5v5 moba land of dawn zilong saber eudora layla tigreal estes turtle lord jungle item shop pvp battle"
+                 style="--card-color: #fbbf24; --card-glow: rgba(251, 191, 36, 0.45); --icon-bg: rgba(251, 191, 36, 0.15); --icon-border: rgba(251, 191, 36, 0.4); --icon-glow: rgba(251, 191, 36, 0.35);">
+                <div class="card-top">
+                    <div class="icon-wrap" style="color: #fbbf24; border-color: #fbbf24; box-shadow: 0 0 18px rgba(251, 191, 36, 0.5);">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-special" style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; font-weight: 900;">👑 GAME MOBA UTUH 5v5</span>
+                        <span class="tag-category">Mobile Legends: Bang Bang Web</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">MOBILE LEGENDS: 5v5 Land of Dawn MOBA</h2>
+                    <p class="card-desc">
+                        Game MOBA 5v5 utuh dan berskala penuh! Peta 3-Lane (Top, Mid, Bot), Monster Jungle (Buff Biru, Buff Merah, Turtle, & Lord yang berjalan membantu push lane), sistem semak rumput kamuflase (Bushes), 6 Hero MLBB (Zilong, Saber, Eudora, Layla, Tigreal, Estes), Toko Item Shop Equipment, Battle Spells (Flicker, Execute, Retribution), dan Voice Announcer First Blood hingga Savage & Legendary!
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="mlbb-web/index.html" class="btn-launch" style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; font-weight: 900; font-size: 0.95rem;">
+                        <i class="fa-solid fa-gamepad"></i> Mainkan MOBILE LEGENDS 5v5
+                    </a>
+                    <button class="btn-copy-link" data-url="mlbb-web/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 0B: TIME RAIDERS 5v5 -->
             <div class="app-card card-featured-large" data-category="game" data-tags="time raiders 5v5 moba game waktu rewind chrono freeze fighter tank marksman support timemage pvp arena battle"
                  style="--card-color: #00f0ff; --card-glow: rgba(0, 240, 255, 0.4); --icon-bg: rgba(0, 240, 255, 0.15); --icon-border: rgba(0, 240, 255, 0.35); --icon-glow: rgba(0, 240, 255, 0.3);">
                 <div class="card-top">
@@ -982,21 +1010,22 @@
         btnCopyAll.addEventListener('click', () => {
             const origin = window.location.origin;
             const linksList = [
-                `1. TIME RAIDERS 5v5 (Chrono MOBA Arena): ${origin}/time-raiders/index.html`,
-                `2. CuacaSmart (Pengukur Suhu & Pengingat Payung): ${origin}/cuaca-smart/index.html`,
-                `3. LifeQuest RPG Rutinitas: ${origin}/life-quest/index.html`,
-                `4. InternReady (Persiapan Magang & CV): ${origin}/intern-ready/index.html`,
-                `5. RoomCheck IT Del: ${origin}/room-check/index.html`,
-                `6. Teman Seperjalanan (Tebengan): ${origin}/teman-seperjalanan/index.html`,
-                `7. SpotFinder IT Del: ${origin}/spot-finder/index.html`,
-                `8. LeaveCheck: ${origin}/leave-check/index.html`,
-                `9. KataMaster: ${origin}/kata-master/index.html`,
-                `10. Math Adventure RPG: ${origin}/math-adventure/index.html`,
-                `11. PolaMatika: ${origin}/polamatika/index.html`
+                `1. MOBILE LEGENDS 5v5 (Land of Dawn MOBA): ${origin}/mlbb-web/index.html`,
+                `2. TIME RAIDERS 5v5 (Chrono MOBA Arena): ${origin}/time-raiders/index.html`,
+                `3. CuacaSmart (Pengukur Suhu & Pengingat Payung): ${origin}/cuaca-smart/index.html`,
+                `4. LifeQuest RPG Rutinitas: ${origin}/life-quest/index.html`,
+                `5. InternReady (Persiapan Magang & CV): ${origin}/intern-ready/index.html`,
+                `6. RoomCheck IT Del: ${origin}/room-check/index.html`,
+                `7. Teman Seperjalanan (Tebengan): ${origin}/teman-seperjalanan/index.html`,
+                `8. SpotFinder IT Del: ${origin}/spot-finder/index.html`,
+                `9. LeaveCheck: ${origin}/leave-check/index.html`,
+                `10. KataMaster: ${origin}/kata-master/index.html`,
+                `11. Math Adventure RPG: ${origin}/math-adventure/index.html`,
+                `12. PolaMatika: ${origin}/polamatika/index.html`
             ].join('\n');
 
             navigator.clipboard.writeText(linksList).then(() => {
-                showToast('Daftar 11 tautan aplikasi berhasil disalin!');
+                showToast('Daftar 12 tautan aplikasi berhasil disalin!');
             }).catch(() => {
                 showToast('Gagal menyalin daftar link');
             });

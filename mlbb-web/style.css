@@ -1,0 +1,653 @@
+/* ==========================================================================
+   MLBB WEB - Authentic Mobile Legends Style & HUD Stylesheet
+   ========================================================================== */
+
+:root {
+    --mlbb-gold: #fbbf24;
+    --mlbb-gold-dark: #b45309;
+    --mlbb-blue: #0284c7;
+    --mlbb-dark: #070b14;
+    --mlbb-panel: rgba(11, 18, 33, 0.88);
+    --mlbb-border: rgba(251, 191, 36, 0.4);
+    
+    --font-heading: 'Outfit', sans-serif;
+    --font-main: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    background-color: var(--mlbb-dark);
+    color: #fff;
+    font-family: var(--font-main);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+#gameCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    z-index: 1;
+}
+
+/* ==========================================================================
+   SCREEN 1: Hero Draft & Battle Spell Selection
+   ========================================================================== */
+.draft-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at 50% 20%, #152238 0%, #070b14 100%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.draft-header {
+    text-align: center;
+}
+
+.mlbb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(251, 191, 36, 0.15);
+    border: 1px solid var(--mlbb-gold);
+    color: var(--mlbb-gold);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    padding: 0.35rem 1.25rem;
+    border-radius: 9999px;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+    margin-bottom: 0.5rem;
+}
+
+.mlbb-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 30%, #fbbf24 70%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+}
+
+.mlbb-sub {
+    font-size: 1rem;
+    color: #94a3b8;
+}
+
+/* Hero Cards Grid */
+.hero-draft-grid {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1100px;
+    margin: 1.25rem 0;
+}
+
+.hero-draft-card {
+    background: var(--mlbb-panel);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 1.25rem 1rem;
+    width: 165px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(10px);
+}
+
+.hero-draft-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--mlbb-gold);
+    box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
+}
+
+.hero-draft-card.selected {
+    border-color: var(--mlbb-gold);
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
+    background: rgba(28, 42, 70, 0.95);
+}
+
+.draft-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border: 2px solid var(--mlbb-gold);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.draft-role-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mlbb-gold);
+}
+
+.draft-hero-name {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Spell Selector Row */
+.spell-selector-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0.6rem 1.25rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spell-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #cbd5e1;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.spell-chip:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.spell-chip.selected {
+    background: var(--mlbb-gold);
+    color: #000;
+    border-color: var(--mlbb-gold);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+}
+
+.btn-enter-battle {
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    border: none;
+    color: #000;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 900;
+    padding: 1rem 3.5rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+    transition: all 0.25s ease;
+}
+
+.btn-enter-battle:hover {
+    transform: scale(1.05);
+    color: #fff;
+    box-shadow: 0 0 45px rgba(251, 191, 36, 0.8);
+}
+
+/* ==========================================================================
+   SCREEN 2: Full In-Match Battle HUD
+   ========================================================================== */
+.match-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 10;
+    display: none;
+}
+
+/* Top Header Bar */
+.hud-top-bar {
+    position: absolute;
+    top: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--mlbb-panel);
+    border: 1px solid var(--mlbb-border);
+    padding: 0.4rem 1.5rem;
+    border-radius: 9999px;
+    backdrop-filter: blur(10px);
+}
+
+.hud-score-blue { font-size: 1.5rem; font-weight: 900; color: #38bdf8; }
+.hud-score-red { font-size: 1.5rem; font-weight: 900; color: #f43f5e; }
+.hud-time { font-size: 0.95rem; font-weight: 700; color: #cbd5e1; }
+
+/* Kill Feed Box */
+.hud-kill-feed {
+    position: absolute;
+    top: 1rem;
+    left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.feed-msg {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.feed-msg.system { color: var(--mlbb-gold); border-color: rgba(251, 191, 36, 0.3); }
+.feed-msg .k { color: #38bdf8; }
+.feed-msg .v { color: #f43f5e; }
+
+/* Minimap Radar */
+.hud-minimap-box {
+    position: absolute;
+    top: 0.75rem;
+    right: 1rem;
+    background: #070b14;
+    border: 2px solid var(--mlbb-gold);
+    border-radius: 12px;
+    padding: 3px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+#minimapCanvas {
+    display: block;
+    border-radius: 8px;
+}
+
+/* Quick-Buy Item Popup (Top-Right under Minimap) */
+.hud-quick-buy {
+    position: absolute;
+    top: 135px;
+    right: 1rem;
+    background: var(--mlbb-panel);
+    border: 1px solid var(--mlbb-gold);
+    border-radius: 10px;
+    padding: 0.4rem 0.85rem;
+    display: none;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    animation: bounceSlow 2s infinite;
+}
+
+@keyframes bounceSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.quick-icon { font-size: 1.3rem; }
+.quick-text strong { font-size: 0.78rem; display: block; }
+.quick-text span { font-size: 0.7rem; color: var(--mlbb-gold); }
+
+/* Kill Streak Banner (Large Center Popup) */
+.kill-streak-banner {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    font-family: var(--font-heading);
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--mlbb-gold);
+    text-shadow: 0 0 30px rgba(251, 191, 36, 0.9), 0 0 10px #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 50;
+    text-transform: uppercase;
+}
+
+.kill-streak-banner.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Bottom Controls: Attack, Skills, Spells, Recall, Shop */
+.hud-bottom-dock {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 2rem;
+    pointer-events: auto;
+}
+
+/* Left Bottom: Player Info & Inventory */
+.player-info-dock {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.player-core-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--mlbb-panel);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+}
+
+.avatar-round {
+    font-size: 1.4rem;
+}
+
+.bars-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    width: 180px;
+}
+
+.bar-wrap {
+    height: 9px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill.hp { background: #22c55e; height: 100%; }
+.bar-fill.mana { background: #38bdf8; height: 100%; }
+
+.gold-badge {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--mlbb-gold);
+    background: rgba(251, 191, 36, 0.15);
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+}
+
+.inventory-items-row {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.item-icon-slot {
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+/* Center Bottom: Recall & Shop */
+.center-utility-dock {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.btn-utility {
+    background: var(--mlbb-panel);
+    border: 1px solid var(--mlbb-border);
+    color: #fff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+.btn-utility:hover {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: var(--mlbb-gold);
+    transform: translateY(-2px);
+}
+
+/* Right Bottom: Skill Deck & Big Basic Attack Button */
+.skills-action-deck {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.btn-skill-mlbb {
+    position: relative;
+    width: 62px;
+    height: 62px;
+    background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+    border: 2px solid var(--mlbb-border);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.btn-skill-mlbb:hover {
+    transform: scale(1.08);
+    border-color: var(--mlbb-gold);
+}
+
+.btn-skill-mlbb.on-cd {
+    filter: grayscale(0.8);
+    pointer-events: none;
+}
+
+.skill-num-key {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--mlbb-gold);
+}
+
+.skill-name-txt {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+}
+
+.skill-cd-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--mlbb-gold);
+}
+
+/* BIG MAIN ATTACK SWORD BUTTON */
+.btn-main-attack {
+    width: 84px;
+    height: 84px;
+    background: radial-gradient(circle, #b45309 0%, #78350f 100%);
+    border: 3px solid var(--mlbb-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
+    transition: all 0.15s ease;
+}
+
+.btn-main-attack:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 35px rgba(251, 191, 36, 0.9);
+}
+
+.btn-main-attack:active {
+    transform: scale(0.92);
+}
+
+/* ==========================================================================
+   MODALS: Item Shop, Scoreboard, Game Over
+   ========================================================================== */
+.mlbb-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.mlbb-modal-overlay.active {
+    display: flex;
+}
+
+.mlbb-modal-card {
+    background: var(--mlbb-panel);
+    border: 2px solid var(--mlbb-gold);
+    border-radius: 20px;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 680px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
+}
+
+.modal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.shop-categories-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.shop-tab {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.shop-tab.active {
+    background: var(--mlbb-gold);
+    color: #000;
+}
+
+.shop-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.85rem;
+}
+
+.shop-item-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.shop-item-icon { font-size: 1.6rem; }
+.shop-item-info { flex: 1; }
+.shop-item-info h4 { font-size: 0.88rem; color: #fff; }
+.price-tag { font-size: 0.75rem; color: var(--mlbb-gold); font-weight: 700; }
+.shop-item-info p { font-size: 0.7rem; color: #94a3b8; line-height: 1.3; }
+
+.btn-buy {
+    background: var(--mlbb-gold);
+    border: none;
+    color: #000;
+    font-weight: 800;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-buy:disabled {
+    background: #475569;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+/* Scoreboard Rows */
+.scoreboard-teams-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+}

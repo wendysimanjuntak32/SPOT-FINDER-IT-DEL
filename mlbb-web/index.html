@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Legends 5v5 Web - MOBA Arena</title>
+    <meta name="description" content="Game web MOBA 5v5 utuh ala Mobile Legends: Bang Bang (MLBB). Peta 3 Lane, Monster Jungle (Buff Biru, Buff Merah, Turtle, Lord), Roster Hero Ikonik, Toko Item Shop, dan Announcer First Blood hingga Savage!">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Game Canvas (60 FPS 3-Lane Land of Dawn Map) -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- SCREEN 1: HERO DRAFT & BATTLE SPELL SELECTION -->
+    <div class="draft-screen" id="screenHeroDraft">
+        <div class="draft-header">
+            <div class="mlbb-badge">
+                <i class="fa-solid fa-crown"></i> CLASSIC 5v5 MOBA ARENA
+            </div>
+            <h1 class="mlbb-title">MOBILE LEGENDS: WEB</h1>
+            <p class="mlbb-sub">Pilih Hero andalan dan Battle Spell Anda untuk bertarung di Land of Dawn!</p>
+        </div>
+
+        <!-- 6 Hero Draft Cards -->
+        <div class="hero-draft-grid">
+            
+            <div class="hero-draft-card selected" data-hero="zilong">
+                <div class="draft-avatar" style="background: linear-gradient(135deg, #f43f5e, #be123c);">⚔️</div>
+                <span class="draft-role-tag">FIGHTER</span>
+                <h3 class="draft-hero-name">Zilong</h3>
+            </div>
+
+            <div class="hero-draft-card" data-hero="saber">
+                <div class="draft-avatar" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">🗡️</div>
+                <span class="draft-role-tag">ASSASSIN</span>
+                <h3 class="draft-hero-name">Saber</h3>
+            </div>
+
+            <div class="hero-draft-card" data-hero="eudora">
+                <div class="draft-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">🧙‍♂️</div>
+                <span class="draft-role-tag">MAGE</span>
+                <h3 class="draft-hero-name">Eudora</h3>
+            </div>
+
+            <div class="hero-draft-card" data-hero="layla">
+                <div class="draft-avatar" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">🏹</div>
+                <span class="draft-role-tag">MARKSMAN</span>
+                <h3 class="draft-hero-name">Layla</h3>
+            </div>
+
+            <div class="hero-draft-card" data-hero="tigreal">
+                <div class="draft-avatar" style="background: linear-gradient(135deg, #eab308, #ca8a04);">🛡️</div>
+                <span class="draft-role-tag">TANK</span>
+                <h3 class="draft-hero-name">Tigreal</h3>
+            </div>
+
+            <div class="hero-draft-card" data-hero="estes">
+                <div class="draft-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">💚</div>
+                <span class="draft-role-tag">SUPPORT</span>
+                <h3 class="draft-hero-name">Estes</h3>
+            </div>
+
+        </div>
+
+        <!-- Battle Spell Selector -->
+        <div class="spell-selector-row">
+            <span style="font-size: 0.8rem; font-weight: 800; color: var(--mlbb-gold);">Battle Spell:</span>
+            <div class="spell-chip selected" data-spell="flicker">⚡ Flicker</div>
+            <div class="spell-chip" data-spell="execute">⚔️ Execute</div>
+            <div class="spell-chip" data-spell="retribution">🗡️ Retribution</div>
+            <div class="spell-chip" data-spell="flameshot">🔥 Flameshot</div>
+            <div class="spell-chip" data-spell="sprint">👟 Sprint</div>
+        </div>
+
+        <button class="btn-enter-battle" id="btnEnterBattle">
+            <i class="fa-solid fa-play"></i> MULAI PERTANDINGAN
+        </button>
+    </div>
+
+    <!-- SCREEN 2: IN-MATCH BATTLE HUD -->
+    <div class="match-hud" id="screenBattleHUD">
+        
+        <!-- Top Score Bar -->
+        <div class="hud-top-bar">
+            <span class="hud-score-blue" id="scoreBlueTeam">0</span>
+            <div class="hud-time" id="matchTimer">00:00</div>
+            <span class="hud-score-red" id="scoreRedTeam">0</span>
+        </div>
+
+        <!-- Kill Feed -->
+        <div class="hud-kill-feed" id="killFeedBox"></div>
+
+        <!-- Minimap Radar -->
+        <div class="hud-minimap-box">
+            <canvas id="minimapCanvas" width="180" height="120"></canvas>
+        </div>
+
+        <!-- Quick Buy Item Widget -->
+        <div class="hud-quick-buy" id="quickBuyBox" title="Klik untuk membeli item cepat">
+            <div class="quick-icon" id="quickItemIcon">🗡️</div>
+            <div class="quick-text">
+                <strong id="quickItemName">Blade of Despair</strong>
+                <span id="quickItemPrice">3010 G</span>
+            </div>
+        </div>
+
+        <!-- Kill Streak Banner Popup (Double Kill, Savage, etc.) -->
+        <div class="kill-streak-banner" id="killStreakBanner">SAVAGE!</div>
+
+        <!-- Bottom Controls Dock -->
+        <div class="hud-bottom-dock">
+            
+            <!-- Left: Hero Status & Item Slots -->
+            <div class="player-info-dock">
+                <div class="player-core-bar">
+                    <div class="avatar-round" id="hudPlayerAvatar">⚔️</div>
+                    <div class="bars-container">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 800;">
+                            <span id="hudPlayerName">Zilong</span>
+                            <span id="playerHpLabel">2680 / 2680</span>
+                        </div>
+                        <div class="bar-wrap"><div class="bar-fill hp" id="playerHpBar" style="width: 100%;"></div></div>
+                        <div class="bar-wrap" style="height: 5px;"><div class="bar-fill mana" id="playerManaBar" style="width: 100%;"></div></div>
+                    </div>
+                    <span class="gold-badge" id="playerGoldCount">300 G</span>
+                </div>
+
+                <!-- 6 Item Inventory Slots -->
+                <div class="inventory-items-row" id="hudInventoryRow">
+                    <div class="item-icon-slot"></div>
+                    <div class="item-icon-slot"></div>
+                    <div class="item-icon-slot"></div>
+                    <div class="item-icon-slot"></div>
+                    <div class="item-icon-slot"></div>
+                    <div class="item-icon-slot"></div>
+                </div>
+            </div>
+
+            <!-- Center: Recall & Shop Buttons -->
+            <div class="center-utility-dock">
+                <button class="btn-utility" onclick="window.mlbbGame.player.startRecall(window.mlbbGame)" title="Recall ke Base (B)">
+                    <i class="fa-solid fa-house-chimney"></i> Recall (B)
+                </button>
+                <button class="btn-utility" onclick="window.mlbbGame.toggleItemShop()" title="Buka Toko Item (P)">
+                    <i class="fa-solid fa-cart-shopping"></i> Toko (P)
+                </button>
+                <button class="btn-utility" onclick="window.mlbbGame.toggleScoreboard()" title="Buka Papan Skor (TAB)">
+                    <i class="fa-solid fa-table-list"></i> Skor (TAB)
+                </button>
+            </div>
+
+            <!-- Right: Skills Deck & Big Attack Button -->
+            <div class="skills-action-deck">
+                
+                <!-- Battle Spell -->
+                <div class="btn-skill-mlbb" id="spellSlot" onclick="window.mlbbGame.player.castBattleSpell(window.mlbbGame)">
+                    <span class="skill-num-key" id="hudPlayerSpellIcon">⚡</span>
+                    <span class="skill-name-txt">Spell</span>
+                    <div class="skill-cd-overlay" id="spellCdText"></div>
+                </div>
+
+                <!-- Skill 1 -->
+                <div class="btn-skill-mlbb" id="skillSlot0" onclick="window.mlbbGame.player.castSkill(0, window.mlbbGame)">
+                    <span class="skill-num-key">Q / 1</span>
+                    <span class="skill-name-txt" id="skillName0">Skill 1</span>
+                    <div class="skill-cd-overlay" id="skillCdText0"></div>
+                </div>
+
+                <!-- Skill 2 -->
+                <div class="btn-skill-mlbb" id="skillSlot1" onclick="window.mlbbGame.player.castSkill(1, window.mlbbGame)">
+                    <span class="skill-num-key">W / 2</span>
+                    <span class="skill-name-txt" id="skillName1">Skill 2</span>
+                    <div class="skill-cd-overlay" id="skillCdText1"></div>
+                </div>
+
+                <!-- Skill 3 (Ultimate) -->
+                <div class="btn-skill-mlbb" id="skillSlot2" onclick="window.mlbbGame.player.castSkill(2, window.mlbbGame)" style="border-color: #fbbf24;">
+                    <span class="skill-num-key" style="color: #fbbf24;">E / 3</span>
+                    <span class="skill-name-txt" id="skillName2">Ult</span>
+                    <div class="skill-cd-overlay" id="skillCdText2"></div>
+                </div>
+
+                <!-- BIG BASIC ATTACK BUTTON -->
+                <div class="btn-main-attack" onclick="window.mlbbGame.player.performBasicAttack(window.mlbbGame)" title="Serangan Dasar (Klik Kiri / Spasi)">
+                    ⚔️
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL: ITEM SHOP -->
+    <div class="mlbb-modal-overlay" id="shopModal">
+        <div class="mlbb-modal-card">
+            <div class="modal-header-row">
+                <h3><i class="fa-solid fa-cart-shopping" style="color: var(--mlbb-gold);"></i> Toko Equipment Land of Dawn</h3>
+                <button onclick="window.mlbbGame.toggleItemShop()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Categories Tabs -->
+            <div class="shop-categories-tabs">
+                <button class="shop-tab active" onclick="setShopTab('ALL', this)">Semua</button>
+                <button class="shop-tab" onclick="setShopTab('ATTACK', this)">Attack</button>
+                <button class="shop-tab" onclick="setShopTab('MAGIC', this)">Magic</button>
+                <button class="shop-tab" onclick="setShopTab('DEFENSE', this)">Defense</button>
+                <button class="shop-tab" onclick="setShopTab('MOVEMENT', this)">Movement</button>
+            </div>
+
+            <!-- Items Grid -->
+            <div class="shop-items-grid" id="shopItemsGrid"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: SCOREBOARD -->
+    <div class="mlbb-modal-overlay" id="scoreboardModal">
+        <div class="mlbb-modal-card">
+            <div class="modal-header-row">
+                <h3><i class="fa-solid fa-table-list" style="color: var(--mlbb-gold);"></i> Papan Skor Pertandingan 5v5</h3>
+                <button onclick="window.mlbbGame.toggleScoreboard()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="scoreboard-teams-grid">
+                <div>
+                    <h4 style="color: #38bdf8; margin-bottom: 0.5rem;">Tim Biru (Kawan)</h4>
+                    <div id="scoreListBlue"></div>
+                </div>
+                <div>
+                    <h4 style="color: #f43f5e; margin-bottom: 0.5rem;">Tim Merah (Musuh)</h4>
+                    <div id="scoreListRed"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GAME OVER (VICTORY / DEFEAT) -->
+    <div class="mlbb-modal-overlay" id="screenGameOver">
+        <div class="mlbb-modal-card" style="text-align: center; max-width: 480px;">
+            <h2 id="gameOverTitle" style="font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem;">🏆 VICTORY!</h2>
+            <p id="gameOverDesc" style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 1.5rem;">Tim Anda berhasil menghancurkan Base Crystal musuh!</p>
+            <button class="btn-enter-battle" onclick="location.reload()" style="width: 100%;">
+                <i class="fa-solid fa-rotate-right"></i> MAIN LAGI
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data-heroes.js"></script>
+    <script src="data-items.js"></script>
+    <script src="audio.js"></script>
+    <script src="game-engine.js"></script>
+
+    <script>
+        let chosenHeroId = 'zilong';
+        let chosenSpellId = 'flicker';
+
+        // Hero Draft Cards Selection
+        document.querySelectorAll('.hero-draft-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.hero-draft-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                chosenHeroId = card.getAttribute('data-hero');
+            });
+        });
+
+        // Spell Selection
+        document.querySelectorAll('.spell-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.spell-chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                chosenSpellId = chip.getAttribute('data-spell');
+            });
+        });
+
+        // Enter Match
+        document.getElementById('btnEnterBattle').addEventListener('click', () => {
+            if (window.mlbbGame) {
+                window.mlbbGame.startMatch(chosenHeroId, chosenSpellId);
+            }
+        });
+
+        // Shop Category Tabs
+        function setShopTab(cat, btn) {
+            document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            if (window.mlbbGame) {
+                window.mlbbGame.renderShopItems(cat);
+            }
+        }
+    </script>
+</body>
+</html>

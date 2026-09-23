@@ -61,9 +61,9 @@ PubSubClient client(espClient);
 
 // Variabel data terkini
 String currentRoom = "Gazebo Toba";
-int currentEmpty = 6;    // Jumlah kursi kosong
-int currentTotal = 10;   // Total kapasitas (Maksimal 10 Orang)
-int currentOccupied = 4; // Jumlah orang saat ini di Gazebo (Total - Empty)
+int currentEmpty = 12;   // Jumlah kursi kosong
+int currentTotal = 20;   // Total kapasitas (Maksimal 20 Orang)
+int currentOccupied = 8; // Jumlah orang saat ini di Gazebo (Total - Empty)
 int currentPercent = 40;
 
 // Variabel Debouncing Tombol BOOT

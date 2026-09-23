@@ -77,10 +77,10 @@ PubSubClient client(espClient);
 // 3. VARIABEL DATA KAPASITAS GAZEBO
 // ==========================================
 const String roomName = "Gazebo IT Del";
-const int TOTAL_CAPACITY = 10; // Kapasitas maksimal Gazebo Danau Toba (10 Orang)
+const int TOTAL_CAPACITY = 20; // Kapasitas maksimal Gazebo Danau Toba (20 Orang)
 
-int orangDiDalam = 4;          // Jumlah orang saat ini
-int kursiKosong  = 6;          // Kursi kosong = TOTAL_CAPACITY - orangDiDalam
+int orangDiDalam = 8;          // Jumlah orang saat ini
+int kursiKosong  = 12;         // Kursi kosong = TOTAL_CAPACITY - orangDiDalam
 
 // Debouncing Tombol Masuk & Keluar
 int lastBtnMasukState  = HIGH;
@@ -357,7 +357,7 @@ void loop() {
         publishStatus();
       } else {
         notifAction = "FULL!";
-        Serial.println(F(" [WARN] Gazebo sudah PENUH (10/10)!"));
+        Serial.println(F(" [WARN] Gazebo sudah PENUH (20/20)!"));
         renderOled();
       }
     }
@@ -384,7 +384,7 @@ void loop() {
         publishStatus();
       } else {
         notifAction = "EMPTY";
-        Serial.println(F(" [WARN] Gazebo sudah KOSONG (0/10)!"));
+        Serial.println(F(" [WARN] Gazebo sudah KOSONG (0/20)!"));
         renderOled();
       }
     }

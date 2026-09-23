@@ -379,29 +379,26 @@ class SpotFinderApp {
             return;
         }
 
-        const brokersToTry = [
-            `wss://broker.emqx.io:8084/mqtt`,                             // Public EMQX WSS Broker (SSL / Firewall friendly)
-            `ws://${this.mqttConfig.brokerIp}:${this.mqttConfig.wsPort}`, // ws://76.13.19.250:9001
-            `ws://broker.emqx.io:8083/mqtt`                              // Public EMQX WS Broker
-        ];
-
-        let currentBrokerIndex = 0;
+        // Konfigurasi Khusus Broker Kampus IT Del (76.13.19.250)
+        const brokerPorts = [9001, 8083, 1884]; // Port WebSocket yang umum untuk Mosquitto/MQTT broker di 76.13.19.250
+        let currentPortIndex = 0;
 
         const attemptConnect = () => {
-            if (currentBrokerIndex >= brokersToTry.length) {
-                console.log("Semua broker MQTT selesai dicoba. Web tetap dalam mode live simulator.");
+            if (currentPortIndex >= brokerPorts.length) {
+                console.log("Menunggu koneksi WebSocket broker 76.13.19.250...");
                 this.updateMqttBadge(false);
                 return;
             }
 
-            const brokerUrl = brokersToTry[currentBrokerIndex];
-            console.log(`Connecting to MQTT Broker [${currentBrokerIndex + 1}/${brokersToTry.length}] at ${brokerUrl}...`);
+            const port = brokerPorts[currentPortIndex];
+            const brokerUrl = `ws://${this.mqttConfig.brokerIp}:${port}`;
+            console.log(`Menghubungkan ke Broker Kampus IT Del: ${brokerUrl}...`);
 
             try {
                 const client = mqtt.connect(brokerUrl, {
                     clientId: 'SpotFinderWeb_' + Math.random().toString(16).substr(2, 8),
-                    connectTimeout: 5000,
-                    reconnectPeriod: 6000
+                    connectTimeout: 4000,
+                    reconnectPeriod: 5000
                 });
 
                 this.mqttConfig.client = client;
@@ -409,8 +406,8 @@ class SpotFinderApp {
                 client.on('connect', () => {
                     this.mqttConfig.isConnected = true;
                     this.mqttConfig.activeBroker = brokerUrl;
-                    this.updateMqttBadge(true, brokerUrl);
-                    console.log(`✅ Connected to MQTT Broker: ${brokerUrl}`);
+                    this.updateMqttBadge(true, "76.13.19.250");
+                    console.log(`✅ Berhasil terhubung ke Broker 76.13.19.250 (Port ${port})`);
                     
                     // Subscribe to Gazebo Status topic
                     client.subscribe(this.mqttConfig.topicGazebo);
@@ -422,10 +419,10 @@ class SpotFinderApp {
                 });
 
                 client.on('error', (err) => {
-                    console.warn(`MQTT connection error on ${brokerUrl}:`, err);
+                    console.warn(`Gagal konek ke ${brokerUrl}:`, err);
                     if (!this.mqttConfig.isConnected) {
                         try { client.end(true); } catch(e){}
-                        currentBrokerIndex++;
+                        currentPortIndex++;
                         attemptConnect();
                     }
                 });
@@ -439,7 +436,7 @@ class SpotFinderApp {
 
                 client.on('message', (topic, message) => {
                     const msgStr = message.toString();
-                    console.log(`📡 MQTT Received [${topic}]:`, msgStr);
+                    console.log(`📡 [76.13.19.250] MQTT Received [${topic}]:`, msgStr);
                     try {
                         const data = JSON.parse(msgStr);
                         this.handleIncomingMqttData(data);
@@ -450,7 +447,7 @@ class SpotFinderApp {
 
             } catch (e) {
                 console.warn('MQTT connect exception:', e);
-                currentBrokerIndex++;
+                currentPortIndex++;
                 attemptConnect();
             }
         };
@@ -460,32 +457,26 @@ class SpotFinderApp {
 
     connectCustomBroker() {
         const input = document.getElementById('input-mqtt-broker-url');
-        if (!input || !input.value.trim()) return;
-
-        let brokerInput = input.value.trim();
+        const brokerInput = (input && input.value.trim()) ? input.value.trim() : "76.13.19.250";
+        
         let finalBrokerUrl = brokerInput;
-
         if (!brokerInput.startsWith('ws://') && !brokerInput.startsWith('wss://')) {
-            if (brokerInput.includes('emqx.io')) {
-                finalBrokerUrl = `wss://${brokerInput}:8084/mqtt`;
-            } else {
-                finalBrokerUrl = `ws://${brokerInput}:9001`;
-            }
+            finalBrokerUrl = `ws://${brokerInput}:9001`;
         }
 
         if (this.mqttConfig.client) {
             try { this.mqttConfig.client.end(true); } catch(e){}
         }
 
-        this.showToast(`🔄 Menghubungkan ke broker: ${finalBrokerUrl}...`);
+        this.showToast(`🔄 Menghubungkan ke broker: 76.13.19.250...`);
         const statusBadge = document.getElementById('modal-mqtt-status-badge');
-        if (statusBadge) statusBadge.textContent = 'Menghubungkan...';
+        if (statusBadge) statusBadge.textContent = 'Menghubungkan ke 76.13.19.250...';
 
         try {
             const client = mqtt.connect(finalBrokerUrl, {
                 clientId: 'SpotFinderWeb_' + Math.random().toString(16).substr(2, 8),
                 connectTimeout: 5000,
-                reconnectPeriod: 6000
+                reconnectPeriod: 5000
             });
 
             this.mqttConfig.client = client;
@@ -493,14 +484,14 @@ class SpotFinderApp {
             client.on('connect', () => {
                 this.mqttConfig.isConnected = true;
                 this.mqttConfig.activeBroker = finalBrokerUrl;
-                this.updateMqttBadge(true, finalBrokerUrl);
+                this.updateMqttBadge(true, "76.13.19.250");
                 client.subscribe(this.mqttConfig.topicGazebo);
                 client.subscribe("itdel/#");
-                this.showToast(`✅ Berhasil terhubung ke ${finalBrokerUrl}!`);
+                this.showToast(`✅ Berhasil terhubung ke Broker 76.13.19.250!`);
             });
 
             client.on('error', (err) => {
-                this.showToast(`⚠️ Gagal konek ke ${finalBrokerUrl}`);
+                this.showToast(`⚠️ Menunggu respon broker 76.13.19.250`);
                 this.updateMqttBadge(false);
             });
 

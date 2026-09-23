@@ -380,8 +380,8 @@ class SpotFinderApp {
         }
 
         const brokersToTry = [
+            `wss://broker.emqx.io:8084/mqtt`,                             // Public EMQX WSS Broker (SSL / Firewall friendly)
             `ws://${this.mqttConfig.brokerIp}:${this.mqttConfig.wsPort}`, // ws://76.13.19.250:9001
-            `wss://broker.emqx.io:8084/mqtt`,                             // Public EMQX WSS Broker
             `ws://broker.emqx.io:8083/mqtt`                              // Public EMQX WS Broker
         ];
 
@@ -389,7 +389,7 @@ class SpotFinderApp {
 
         const attemptConnect = () => {
             if (currentBrokerIndex >= brokersToTry.length) {
-                console.log("Semua broker MQTT selesai dicoba. Web tetap dalam mode simulasi aktif.");
+                console.log("Semua broker MQTT selesai dicoba. Web tetap dalam mode live simulator.");
                 this.updateMqttBadge(false);
                 return;
             }
@@ -408,12 +408,14 @@ class SpotFinderApp {
 
                 client.on('connect', () => {
                     this.mqttConfig.isConnected = true;
+                    this.mqttConfig.activeBroker = brokerUrl;
                     this.updateMqttBadge(true, brokerUrl);
                     console.log(`✅ Connected to MQTT Broker: ${brokerUrl}`);
                     
                     // Subscribe to Gazebo Status topic
                     client.subscribe(this.mqttConfig.topicGazebo);
                     client.subscribe("itdel/+/status");
+                    client.subscribe("itdel/#");
                     
                     // Send Initial Broadcast
                     this.broadcastGazeboStatus();
@@ -422,7 +424,7 @@ class SpotFinderApp {
                 client.on('error', (err) => {
                     console.warn(`MQTT connection error on ${brokerUrl}:`, err);
                     if (!this.mqttConfig.isConnected) {
-                        client.end(true);
+                        try { client.end(true); } catch(e){}
                         currentBrokerIndex++;
                         attemptConnect();
                     }
@@ -454,6 +456,63 @@ class SpotFinderApp {
         };
 
         attemptConnect();
+    }
+
+    connectCustomBroker() {
+        const input = document.getElementById('input-mqtt-broker-url');
+        if (!input || !input.value.trim()) return;
+
+        let brokerInput = input.value.trim();
+        let finalBrokerUrl = brokerInput;
+
+        if (!brokerInput.startsWith('ws://') && !brokerInput.startsWith('wss://')) {
+            if (brokerInput.includes('emqx.io')) {
+                finalBrokerUrl = `wss://${brokerInput}:8084/mqtt`;
+            } else {
+                finalBrokerUrl = `ws://${brokerInput}:9001`;
+            }
+        }
+
+        if (this.mqttConfig.client) {
+            try { this.mqttConfig.client.end(true); } catch(e){}
+        }
+
+        this.showToast(`🔄 Menghubungkan ke broker: ${finalBrokerUrl}...`);
+        const statusBadge = document.getElementById('modal-mqtt-status-badge');
+        if (statusBadge) statusBadge.textContent = 'Menghubungkan...';
+
+        try {
+            const client = mqtt.connect(finalBrokerUrl, {
+                clientId: 'SpotFinderWeb_' + Math.random().toString(16).substr(2, 8),
+                connectTimeout: 5000,
+                reconnectPeriod: 6000
+            });
+
+            this.mqttConfig.client = client;
+
+            client.on('connect', () => {
+                this.mqttConfig.isConnected = true;
+                this.mqttConfig.activeBroker = finalBrokerUrl;
+                this.updateMqttBadge(true, finalBrokerUrl);
+                client.subscribe(this.mqttConfig.topicGazebo);
+                client.subscribe("itdel/#");
+                this.showToast(`✅ Berhasil terhubung ke ${finalBrokerUrl}!`);
+            });
+
+            client.on('error', (err) => {
+                this.showToast(`⚠️ Gagal konek ke ${finalBrokerUrl}`);
+                this.updateMqttBadge(false);
+            });
+
+            client.on('message', (topic, message) => {
+                try {
+                    const data = JSON.parse(message.toString());
+                    this.handleIncomingMqttData(data);
+                } catch(e){}
+            });
+        } catch(e) {
+            this.showToast(`❌ Error: ${e.message}`);
+        }
     }
 
     handleIncomingMqttData(data) {
@@ -586,13 +645,32 @@ class SpotFinderApp {
     updateMqttBadge(connected, brokerUrl = '') {
         const dot = document.getElementById('mqtt-dot');
         const text = document.getElementById('mqtt-status-text');
+        const modalDot = document.getElementById('modal-mqtt-dot');
+        const modalBadge = document.getElementById('modal-mqtt-status-badge');
+
+        const label = brokerUrl.includes('emqx') ? 'Online (EMQX Public)' : (brokerUrl ? brokerUrl.split('//')[1].split('/')[0] : '76.13.19.250');
+
         if (dot && text) {
             if (connected) {
                 dot.style.background = '#10b981';
-                text.textContent = brokerUrl.includes('emqx') ? 'MQTT: Online (EMQX)' : 'MQTT: 76.13.19.250';
+                text.textContent = `MQTT: ${label}`;
             } else {
                 dot.style.background = '#f59e0b';
-                text.textContent = 'MQTT: 76.13.19.250';
+                text.textContent = 'MQTT: Siap Sambung';
+            }
+        }
+
+        if (modalDot && modalBadge) {
+            if (connected) {
+                modalDot.style.background = '#10b981';
+                modalBadge.style.color = '#10b981';
+                modalBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+                modalBadge.textContent = `🟢 Terhubung ke ${label}`;
+            } else {
+                modalDot.style.background = '#ef4444';
+                modalBadge.style.color = '#ef4444';
+                modalBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+                modalBadge.textContent = `🔴 Terputus (Mode Simulator)`;
             }
         }
     }

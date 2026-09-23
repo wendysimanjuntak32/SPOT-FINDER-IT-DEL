@@ -11,8 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- MQTT.js WebSocket Client -->
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <!-- Local MQTT WebSocket Client (Offline & Online 100% Reliable) -->
+    <script src="js/mqtt.min.js"></script>
+    <script src="js/paho-mqtt.min.js"></script>
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
@@ -249,18 +250,31 @@
                 <button class="modal-close">✕</button>
             </div>
 
-            <!-- MQTT Active Broadcast Monitor -->
-            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                    <strong style="color: var(--primary); font-size: 0.88rem;">🟢 Live Payload MQTT (Broker: 76.13.19.250):</strong>
-                    <span id="mqtt-last-time" style="font-size: 0.75rem; color: var(--text-muted);">Baru saja</span>
+            <!-- MQTT Active Broadcast Monitor & Broker Switcher -->
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                    <strong style="color: var(--primary); font-size: 0.88rem; display:flex; align-items:center; gap:6px;">
+                        <span class="pulse-dot" id="modal-mqtt-dot" style="background:#10b981; width:8px; height:8px; display:inline-block; border-radius:50%;"></span>
+                        Status Koneksi MQTT:
+                    </strong>
+                    <span id="modal-mqtt-status-badge" style="font-size: 0.78rem; font-weight:800; color:#38bdf8; background:rgba(56, 189, 248, 0.15); padding:2px 8px; border-radius:9999px;">
+                        Menghubungkan...
+                    </span>
                 </div>
-                <pre id="mqtt-live-payload" style="background: #0f172a; color: #34d399; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap;">{"ruangan":"Gazebo Danau Toba","kosong":12,"total":20,"terisi":8,"persen":40,"source":"ESP32_BOOT_BUTTON"}</pre>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <button class="btn-primary" onclick="app.sendTestMqttBroadcast()" style="padding: 6px 14px; font-size: 0.8rem;">
-                        ⚡ Test Kirim Paket Counter MQTT
+
+                <!-- Live Broker URL Switcher Input -->
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <input type="text" id="input-mqtt-broker-url" value="broker.emqx.io" placeholder="Alamat Broker (misal: broker.emqx.io atau 76.13.19.250)" class="search-input" style="padding-left:12px; font-size:0.82rem; height:36px; flex:1;">
+                    <button type="button" class="btn-primary" onclick="app.connectCustomBroker()" style="padding: 0 14px; font-size: 0.8rem; height:36px; white-space:nowrap;">
+                        🔄 Sambungkan Ulang
                     </button>
                 </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+                    <span style="font-size:0.8rem; color:var(--text-muted);">Payload Data Terakhir Diterima:</span>
+                    <span id="mqtt-last-time" style="font-size: 0.75rem; color: var(--text-muted);">Baru saja</span>
+                </div>
+                <pre id="mqtt-live-payload" style="background: #0f172a; color: #34d399; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap;">{"id":"gazebo-1","room":"Gazebo View Danau Toba","empty":12,"occupied":8,"total":20,"device":"ESP8266-Counter-OLED"}</pre>
 
                 <!-- Live Test Buttons for ESP8266 simulation -->
                 <div style="display: flex; gap: 10px; margin-top: 10px;">

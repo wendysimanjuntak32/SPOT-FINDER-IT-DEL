@@ -4,6 +4,9 @@
 
 class SpotFinderApp {
     constructor() {
+        // Initialize spots from IT_DEL_SPOTS database
+        this.spots = (typeof IT_DEL_SPOTS !== 'undefined') ? JSON.parse(JSON.stringify(IT_DEL_SPOTS)) : [];
+
         // Load Lost & Found Items
         let storedLf = null;
         try {
@@ -191,8 +194,8 @@ class SpotFinderApp {
                         const lostItems = this.lostFoundItems.filter(item => item.spotId === spot.id && item.status === 'unclaimed');
                         if (lostItems.length > 0) {
                             return `
-                                <div class="spot-lost-alert" onclick="app.openLostFoundModal('${spot.id}')" title="Klik untuk melihat barang tertinggal di lokasi ini">
-                                    <span>📦 <strong>${lostItems.length} Barang Tertinggal</strong> di lokasi ini</span>
+                                <div class="spot-lost-alert" onclick="app.openLostFoundModal('${spot.id}', 'list')" title="Klik untuk melihat detail barang tertinggal di ${spot.name}">
+                                    <span>📦 <strong>${lostItems.length} Barang Tertinggal</strong> (${lostItems[0].item.split('(')[0].trim()}${lostItems.length > 1 ? ', +' + (lostItems.length - 1) : ''})</span>
                                     <span style="font-size:0.75rem; text-decoration:underline;">Lihat Detail ➔</span>
                                 </div>
                             `;
@@ -201,12 +204,17 @@ class SpotFinderApp {
                     })()}
                 </div>
 
-                <div class="spot-footer">
-                    <button class="btn-secondary" onclick="app.openReportModal('${spot.id}')">
-                        📢 Lapor Kondisi
-                    </button>
-                    <button class="btn-primary" onclick="app.openSeatMapModal('${spot.id}')" ${spot.availableSeats === 0 ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}>
-                        🪑 Lihat & Amankan Kursi
+                <div class="spot-footer" style="flex-direction: column; gap: 8px;">
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <button class="btn-secondary" onclick="app.openReportModal('${spot.id}')" style="flex: 1; padding: 9px 10px; font-size: 0.82rem;">
+                            📢 Lapor Kondisi
+                        </button>
+                        <button class="btn-primary" onclick="app.openSeatMapModal('${spot.id}')" ${spot.availableSeats === 0 ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''} style="flex: 1.2; padding: 9px 10px; font-size: 0.82rem;">
+                            🪑 Lihat Kursi
+                        </button>
+                    </div>
+                    <button class="spot-card-lf-btn" onclick="app.openLostFoundModal('${spot.id}', 'form')" title="Lapor barang tertinggal atau barang temuan di spot ini">
+                        📦 Lapor Barang Tertinggal di ${spot.name.split('(')[0].trim()}
                     </button>
                 </div>
             `;

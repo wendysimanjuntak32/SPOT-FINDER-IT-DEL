@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KataMaster - Game Menyusun Kata Bergaya Duolingo</title>
+    <meta name="description" content="Game edukasi interaktif menyusun kalimat dan kata bergaya Duolingo dengan audio suara, nyawa, streak api, dan visual 3D modern.">
+    
+    <!-- Duolingo Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- App Header & Navigation -->
+    <header class="app-header">
+        <a href="#" class="nav-brand" id="brand-logo" onclick="location.reload()">
+            <span class="brand-icon">🦉</span>
+            <span>KataMaster</span>
+        </a>
+
+        <div class="header-stats">
+            <!-- Streak Flame -->
+            <div class="stat-badge streak" title="Streak Hari Beruntun">
+                <span class="stat-icon">🔥</span>
+                <span id="stat-streak-val">1</span>
+            </div>
+
+            <!-- Gems -->
+            <div class="stat-badge gems" title="Permata / Gems">
+                <span class="stat-icon">💎</span>
+                <span id="stat-gems-val">100</span>
+            </div>
+
+            <!-- Hearts -->
+            <div class="stat-badge hearts" id="stat-hearts-badge" title="Nyawa">
+                <span class="stat-icon">❤️</span>
+                <span id="stat-hearts-val">5</span>
+            </div>
+
+            <!-- Settings Button -->
+            <button class="duo-btn duo-btn-white" id="btn-open-settings" style="padding: 6px 12px; font-size: 1.1rem;" title="Pengaturan">
+                ⚙️
+            </button>
+
+            <!-- Portal Link -->
+            <a href="../index.html" class="duo-btn duo-btn-white" style="text-decoration:none; padding: 6px 12px; font-size: 0.88rem; display:inline-flex; align-items:center; gap:4px;" title="Kembali ke Portal Kampus">
+                🏠 Portal
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+
+        <!-- ==========================================
+             VIEW 1: Pathway / Home (Duolingo Tree)
+             ========================================== -->
+        <section id="pathway-view" class="view-section active">
+            <div class="pathway-container">
+                
+                <!-- Quick Practice Bar -->
+                <div class="quick-practice-bar">
+                    <div class="quick-practice-title">
+                        <span>⚡</span>
+                        <span>Mode Latihan Cepat</span>
+                    </div>
+                    <button class="duo-btn duo-btn-blue" id="start-quick-practice-btn">
+                        Latih Sekarang (+❤️)
+                    </button>
+                </div>
+
+                <!-- Pathway Tree Content (Units & Lessons) -->
+                <div id="pathway-content">
+                    <!-- Dinamis di-render oleh app.js -->
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 2: Gameplay / Quiz Area
+             ========================================== -->
+        <section id="quiz-view" class="view-section">
+            <div style="max-width: 680px; margin: 0 auto; width: 100%;">
+                
+                <!-- Quiz Top Header (Exit, Progress Bar, Hearts) -->
+                <div class="quiz-header">
+                    <button class="quiz-close-btn" id="quiz-close-btn" title="Keluar">✕</button>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="quiz-progress-fill"></div>
+                    </div>
+
+                    <div class="quiz-hearts">
+                        <span>❤️</span>
+                        <span id="quiz-hearts-val">5</span>
+                    </div>
+                </div>
+
+                <!-- Prompt Area (Instruction, Mascot, Dialogue Bubble) -->
+                <div class="prompt-area">
+                    <h2 class="instruction-text" id="quiz-instruction">Susun kalimat yang tepat:</h2>
+
+                    <div class="dialogue-box">
+                        <!-- Mascot Avatar -->
+                        <div class="mascot-container" id="quiz-mascot">
+                            <!-- SVG Kiko di-render dinamis -->
+                        </div>
+
+                        <!-- Speech Bubble -->
+                        <div class="speech-bubble">
+                            <div class="audio-controls" id="quiz-audio-controls">
+                                <!-- Tombol audio TTS normal & slow -->
+                            </div>
+                            <div class="prompt-text" id="quiz-prompt-text">
+                                Memuat soal...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Answer Slot Zone (Where selected words go) -->
+                <div class="answer-zone empty-placeholder" id="quiz-answer-zone">
+                    <!-- Word chips dimasukkan ke sini saat diklik -->
+                </div>
+
+                <!-- Word Bank (Available word options) -->
+                <div class="word-bank" id="quiz-word-bank">
+                    <!-- Dinamis di-generate oleh app.js -->
+                </div>
+
+            </div>
+
+            <!-- Bottom Fixed Action Bar -->
+            <div class="bottom-bar">
+                <div class="bottom-bar-inner">
+                    <span style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 600;">
+                        💡 Tip: Tekan Enter untuk periksa cepat
+                    </span>
+                    <button class="duo-btn duo-btn-green" id="quiz-check-btn" disabled>
+                        Periksa
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================
+         SLIDING BOTTOM SHEET (Result Drawer)
+         ========================================== -->
+    <div class="bottom-sheet" id="bottom-result-sheet">
+        <div class="sheet-content">
+            <div class="sheet-feedback">
+                <div class="feedback-icon-wrapper" id="sheet-icon">✓</div>
+                <div class="feedback-text">
+                    <h4 id="sheet-title">Hebat Sekali!</h4>
+                    <p id="sheet-desc">Jawabanmu sudah tepat.</p>
+                </div>
+            </div>
+            <button class="duo-btn duo-btn-green" id="sheet-continue-btn">
+                Lanjutkan
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 1: Selesai Level / Victory
+         ========================================== -->
+    <div class="modal-overlay" id="victory-modal">
+        <div class="modal-card">
+            <div class="mascot-container" id="victory-mascot" style="margin: 0 auto; width: 120px; height: 120px;"></div>
+            <h2>Level Selesai! 🎉</h2>
+            <p>Hebat! Kamu telah menyelesaikan pelajaran ini dengan sangat baik.</p>
+
+            <div class="reward-grid">
+                <div class="reward-item">
+                    <span class="reward-icon">⚡</span>
+                    <span class="reward-val" id="victory-xp-val">+25 XP</span>
+                    <span class="reward-label">Poin Pengalaman</span>
+                </div>
+                <div class="reward-item">
+                    <span class="reward-icon">🎯</span>
+                    <span class="reward-val" id="victory-acc-val">100%</span>
+                    <span class="reward-label">Akurasi</span>
+                </div>
+            </div>
+
+            <button class="duo-btn duo-btn-green" id="victory-next-btn" style="width: 100%;">
+                Lanjut ke Menu Utama
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 2: Kehabisan Nyawa / No Hearts
+         ========================================== -->
+    <div class="modal-overlay" id="no-hearts-modal">
+        <div class="modal-card">
+            <div style="font-size: 4rem; margin-bottom: 8px;">💔</div>
+            <h2>Kehabisan Nyawa!</h2>
+            <p>Jangan menyerah! Kamu bisa memulihkan nyawa dengan latihan gratis atau menukar permata.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="duo-btn duo-btn-blue" id="btn-refill-practice" style="width: 100%;">
+                    ⚡ Latihan Cepat (+2 ❤️ Gratis)
+                </button>
+                <button class="duo-btn duo-btn-white" id="btn-refill-gems" style="width: 100%;">
+                    💎 Isi Penuh (30 Permata)
+                </button>
+                <button class="duo-btn duo-btn-white" id="btn-refill-exit" style="width: 100%; border: none; box-shadow: none; color: var(--text-secondary);">
+                    Kembali ke Beranda
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 3: Pengaturan / Settings
+         ========================================== -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-card">
+            <h2>Pengaturan Game ⚙️</h2>
+            <p>Sesuaikan pengalaman bermainmu</p>
+
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
+                <button class="duo-btn duo-btn-white" id="toggle-sound-btn" style="width: 100%;">
+                    🔊 Efek Suara: AKTIF
+                </button>
+                <button class="duo-btn duo-btn-white" id="toggle-theme-btn" style="width: 100%;">
+                    🌙 Ganti Mode Terang / Gelap
+                </button>
+                <button class="duo-btn duo-btn-red" id="reset-data-btn" style="width: 100%;">
+                    🔄 Reset Semua Progres
+                </button>
+            </div>
+
+            <button class="duo-btn duo-btn-green" id="close-settings-btn" style="width: 100%;">
+                Simpan & Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- Canvas Confetti -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/confetti.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

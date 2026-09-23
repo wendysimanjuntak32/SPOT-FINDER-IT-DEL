@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CuacaSmart - Pengukur Suhu & Pengingat Cuaca Pintar</title>
+    <meta name="description" content="Aplikasi web pengukur suhu cerdas dan peringatan cuaca otomatis. Mengingatkan Anda membawa payung saat akan hujan, perlindungan UV, dan rekomendasi aktivitas harian.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for rich modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="weather-clear-day">
+    <!-- Background Canvas for dynamic weather particle effects -->
+    <canvas id="weatherCanvas"></canvas>
+    <div class="ambient-glow" id="ambientGlow"></div>
+
+    <!-- Main Application Wrapper -->
+    <div class="app-container">
+        
+        <!-- Header & Navigation Bar -->
+        <header class="app-header">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-cloud-sun-rain"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>CuacaSmart <span class="badge-ai">AI Companion</span></h1>
+                    <p class="brand-sub">Pengukur Suhu & Peringatan Cuaca Pintar</p>
+                </div>
+            </div>
+
+            <!-- Search & Geolocation Controls -->
+            <div class="search-location-wrapper">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="citySearchInput" placeholder="Cari kota (misal: Jakarta, Bandung, Bali, Tokyo)..." autocomplete="off">
+                    <button class="clear-search-btn" id="clearSearchBtn" title="Hapus"><i class="fa-solid fa-xmark"></i></button>
+                    <!-- Search Autocomplete Dropdown -->
+                    <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+                </div>
+                
+                <button class="btn-icon" id="btnGeolocation" title="Gunakan Lokasi GPS Saya">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <span class="btn-tooltip">Lokasi Saya</span>
+                </button>
+                <button class="btn-icon" id="btnVoiceAlert" title="Dengarkan Suara Asisten Cuaca">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <span class="btn-tooltip">Baca Cuaca (Suara)</span>
+                </button>
+                <button class="btn-icon" id="btnNotificationToggle" title="Notifikasi Browser">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="btn-tooltip">Izin Notifikasi</span>
+                </button>
+                <button class="btn-icon" id="btnSettingsModal" title="Pengaturan Ambang Batas">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span class="btn-tooltip">Pengaturan</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Quick Location Chips -->
+        <div class="quick-locations-bar">
+            <span class="quick-label"><i class="fa-solid fa-fire-flame-curved"></i> Populer:</span>
+            <div class="location-chips">
+                <button class="chip active" data-city="Jakarta" data-lat="-6.2088" data-lon="106.8456">Jakarta</button>
+                <button class="chip" data-city="Bandung" data-lat="-6.9175" data-lon="107.6191">Bandung</button>
+                <button class="chip" data-city="Surabaya" data-lat="-7.2575" data-lon="112.7521">Surabaya</button>
+                <button class="chip" data-city="Medan" data-lat="3.5952" data-lon="98.6722">Medan</button>
+                <button class="chip" data-city="Denpasar, Bali" data-lat="-8.6705" data-lon="115.2126">Bali</button>
+                <button class="chip" data-city="Tokyo" data-lat="35.6762" data-lon="139.6503">Tokyo</button>
+                <button class="chip" data-city="London" data-lat="51.5074" data-lon="-0.1278">London</button>
+            </div>
+            
+            <!-- Quick Simulator Bar -->
+            <div class="simulator-toggle-wrapper">
+                <button class="btn-simulator" id="btnSimulateModal">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Mode Uji Simulasi</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- URGENT WEATHER ALERT BANNER (Active when Rain / Extreme Temp / Storm) -->
+        <section class="alert-banner-container" id="alertBannerContainer">
+            <div class="alert-banner warning" id="mainAlertBanner">
+                <div class="alert-icon-wrap" id="alertIconWrap">
+                    <i class="fa-solid fa-umbrella" id="alertIcon"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title-row">
+                        <span class="alert-badge" id="alertBadge">PERINGATAN HUJAN</span>
+                        <span class="alert-time" id="alertTime">Prediksi 1-2 Jam ke Depan</span>
+                    </div>
+                    <p class="alert-message" id="alertMessage">
+                        Peluang hujan mencapai <strong>85%</strong>. Jangan lupa bawa <strong>Payung atau Jas Hujan</strong> sebelum beraktivitas di luar!
+                    </p>
+                </div>
+                <div class="alert-action-wrap">
+                    <button class="btn-alert-sound" id="btnPlayAlertChime" title="Uji Bunyi Peringatan">
+                        <i class="fa-solid fa-play"></i> Bunyi Suara
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN DASHBOARD CONTENT -->
+        <main class="dashboard-grid">
+
+            <!-- LEFT COLUMN: Real-Time Temperature & Thermometer Visual Gauge -->
+            <div class="dashboard-col col-primary">
+                
+                <!-- Main Temp Card -->
+                <div class="glass-card main-temp-card" id="mainTempCard">
+                    <div class="card-glow-bg"></div>
+                    
+                    <div class="location-header">
+                        <div class="location-info">
+                            <h2 class="current-city" id="currentCityName"><i class="fa-solid fa-location-dot"></i> Jakarta, Indonesia</h2>
+                            <p class="current-datetime" id="currentDateTime">Rabu, 23 September 2026 • 07:54 WIB</p>
+                        </div>
+                        <div class="temp-unit-toggle">
+                            <button class="unit-btn active" id="btnCelsius">°C</button>
+                            <button class="unit-btn" id="btnFahrenheit">°F</button>
+                        </div>
+                    </div>
+
+                    <div class="temp-display-row">
+                        <!-- Numeric Display -->
+                        <div class="temp-numeric-block">
+                            <div class="weather-icon-large" id="mainWeatherIcon">
+                                <i class="fa-solid fa-cloud-sun"></i>
+                            </div>
+                            <div class="temp-value-wrap">
+                                <span class="temp-number" id="currentTemp">29</span>
+                                <span class="temp-degree-sym">°</span>
+                            </div>
+                            <div class="weather-condition-desc" id="currentWeatherDesc">Cerah Berawan</div>
+                            <div class="temp-feels-like" id="currentFeelsLike">
+                                <i class="fa-solid fa-temperature-half"></i> Terasa seperti: <strong>33°C</strong>
+                            </div>
+                            <div class="temp-range-pills">
+                                <span class="pill pill-high"><i class="fa-solid fa-arrow-up"></i> Maks: <strong id="tempMax">34°C</strong></span>
+                                <span class="pill pill-low"><i class="fa-solid fa-arrow-down"></i> Min: <strong id="tempMin">24°C</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Visual Interactive Thermometer Gauge -->
+                        <div class="thermometer-visual-block">
+                            <div class="thermometer-gauge" id="thermometerGauge">
+                                <div class="thermometer-glass">
+                                    <div class="thermometer-tube">
+                                        <div class="thermometer-mercury" id="thermometerMercury" style="height: 60%;">
+                                            <div class="mercury-glow"></div>
+                                            <div class="mercury-bubbles"></div>
+                                        </div>
+                                    </div>
+                                    <div class="thermometer-bulb">
+                                        <div class="bulb-core" id="bulbCore"></div>
+                                    </div>
+                                </div>
+                                <div class="thermometer-scale">
+                                    <span class="scale-mark" style="top: 0%;">50°</span>
+                                    <span class="scale-mark" style="top: 25%;">35°</span>
+                                    <span class="scale-mark" style="top: 50%;">25°</span>
+                                    <span class="scale-mark" style="top: 75%;">10°</span>
+                                    <span class="scale-mark" style="top: 100%;">0°</span>
+                                </div>
+                            </div>
+                            <span class="thermometer-label">Termometer Suhu</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Weather Summary Footer -->
+                    <div class="weather-summary-box" id="aiWeatherSummary">
+                        <div class="summary-icon"><i class="fa-solid fa-robot"></i></div>
+                        <div class="summary-text" id="aiSummaryText">
+                            Cuaca saat ini nyaman namun bersiaplah membawa payung menjelang siang karena potensi rintik hujan 45%.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 24-Hour Forecast & Rain Probability Chart -->
+                <div class="glass-card hourly-forecast-card">
+                    <div class="card-header-clean">
+                        <h3><i class="fa-solid fa-clock"></i> Prakiraan Cuaca 24 Jam & Peluang Hujan</h3>
+                        <span class="sub-badge" id="rainAlertBadgeHours"><i class="fa-solid fa-umbrella"></i> Cek Waktu Hujan</span>
+                    </div>
+
+                    <div class="hourly-scroll-container" id="hourlyForecastContainer">
+                        <!-- Injected via JavaScript -->
+                        <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Memuat data...</div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT COLUMN: Smart Reminders & Actionable Cards -->
+            <div class="dashboard-col col-secondary">
+
+                <!-- SMART REMINDERS & PRECAUTIONS GRID -->
+                <div class="glass-card reminders-main-card">
+                    <div class="card-header-clean">
+                        <h3><i class="fa-solid fa-shield-halved"></i> Pengingat & Rekomendasi Cerdas</h3>
+                        <span class="status-pill status-active" id="umbrellaStatusPill">
+                            <i class="fa-solid fa-circle-dot"></i> Siaga Payung
+                        </span>
+                    </div>
+
+                    <div class="smart-reminders-grid">
+                        
+                        <!-- CARD 1: UMBRELLA & RAIN GEAR (HIGHLIGHTED) -->
+                        <div class="reminder-card reminder-umbrella alert-pulse" id="cardReminderUmbrella">
+                            <div class="reminder-card-icon">
+                                <i class="fa-solid fa-umbrella"></i>
+                            </div>
+                            <div class="reminder-card-info">
+                                <div class="reminder-card-header">
+                                    <h4>Payung & Jas Hujan</h4>
+                                    <span class="reminder-tag tag-warning" id="tagUmbrella">Wajib Bawa</span>
+                                </div>
+                                <p class="reminder-desc" id="descUmbrella">Peluang hujan tinggi (75%). Siapkan payung sebelum berpergian.</p>
+                                <div class="reminder-progress-wrap">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill fill-rain" id="rainProbabilityBar" style="width: 75%;"></div>
+                                    </div>
+                                    <span class="progress-label" id="rainProbValue">Peluang Hujan: 75%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD 2: SUNSCREEN & UV PROTECTION -->
+                        <div class="reminder-card reminder-uv" id="cardReminderUV">
+                            <div class="reminder-card-icon">
+                                <i class="fa-solid fa-sun"></i>
+                            </div>
+                            <div class="reminder-card-info">
+                                <div class="reminder-card-header">
+                                    <h4>Perlindungan UV Matahari</h4>
+                                    <span class="reminder-tag tag-safe" id="tagUV">Sedang (SPF 30)</span>
+                                </div>
+                                <p class="reminder-desc" id="descUV">Indeks UV 5. Disarankan memakai tabir surya dan kacamata hitam.</p>
+                                <div class="reminder-progress-wrap">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill fill-uv" id="uvIndexBar" style="width: 50%;"></div>
+                                    </div>
+                                    <span class="progress-label" id="uvIndexValue">Indeks UV: 5.2 (Moderat)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD 3: CLOTHING & JACKET -->
+                        <div class="reminder-card reminder-clothes" id="cardReminderClothes">
+                            <div class="reminder-card-icon">
+                                <i class="fa-solid fa-shirt"></i>
+                            </div>
+                            <div class="reminder-card-info">
+                                <div class="reminder-card-header">
+                                    <h4>Rekomendasi Pakaian</h4>
+                                    <span class="reminder-tag tag-info" id="tagClothes">Pakaian Santai / Sejuk</span>
+                                </div>
+                                <p class="reminder-desc" id="descClothes">Suhu hangat 29°C. Kenakan pakaian berbahan katun yang menyerap keringat.</p>
+                            </div>
+                        </div>
+
+                        <!-- CARD 4: LAUNDRY / JEMURAN -->
+                        <div class="reminder-card reminder-laundry" id="cardReminderLaundry">
+                            <div class="reminder-card-icon">
+                                <i class="fa-solid fa-jug-detergent"></i>
+                            </div>
+                            <div class="reminder-card-info">
+                                <div class="reminder-card-header">
+                                    <h4>Jemuran Pakaian</h4>
+                                    <span class="reminder-tag tag-warning" id="tagLaundry">Waspada Basah</span>
+                                </div>
+                                <p class="reminder-desc" id="descLaundry">Sebaiknya jemur di tempat beratap karena ada potensi rintik hujan siang ini.</p>
+                            </div>
+                        </div>
+
+                        <!-- CARD 5: OUTDOOR ACTIVITY & HYDRATION -->
+                        <div class="reminder-card reminder-outdoor" id="cardReminderOutdoor">
+                            <div class="reminder-card-icon">
+                                <i class="fa-solid fa-person-running"></i>
+                            </div>
+                            <div class="reminder-card-info">
+                                <div class="reminder-card-header">
+                                    <h4>Olahraga & Hidrasi</h4>
+                                    <span class="reminder-tag tag-success" id="tagOutdoor">Baik di Pagi Hari</span>
+                                </div>
+                                <p class="reminder-desc" id="descOutdoor">Cukup baik untuk aktivitas luar ruangan, konsumsi minimal 2 liter air putih.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- DETAILED ENVIRONMENTAL PARAMETERS GRID -->
+                <div class="glass-card metrics-card">
+                    <div class="card-header-clean">
+                        <h3><i class="fa-solid fa-chart-simple"></i> Detail Parameter Lingkungan</h3>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-icon humidity"><i class="fa-solid fa-droplet"></i></div>
+                            <div class="metric-data">
+                                <span class="metric-label">Kelembapan Udara</span>
+                                <span class="metric-val" id="metricHumidity">78%</span>
+                                <span class="metric-sub" id="metricHumiditySub">Cukup lembap</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-icon wind"><i class="fa-solid fa-wind"></i></div>
+                            <div class="metric-data">
+                                <span class="metric-label">Kecepatan Angin</span>
+                                <span class="metric-val" id="metricWind">14 km/h</span>
+                                <span class="metric-sub" id="metricWindDir">Arah Barat Daya</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-icon pressure"><i class="fa-solid fa-gauge-high"></i></div>
+                            <div class="metric-data">
+                                <span class="metric-label">Tekanan Udara</span>
+                                <span class="metric-val" id="metricPressure">1012 hPa</span>
+                                <span class="metric-sub">Stabil normal</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-icon uv"><i class="fa-solid fa-sun-plant-wilt"></i></div>
+                            <div class="metric-data">
+                                <span class="metric-label">Maksimal UV Hari Ini</span>
+                                <span class="metric-val" id="metricUV">6.4</span>
+                                <span class="metric-sub">Tinggi di siang hari</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-icon rain"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
+                            <div class="metric-data">
+                                <span class="metric-label">Curah Hujan Total</span>
+                                <span class="metric-val" id="metricRainAmt">12.5 mm</span>
+                                <span class="metric-sub">Hujan sedang</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-icon dew"><i class="fa-solid fa-water"></i></div>
+                            <div class="metric-data">
+                                <span class="metric-label">Titik Embun (Dew)</span>
+                                <span class="metric-val" id="metricDew">23°C</span>
+                                <span class="metric-sub">Udara berair</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7-DAY EXTENDED FORECAST -->
+                <div class="glass-card week-forecast-card">
+                    <div class="card-header-clean">
+                        <h3><i class="fa-solid fa-calendar-days"></i> Prakiraan Cuaca 7 Hari ke Depan</h3>
+                    </div>
+
+                    <div class="weekly-list" id="weeklyForecastList">
+                        <!-- Injected via JavaScript -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="footer-left">
+                <p><strong>CuacaSmart AI</strong> • Data realtime didukung oleh <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a> (Akurat & Global).</p>
+            </div>
+            <div class="footer-right">
+                <span class="live-status"><span class="status-blink"></span> Sistem Aktif & Terhubung</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL: WEATHER SIMULATOR (To test scenarios like Heavy Rain, Heatwave, Cold, Thunderstorm) -->
+    <div class="modal-overlay" id="simulatorModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-flask-vial"></i>
+                    <h3>Simulator Skenario Cuaca & Peringatan</h3>
+                </div>
+                <button class="modal-close" id="btnCloseSimulator"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-intro">
+                    Uji coba bagaimana sistem CuacaSmart merespons berbagai kondisi cuaca ekstrem dan memicu pengingat otomatis (seperti peringatan bawa payung, suara peringatan, dan perubahan warna visual termometer).
+                </p>
+
+                <div class="simulator-presets-grid">
+                    <button class="sim-btn sim-rain" id="simHeavyRain">
+                        <div class="sim-icon"><i class="fa-solid fa-cloud-showers-water"></i></div>
+                        <div class="sim-content">
+                            <strong>1. Hujan Deras Badai (85% Hujan)</strong>
+                            <span>Memicu alarm payung, suara hujan & petir, latar badai</span>
+                        </div>
+                    </button>
+
+                    <button class="sim-btn sim-heat" id="simHeatwave">
+                        <div class="sim-icon"><i class="fa-solid fa-fire"></i></div>
+                        <div class="sim-content">
+                            <strong>2. Panas Terik Ekstrem (37°C)</strong>
+                            <span>Memicu alarm tabir surya UV tinggi, hidrasi & termometer merah</span>
+                        </div>
+                    </button>
+
+                    <button class="sim-btn sim-cold" id="simCold">
+                        <div class="sim-icon"><i class="fa-solid fa-snowflake"></i></div>
+                        <div class="sim-content">
+                            <strong>3. Dingin Bersalju (12°C)</strong>
+                            <span>Memicu alarm jaket tebal, suhu dingin & merkuri termometer turun</span>
+                        </div>
+                    </button>
+
+                    <button class="sim-btn sim-sunny" id="simClearDay">
+                        <div class="sim-icon"><i class="fa-solid fa-sun"></i></div>
+                        <div class="sim-content">
+                            <strong>4. Cerah Sempurna (27°C)</strong>
+                            <span>Kondisi ideal jemuran pakaian & olahraga luar ruangan</span>
+                        </div>
+                    </button>
+
+                    <button class="sim-btn sim-live" id="simResetLive">
+                        <div class="sim-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+                        <div class="sim-content">
+                            <strong>5. Kembali ke Cuaca Asli Real-Time (Live)</strong>
+                            <span>Mengambil data aktual satelit via Open-Meteo</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SETTINGS & CUSTOM ALERT THRESHOLDS -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-sliders"></i>
+                    <h3>Pengaturan Ambang Batas Peringatan</h3>
+                </div>
+                <button class="modal-close" id="btnCloseSettings"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="rainThresholdSlider">
+                        <span class="setting-name"><i class="fa-solid fa-umbrella"></i> Batas Sensitivitas Pengingat Payung</span>
+                        <span class="setting-val-badge" id="rainThresholdVal">40%</span>
+                    </label>
+                    <p class="setting-desc">Tampilkan peringatan bawa payung jika peluang hujan melebihi nilai ini.</p>
+                    <input type="range" id="rainThresholdSlider" min="10" max="90" step="5" value="40">
+                </div>
+
+                <div class="setting-group">
+                    <label for="hotThresholdSlider">
+                        <span class="setting-name"><i class="fa-solid fa-temperature-arrow-up"></i> Batas Peringatan Suhu Panas (°C)</span>
+                        <span class="setting-val-badge" id="hotThresholdVal">32°C</span>
+                    </label>
+                    <p class="setting-desc">Tampilkan peringatan hidrasi & tabir surya jika suhu melebihi batas ini.</p>
+                    <input type="range" id="hotThresholdSlider" min="28" max="42" step="1" value="32">
+                </div>
+
+                <div class="setting-group">
+                    <label for="coldThresholdSlider">
+                        <span class="setting-name"><i class="fa-solid fa-temperature-arrow-down"></i> Batas Peringatan Suhu Dingin (°C)</span>
+                        <span class="setting-val-badge" id="coldThresholdVal">20°C</span>
+                    </label>
+                    <p class="setting-desc">Tampilkan saran jaket tebal jika suhu turun di bawah batas ini.</p>
+                    <input type="range" id="coldThresholdSlider" min="5" max="24" step="1" value="20">
+                </div>
+
+                <div class="setting-toggle-row">
+                    <div class="toggle-text">
+                        <strong><i class="fa-solid fa-volume-high"></i> Suara Efek & Peringatan Audio</strong>
+                        <p>Aktifkan efek audio synthesizer saat ada peringatan cuaca penting.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleSoundEffects" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="setting-toggle-row">
+                    <div class="toggle-text">
+                        <strong><i class="fa-solid fa-robot"></i> Suara Asisten AI (Text-to-Speech)</strong>
+                        <p>Bolehkan asisten membaca peringatan otomatis saat cuaca buruk terdeteksi.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleTTS" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="modal-footer-btn">
+                    <button class="btn-primary-action" id="btnSaveSettings">Simpan Pengaturan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Script files -->
+    <script src="weather-effects.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

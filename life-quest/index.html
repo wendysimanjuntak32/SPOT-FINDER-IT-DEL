@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LifeQuest - Gamifikasi Rutinitas & Misi Kehidupan Mahasiswa</title>
+    <meta name="description" content="Ubah kehidupan sehari-hari menjadi game RPG petualangan! Selesaikan misi harian belajar, kelola uang, jaga kesehatan, raih XP, naik level, dan buka achievement nyata.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="nav-brand">
+            <div class="brand-badge-icon">👑</div>
+            <div>
+                <div class="brand-title">Life<span>Quest</span></div>
+                <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700;">Gamifikasi Kehidupan & Produktivitas RPG</div>
+            </div>
+        </a>
+
+        <!-- Global Status Bar -->
+        <div class="nav-stats-bar">
+            <div class="stat-pill level" id="nav-level-val">Lv. 1</div>
+            <div class="stat-pill gold" id="nav-gold-val">50 Gold</div>
+            <div class="stat-pill streak" id="nav-streak-val">3 Hari Streak 🔥</div>
+            <a href="../index.html" class="btn-secondary" style="text-decoration:none; padding: 6px 14px; font-size: 0.82rem; border-radius: var(--radius-full);">
+                🏠 Portal Utama
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+
+        <!-- ==========================================
+             HERO SECTION: CHARACTER CARD & STATS
+             ========================================== -->
+        <section class="hero-character-card">
+            <div class="avatar-sphere" id="char-avatar-sphere" title="Klik untuk mengganti Karakter/Pahlawan">
+                <span id="char-avatar-icon">🧙‍♂️</span>
+            </div>
+
+            <div class="character-info">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <h2 id="char-name">Wendy Simanjuntak</h2>
+                    <span class="rank-tag" id="char-rank">Novice Adventurer</span>
+                </div>
+
+                <div class="xp-progress-box">
+                    <div class="xp-labels">
+                        <span>XP Progres <strong id="char-level-badge" style="color: #c084fc;">Level 1</strong></span>
+                        <span><strong id="char-xp-current">0 XP</strong> / <span id="char-xp-next">100 XP</span></span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="char-xp-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RPG Attributes -->
+            <div class="attributes-grid">
+                <div class="attr-box" title="Intelligence: Belajar, membaca, koding & tugas">
+                    <div class="icon">🧠</div>
+                    <div class="val" id="stat-int-val">12</div>
+                    <div class="label">INT (Logika)</div>
+                </div>
+                <div class="attr-box" title="Vitality: Olahraga, minum air, nutrisi & tidur">
+                    <div class="icon">❤️</div>
+                    <div class="val" id="stat-vit-val">10</div>
+                    <div class="label">VIT (Kesehatan)</div>
+                </div>
+                <div class="attr-box" title="Finance: Catat belanja, menabung & hemat">
+                    <div class="icon">🪙</div>
+                    <div class="val" id="stat-fin-val">8</div>
+                    <div class="label">FIN (Keuangan)</div>
+                </div>
+                <div class="attr-box" title="Social & Habit: Rutinitas, bangun pagi & asrama">
+                    <div class="icon">✨</div>
+                    <div class="val" id="stat-soc-val">9</div>
+                    <div class="label">SOC (Disiplin)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             NAVIGATION TABS BAR
+             ========================================== -->
+        <nav class="quest-tabs-bar">
+            <button class="tab-btn active" data-tab="tab-quests">
+                📜 Misi Harian
+            </button>
+            <button class="tab-btn" data-tab="tab-bosses">
+                👹 Epic Boss Battles
+            </button>
+            <button class="tab-btn" data-tab="tab-habits">
+                ⏱️ Timer Fokus & Rutinitas
+            </button>
+            <button class="tab-btn" data-tab="tab-shop">
+                🛒 Toko Hadiah & Voucher
+            </button>
+            <button class="tab-btn" data-tab="tab-achievements">
+                🏆 Pencapaian
+            </button>
+        </nav>
+
+        <!-- ==========================================
+             TAB 1: MISI HARIAN (DAILY QUESTS)
+             ========================================== -->
+        <section id="tab-quests" class="tab-content-panel active">
+            <div class="quest-actions-header">
+                <div>
+                    <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);">
+                        Papan Misi Harian (Daily Quests)
+                    </h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                        Selesaikan tugas nyata hari ini untuk mendapatkan XP, Koin Emas, dan menaikkan atribut pahlawanmu.
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-secondary" id="btn-reset-daily">
+                        🔄 Reset Misi Harian
+                    </button>
+                    <button class="btn-primary" id="btn-open-add-quest">
+                        ➕ Buat Misi Baru
+                    </button>
+                </div>
+            </div>
+
+            <div class="quests-grid" id="quests-container">
+                <!-- Injected dynamically by app.js -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: EPIC BOSS BATTLES (UTS / KEUANGAN)
+             ========================================== -->
+        <section id="tab-bosses" class="tab-content-panel">
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);">
+                    Tantangan Raksasa (Epic Boss Battles)
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                    Tumbangkan monster besar dengan menyelesaikan rangkaian tugas besar nyata untuk meraih reward spektakuler.
+                </p>
+            </div>
+
+            <div id="bosses-container">
+                <!-- Injected dynamically by app.js -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: TIMER FOKUS & TRACKER RUTINITAS
+             ========================================== -->
+        <section id="tab-habits" class="tab-content-panel">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                
+                <!-- Pomodoro Study Focus Timer -->
+                <div class="pomodoro-box">
+                    <div style="font-size: 2.2rem; margin-bottom: 4px;">⏱️</div>
+                    <h3 style="font-size: 1.3rem; font-weight: 800;">Timer Fokus Belajar (Pomodoro)</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px;">
+                        Fokus belajar atau koding tanpa distraksi selama 25 menit. Dapatkan +60 XP, +35 Gold, dan +3 INT saat sesi berakhir.
+                    </p>
+
+                    <div class="timer-circle-display" id="pomodoro-display">25:00</div>
+
+                    <div class="timer-controls">
+                        <button class="btn-secondary" id="btn-pomodoro-reset">Reset</button>
+                        <button class="btn-primary" id="btn-pomodoro-toggle">Mulai Sesi Belajar (25m)</button>
+                    </div>
+                </div>
+
+                <!-- Daily Water & Expense Logger -->
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    
+                    <!-- Water Habit Tracker -->
+                    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 22px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.8rem;">💧</span>
+                                <div>
+                                    <h4 style="font-weight: 800; font-size: 1.05rem;">Target Minum Air 2 Liter</h4>
+                                    <div id="water-val" style="font-size: 0.85rem; color: #38bdf8; font-weight: 700;">1000 / 2000 ml</div>
+                                </div>
+                            </div>
+                            <button class="btn-primary" id="btn-add-water" style="padding: 8px 14px; font-size: 0.85rem; background: #0284c7;">
+                                +250 ml Air
+                            </button>
+                        </div>
+
+                        <div class="progress-track" style="margin-top: 14px; height: 10px;">
+                            <div class="progress-fill" id="water-percent" style="width: 50%; background: #38bdf8;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Expense & Budget Fast Logger -->
+                    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 22px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <span style="font-size: 1.8rem;">🪙</span>
+                            <div>
+                                <h4 style="font-weight: 800; font-size: 1.05rem;">Catat Pengeluaran Harian (FIN Stat)</h4>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">Mendapatkan +25 XP dan +2 Finance Stat</div>
+                            </div>
+                        </div>
+
+                        <form id="form-log-expense" style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <input type="number" id="expense-amount" placeholder="Nominal (Rp)..." required min="1000" class="btn-secondary" style="background: var(--bg-surface); text-align: left; cursor: text;">
+                                <input type="text" id="expense-desc" placeholder="Contoh: Makan Siang Kantin" required class="btn-secondary" style="background: var(--bg-surface); text-align: left; cursor: text;">
+                            </div>
+                            <button type="submit" class="btn-primary" style="justify-content: center; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000;">
+                                ✍️ Catat & Klaim XP Keuangan
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: TOKO HADIAH NYATA & ITEM RPG
+             ========================================== -->
+        <section id="tab-shop" class="tab-content-panel">
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);">
+                    Toko Hadiah Nyata & Penguat RPG (Reward Store)
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                    Gunakan koin emas yang Anda kumpulkan dari menyelesaikan tugas nyata untuk menukar voucher hadiah atau item RPG!
+                </p>
+            </div>
+
+            <div class="shop-grid" id="shop-container">
+                <!-- Injected dynamically by app.js -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 5: PENCAPAIAN (ACHIEVEMENTS)
+             ========================================== -->
+        <section id="tab-achievements" class="tab-content-panel">
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);">
+                    Piala & Pencapaian Hidup (Achievements)
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                    Buka pencapaian bergengsi seiring dengan konsistensi belajar, disiplin, dan pengelolaan hidupmu.
+                </p>
+            </div>
+
+            <div class="achievements-grid" id="achievements-container">
+                <!-- Injected dynamically by app.js -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================
+         MODAL: BUAT MISI BARU
+         ========================================== -->
+    <div class="modal-overlay" id="modal-add-quest">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800;">➕ Buat Misi Produktivitas Baru</h3>
+                <button class="modal-close" style="background: none; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer;">✕</button>
+            </div>
+
+            <form id="form-add-quest" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">Judul Misi:</label>
+                    <input type="text" id="new-quest-title" required placeholder="Contoh: Selesaikan Tugas Algoritma Bab 3" class="btn-secondary" style="width: 100%; background: var(--bg-card); text-align: left; cursor: text; padding: 12px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">Deskripsi / Petunjuk Pelaksanaan:</label>
+                    <textarea id="new-quest-desc" rows="3" placeholder="Jelaskan detail apa yang harus diselesaikan..." class="btn-secondary" style="width: 100%; background: var(--bg-card); text-align: left; cursor: text; padding: 12px; font-family: inherit;"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">Kategori Atribut:</label>
+                        <select id="new-quest-cat" class="btn-secondary" style="width: 100%; background: var(--bg-card); padding: 12px;">
+                            <option value="int">🧠 Intelligence (Belajar & Koding)</option>
+                            <option value="vit">❤️ Vitality (Olahraga & Sehat)</option>
+                            <option value="fin">🪙 Finance (Keuangan & Hemat)</option>
+                            <option value="soc">✨ Social & Habit (Disiplin Asrama)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">Tingkat Kesulitan:</label>
+                        <select id="new-quest-diff" class="btn-secondary" style="width: 100%; background: var(--bg-card); padding: 12px;">
+                            <option value="easy">Mudah (+20 XP, +10 Gold)</option>
+                            <option value="medium" selected>Sedang (+35 XP, +20 Gold)</option>
+                            <option value="hard">Tantangan Sulit (+60 XP, +40 Gold)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <button type="button" class="btn-secondary modal-cancel" style="flex: 1; justify-content: center;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 2; justify-content: center;">Simpan Misi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL: PILIH AVATAR / KELAS PAHLAWAN
+         ========================================== -->
+    <div class="modal-overlay" id="modal-avatar">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800;">🧙‍♂️ Pilih Kelas Pahlawan Karakter</h3>
+                <button class="modal-close" style="background: none; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer;">✕</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="boss-subtask-item" style="cursor: pointer;" onclick="app.selectAvatar('scholar')">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 2rem;">🧙‍♂️</span>
+                        <div>
+                            <strong style="color: #ffffff;">Scholar of Informatics</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Spesialis INT (Logika, Koding, Tugas Lab)</div>
+                        </div>
+                    </div>
+                    <span class="btn-secondary" style="font-size: 0.8rem;">Pilih</span>
+                </div>
+
+                <div class="boss-subtask-item" style="cursor: pointer;" onclick="app.selectAvatar('warrior')">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 2rem;">⚔️</span>
+                        <div>
+                            <strong style="color: #ffffff;">Paladin of Discipline</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Spesialis VIT (Olahraga, Bangun Pagi, Stamina)</div>
+                        </div>
+                    </div>
+                    <span class="btn-secondary" style="font-size: 0.8rem;">Pilih</span>
+                </div>
+
+                <div class="boss-subtask-item" style="cursor: pointer;" onclick="app.selectAvatar('alchemist')">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 2rem;">💰</span>
+                        <div>
+                            <strong style="color: #ffffff;">Merchant Alchemist</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Spesialis FIN (Manajemen Anggaran & Tabungan)</div>
+                        </div>
+                    </div>
+                    <span class="btn-secondary" style="font-size: 0.8rem;">Pilih</span>
+                </div>
+
+                <div class="boss-subtask-item" style="cursor: pointer;" onclick="app.selectAvatar('ranger')">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 2rem;">🏹</span>
+                        <div>
+                            <strong style="color: #ffffff;">Shadow Ranger</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Spesialis SOC (Membaca, Rutinitas & Konsistensi)</div>
+                        </div>
+                    </div>
+                    <span class="btn-secondary" style="font-size: 0.8rem;">Pilih</span>
+                </div>
+
+                <div class="boss-subtask-item" style="cursor: pointer;" onclick="app.selectAvatar('monk')">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 2rem;">🧘‍♂️</span>
+                        <div>
+                            <strong style="color: #ffffff;">Zen Master</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Spesialis Meditasi, Kebersihan & Ketenangan Jiwa</div>
+                        </div>
+                    </div>
+                    <span class="btn-secondary" style="font-size: 0.8rem;">Pilih</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999;"></div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/confetti.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

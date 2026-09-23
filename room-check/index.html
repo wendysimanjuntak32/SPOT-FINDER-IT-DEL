@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RoomCheck IT Del - Portal Terpadu Mahasiswa & Teknisi Sarpras Asrama</title>
+    <meta name="description" content="Sistem utuh pelaporan kerusakan kamar asrama IT Del oleh mahasiswa dan dashboard penerimaan tugas langsung untuk teknisi sarana prasarana.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .form-section-card {
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.92rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        @media (max-width: 640px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .form-section-card { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar with Role Switcher -->
+    <nav class="navbar">
+        <a href="#" class="brand">
+            <div class="brand-icon">🏢</div>
+            <div>
+                <div>RoomCheck <span>IT Del</span></div>
+                <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700;">Sistem Pelaporan Mahasiswa & Dasbor Teknisi Sarpras</div>
+            </div>
+        </a>
+
+        <!-- Role Switcher (Mahasiswa vs Teknisi) -->
+        <div class="role-switcher">
+            <button class="role-btn active" data-role="student">
+                Portal Mahasiswa (Pelapor)
+            </button>
+            <button class="role-btn" data-role="technician">
+                Dashboard Teknisi Sarpras IT Del
+                <span class="role-badge-count" id="role-pending-badge">1</span>
+            </button>
+        </div>
+
+        <div class="nav-actions">
+            <a href="../index.html" class="btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px;">
+                🏠 Portal Utama
+            </a>
+            <button class="btn-secondary" id="btn-toggle-theme" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px;">
+                Mode Gelap
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             VIEW 1: PORTAL MAHASISWA (Pelapor Kerusakan Kamar)
+             ========================================================================== -->
+        <section id="view-student" class="view-section active">
+            
+            <!-- Hero Header Box -->
+            <div class="hero-box">
+                <div>
+                    <span style="font-size: 0.78rem; font-weight: 800; background: rgba(2, 132, 199, 0.2); color: #38bdf8; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase;">
+                        Direktorat Sarana & Prasarana Institut Teknologi Del
+                    </span>
+                    <h1 style="font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: 800; margin-top: 8px;">
+                        Formulir Pelaporan Kerusakan Kamar Asrama ke Teknisi
+                    </h1>
+                    <p style="color: #94a3b8; font-size: 0.95rem; margin-top: 4px; max-width: 640px; line-height: 1.4;">
+                        Mahasiswa penghuni asrama wajib mengisi formulir resmi di bawah ini untuk melaporkan masalah <strong>air mati, listrik padam, kunci rusak, fasilitas patah, atau sampah</strong>. Laporan langsung masuk ke dashboard teknisi yang bertugas.
+                    </p>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.08); padding: 14px 20px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.15);">
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Jam Piket Teknisi IT Del:</div>
+                    <div style="font-size: 1.15rem; font-weight: 800; color: #38bdf8; margin-top: 2px;">08:00 - 21:30 WIB</div>
+                    <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 2px;">Layanan Darurat: 24 Jam Siaga</div>
+                </div>
+            </div>
+
+            <!-- Stats Overview Row -->
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-icon rose">⏳</div>
+                    <div>
+                        <div class="stat-title">Menunggu Tindakan</div>
+                        <div class="stat-number" id="stat-pending" style="color: var(--rose);">1</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon amber">🔧</div>
+                    <div>
+                        <div class="stat-title">Sedang Ditangani Teknisi</div>
+                        <div class="stat-number" id="stat-progress" style="color: var(--amber);">1</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon emerald">✅</div>
+                    <div>
+                        <div class="stat-title">Selesai Diperbaiki</div>
+                        <div class="stat-number" id="stat-resolved" style="color: var(--emerald);">2</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon blue">📋</div>
+                    <div>
+                        <div class="stat-title">Total Laporan Mahasiswa</div>
+                        <div class="stat-number" id="stat-total" style="color: var(--primary);">4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulir Resmi Mahasiswa -->
+            <div class="form-section-card">
+                <div style="border-bottom: 2px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 20px;">
+                    <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-main);">
+                        Formulir Pengajuan Tiket Perbaikan Fasilitas Kamar
+                    </h2>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                        Isi identitas pelapor dan rincian kerusakan fasilitas kamar dengan lengkap dan benar.
+                    </p>
+                </div>
+
+                <form id="form-new-report" style="display: flex; flex-direction: column; gap: 18px;">
+                    
+                    <!-- Identitas Mahasiswa Pelapor -->
+                    <div style="background: var(--border-subtle); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;">
+                            1. Identitas Mahasiswa Pelapor (Wajib Diisi):
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Nama Lengkap Mahasiswa</label>
+                                <input type="text" id="new-name" required placeholder="Contoh: Wendy Simanjuntak" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nomor Induk Mahasiswa (NIM)</label>
+                                <input type="text" id="new-nim" required placeholder="Contoh: 11S22015" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-grid-2" style="margin-top: 10px;">
+                            <div class="form-group">
+                                <label class="form-label">Program Studi & Angkatan</label>
+                                <input type="text" id="new-prodi" required placeholder="Contoh: S1 Informatika '22" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nomor WhatsApp Aktif</label>
+                                <input type="tel" id="new-phone" required placeholder="Contoh: 081234567890" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lokasi Kamar Asrama -->
+                    <div style="background: var(--border-subtle); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;">
+                            2. Lokasi Kamar yang Mengalami Masalah:
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Nama Asrama IT Del</label>
+                                <select id="new-dorm" required class="form-select">
+                                    <option value="Asrama Silo (Putra)">Asrama Silo (Putra)</option>
+                                    <option value="Asrama Kapernaum (Putra)">Asrama Kapernaum (Putra)</option>
+                                    <option value="Asrama Anthiokia (Putri)">Asrama Anthiokia (Putri)</option>
+                                    <option value="Asrama Danau Toba (Putri)">Asrama Danau Toba (Putri)</option>
+                                    <option value="Asrama Mamre (Putra)">Asrama Mamre (Putra)</option>
+                                    <option value="Asrama Pniel (Putra)">Asrama Pniel (Putra)</option>
+                                    <option value="Asrama Sion (Putri)">Asrama Sion (Putri)</option>
+                                    <option value="Asrama Rusunawa Del">Asrama Rusunawa Del</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nomor Kamar / Lantai</label>
+                                <input type="text" id="new-room" required placeholder="Contoh: Kamar 204 (Lantai 2)" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kategori & Detail Masalah -->
+                    <div style="background: var(--border-subtle); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;">
+                            3. Kategori & Rincian Kerusakan Fasilitas:
+                        </div>
+                        
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Kategori Masalah Kerusakan</label>
+                                <select id="new-cat" required class="form-select">
+                                    <option value="water">Air Mati / Masalah Saluran Air</option>
+                                    <option value="electricity">Listrik Padam / Stopkontak / Lampu</option>
+                                    <option value="room">Pintu Kamar Rusak / Kunci Macet / Jendela Bocor</option>
+                                    <option value="facility">Fasilitas Rusak (Kipas / Meja / Kursi Patah)</option>
+                                    <option value="cleanliness">Kebersihan Lorong & Sanitasi Kamar Mandi</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Tingkat Urgensi Penanganan</label>
+                                <select id="new-urgency" required class="form-select">
+                                    <option value="high">Mendesak / Darurat (Air Mati / Listrik Padam Total)</option>
+                                    <option value="medium" selected>Sedang (Kunci Macet / Meja Belajar Patah)</option>
+                                    <option value="low">Ringan (Kebersihan / Pengangkutan Sampah)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label class="form-label">Judul Keluhan Singkat</label>
+                            <input type="text" id="new-title" required placeholder="Contoh: Kran air kamar mandi patah dan air memancar tidak bisa ditutup" class="form-input">
+                        </div>
+
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label class="form-label">Deskripsi Kronologis Kerusakan</label>
+                            <textarea id="new-desc" rows="3" required placeholder="Jelaskan secara detail masalah yang terjadi, bagian mana yang rusak, dan dampak yang dialami penghuni kamar..." class="form-textarea"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="padding: 16px; font-size: 1.05rem; justify-content: center; font-weight: 800; background: var(--primary);">
+                        Kirim Laporan Resmi ke Teknisi Sarpras IT Del
+                    </button>
+                </form>
+            </div>
+
+            <!-- Papan Pemantauan Tiket Mahasiswa -->
+            <div>
+                <div class="tickets-header">
+                    <div>
+                        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);">
+                            Papan Pemantauan Penanganan Laporan Kamar Asrama
+                        </h2>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                            Pantau status penanganan laporan dari Diterima, Sedang Ditangani, hingga Selesai
+                        </p>
+                    </div>
+
+                    <div style="min-width: 260px;">
+                        <input type="text" id="search-report" placeholder="Cari nomor tiket, kamar, atau asrama..." class="form-input" style="padding: 10px 16px; border-radius: var(--radius-full);">
+                    </div>
+                </div>
+
+                <div class="filter-pills-bar" style="margin-bottom: 16px;">
+                    <button class="pill-btn active" data-status="all">Semua Laporan</button>
+                    <button class="pill-btn" data-status="pending">Menunggu Tindakan</button>
+                    <button class="pill-btn" data-status="in-progress">Sedang Ditangani Teknisi</button>
+                    <button class="pill-btn" data-status="resolved">Selesai Diperbaiki</button>
+                </div>
+
+                <div id="tickets-feed">
+                    <!-- Injected dynamically by app.js -->
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================================================
+             VIEW 2: DASHBOARD KERJA TEKNISI SARPRAS IT DEL (Penerima Laporan)
+             ========================================================================== -->
+        <section id="view-technician" class="view-section">
+            
+            <!-- Tech Header -->
+            <div class="tech-dashboard-header">
+                <div>
+                    <span style="font-size: 0.78rem; font-weight: 800; background: rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 9999px; text-transform: uppercase;">
+                        Panel Kerja Lapangan Teknisi
+                    </span>
+                    <h2 style="font-size: 1.6rem; font-weight: 800; margin-top: 6px;">
+                        Dashboard Penerimaan Tugas & Perbaikan Sarpras IT Del
+                    </h2>
+                    <p style="opacity: 0.9; font-size: 0.92rem; margin-top: 4px; max-width: 620px;">
+                        Menerima laporan kerusakan kamar asrama yang diajukan mahasiswa secara real-time, mengonfirmasi penanganan, dan mencatat log perbaikan lapangan.
+                    </p>
+                </div>
+
+                <!-- Filter Spesialisasi Teknisi -->
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; opacity: 0.9; display: block; margin-bottom: 4px;">Pilih Divisi / Teknisi Bertugas:</label>
+                    <select id="tech-user-select" class="tech-select-box">
+                        <option value="all">Semua Antrean Teknisi (Pusat Sarpras)</option>
+                        <option value="water">Divisi Air & Pipa (Pak Hotman)</option>
+                        <option value="electricity">Divisi Listrik & Panel (Pak Simanjuntak)</option>
+                        <option value="room">Divisi Pintu, Kunci & Kayu (Pak Manurung)</option>
+                        <option value="cleanliness">Koordinator Kebersihan Asrama</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Quick Task Counter for Tech -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px;">
+                <div style="background: var(--bg-card); border: 2px solid var(--rose); padding: 16px; border-radius: var(--radius-md);">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--rose); text-transform: uppercase;">Antrean Masuk (Perlu Dikerjakan)</div>
+                    <div id="tech-pending-count" style="font-size: 1.6rem; font-weight: 800; color: var(--rose); margin-top: 4px;">1 Tiket</div>
+                </div>
+
+                <div style="background: var(--bg-card); border: 2px solid var(--amber); padding: 16px; border-radius: var(--radius-md);">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--amber); text-transform: uppercase;">Sedang Ditangani di Lokasi</div>
+                    <div id="tech-active-count" style="font-size: 1.6rem; font-weight: 800; color: var(--amber); margin-top: 4px;">1 Tiket</div>
+                </div>
+
+                <div style="background: var(--bg-card); border: 2px solid var(--emerald); padding: 16px; border-radius: var(--radius-md);">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--emerald); text-transform: uppercase;">Selesai Dikerjakan Hari Ini</div>
+                    <div id="tech-done-count" style="font-size: 1.6rem; font-weight: 800; color: var(--emerald); margin-top: 4px;">2 Tiket</div>
+                </div>
+            </div>
+
+            <!-- Technician Live Queue List -->
+            <div>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 14px;">
+                    Daftar Antrean Tiket Kerusakan Masuk dari Mahasiswa:
+                </h3>
+
+                <div id="tech-tickets-feed">
+                    <!-- Injected dynamically by app.js -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ==========================================
+         MODAL 1: Tiket Sukses & Disposisi WhatsApp Teknisi
+         ========================================== -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 4px;">✅</div>
+            <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--emerald-dark);">Laporan Berhasil Diterbitkan!</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">
+                Nomor Tiket Resmi Sarpras IT Del: <strong id="success-ticket-code" style="color: var(--primary); font-size: 1.1rem; display: block; margin-top: 4px;">DEL-SARPRAS-XXXX</strong>
+            </p>
+
+            <div style="background: var(--border-subtle); padding: 14px; border-radius: var(--radius-md); text-align: left; font-size: 0.88rem; margin: 12px 0;">
+                <div>Teknisi yang Ditugaskan:</div>
+                <strong id="success-tech-name" style="color: var(--text-main); font-size: 0.95rem;">Pak Hotman (Teknisi Sarpras IT Del)</strong>
+                <div style="margin-top: 6px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                    Laporan telah otomatis masuk ke dashboard kerja teknisi. Anda juga dapat meneruskan detail laporan ini langsung ke WhatsApp teknisi terkait.
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a id="success-btn-wa" target="_blank" class="btn-primary" style="background: #25D366; justify-content: center; text-decoration: none; padding: 13px;">
+                    Kirim Salinan Laporan ke WhatsApp Teknisi
+                </a>
+                <button class="btn-secondary modal-cancel" style="padding: 10px;">
+                    Tutup dan Pantau Tiket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 2: Detail Tiket & Tindak Lanjut
+         ========================================== -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span id="detail-id" style="font-size: 0.85rem; font-weight: 800; color: var(--primary);">DEL-SARPRAS-XXXX</span>
+                    <h3 id="detail-title" style="font-size: 1.25rem; font-weight: 800; margin-top: 2px;">Judul Laporan</h3>
+                    <p id="detail-dorm" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Lokasi Kamar</p>
+                </div>
+                <button class="modal-close" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">✕</button>
+            </div>
+
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Deskripsi Kerusakan:</div>
+                <p id="detail-desc" style="font-size: 0.92rem; color: var(--text-main); margin-top: 4px; line-height: 1.4; background: var(--border-subtle); padding: 12px; border-radius: var(--radius-md);"></p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="background: var(--border-subtle); padding: 10px; border-radius: var(--radius-md);">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Status Terkini:</div>
+                    <div id="detail-status" style="font-weight: 800; font-size: 0.9rem; color: var(--primary); margin-top: 2px;">-</div>
+                </div>
+
+                <div style="background: var(--border-subtle); padding: 10px; border-radius: var(--radius-md);">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Teknisi Ditugaskan:</div>
+                    <div id="detail-tech" style="font-weight: 700; font-size: 0.85rem; margin-top: 2px;">-</div>
+                </div>
+            </div>
+
+            <div style="background: var(--border-subtle); padding: 10px; border-radius: var(--radius-md);">
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Mahasiswa Pelapor:</div>
+                <div id="detail-reporter" style="font-weight: 700; font-size: 0.85rem; margin-top: 2px;">-</div>
+            </div>
+
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Catatan Lapangan Teknisi:</div>
+                <p id="detail-notes" style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px; font-style: italic;"></p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                <a id="detail-btn-wa" target="_blank" class="btn-primary" style="background: #25D366; justify-content: center; text-decoration: none;">
+                    Hubungi Teknisi via WhatsApp
+                </a>
+                <button class="btn-secondary modal-cancel">
+                    Tutup Detail
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 3: Catat Log Pengerjaan Teknisi
+         ========================================== -->
+    <div class="modal-overlay" id="tech-log-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Catat Log Perbaikan Teknisi</h3>
+                    <p id="tech-log-ticket-id" style="font-size: 0.85rem; color: var(--primary); font-weight: 700; margin-top: 2px;">DEL-SARPRAS-XXXX</p>
+                </div>
+                <button class="modal-close" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">✕</button>
+            </div>
+
+            <form id="form-tech-log" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">Catatan Lapangan & Suku Cadang yang Diganti:</label>
+                    <textarea id="tech-log-input" rows="4" required placeholder="Contoh: Pipa PVC 1/2 inch telah diganti baru, kran air sudah berfungsi lancar dan tidak bocor lagi..." class="form-textarea"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-secondary modal-cancel" style="flex: 1;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 2; justify-content: center;">
+                        Simpan Catatan Log
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 200;"></div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

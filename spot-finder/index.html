@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SpotFinder IT Del - Temukan Tempat Belajar Kosong di Kampus Institut Teknologi Del</title>
+    <meta name="description" content="Aplikasi pencari tempat kosong real-time di Perpustakaan IT Del, Ruang Belajar GD, dan area kampus Institut Teknologi Del Laguboti.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="brand">
+            <div class="brand-icon-wrapper">🎓</div>
+            <div class="brand-title">SpotFinder <span>IT Del</span></div>
+        </a>
+
+        <div class="nav-actions">
+            <div class="live-beacon" title="Terhubung ke Jaringan Kampus IT Del">
+                <span class="pulse-dot"></span>
+                <span>Institut Teknologi Del (Sitoluama)</span>
+            </div>
+            <a href="../index.html" class="btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding: 6px 14px; font-size: 0.82rem; border-radius: 9999px;">
+                🏠 Portal Utama
+            </a>
+            <button class="btn-icon" id="btn-toggle-theme" title="Ganti Tema">🌙</button>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero-section">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(99, 102, 241, 0.12); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-size: 0.82rem; font-weight: 800;">
+                🏛️ Institut Teknologi Del • Laguboti, Toba
+            </div>
+            <button id="btn-detect-location" class="btn-secondary" style="padding: 4px 12px; font-size: 0.8rem; border-radius: 9999px;">
+                📍 Lokasi: Kampus IT Del (Sitoluama)
+            </button>
+        </div>
+
+        <h1 class="hero-title">Spot Belajar Kosong di <span>Perpus & Kampus IT Del</span></h1>
+        <p class="hero-desc">Pantau ketersediaan kursi di <strong>Perpustakaan IT Del</strong>, Ruang Belajar GD, Lab Komputer, dan Kantin Del secara real-time tanpa perlu muter-muter mencari tempat!</p>
+
+        <!-- Live Ticker Bar -->
+        <div style="background: var(--border-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 16px; margin-bottom: 24px; font-size: 0.88rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+            <div id="live-ticker-text">
+                📢 <strong>Live Kampus IT Del:</strong> Perpustakaan IT Del (Lt. 2) tersisa 8 tempat kosong • Ruang Belajar GD 7 tersisa 3 kursi • Kantin Del ramai
+            </div>
+        </div>
+
+        <!-- Quick Summary Stats -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon green">📚</div>
+                <div class="summary-info">
+                    <h4>Perpustakaan IT Del</h4>
+                    <div class="stat-num" style="color: var(--primary);">8 Tempat Kosong</div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon indigo">💡</div>
+                <div class="summary-info">
+                    <h4>Ruang Belajar GD 7</h4>
+                    <div class="stat-num" style="color: var(--warning);">3 Tempat Kosong</div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon rose">🍱</div>
+                <div class="summary-info">
+                    <h4>Kantin Utama Del</h4>
+                    <div class="stat-num" style="color: var(--danger);">Ramai / Penuh</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="control-bar">
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="spot-search" class="search-input" placeholder="Cari spot di IT Del (misal: 'Perpus', 'GD 7', 'GD 9', 'Danau Toba', 'Colokan')...">
+            </div>
+
+            <div class="filter-pills">
+                <button class="filter-pill active" data-filter="all">Semua Spot IT Del</button>
+                <button class="filter-pill" data-filter="perpus">📚 Perpustakaan Del</button>
+                <button class="filter-pill" data-filter="empty-only">🟢 Hanya yang Kosong</button>
+                <button class="filter-pill" data-filter="silent">🤫 Sangat Hening (Zona Skripsi)</button>
+                <button class="filter-pill" data-filter="outlets">🔌 Ada Colokan Listrik</button>
+                <button class="filter-pill" data-filter="group">👥 Diskusi Proyek / PA</button>
+                <button class="filter-pill" data-filter="outdoor">🏞️ View Danau Toba</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Spots Grid Section -->
+    <main class="hero-section" style="padding-top: 0;">
+        <div class="spots-grid" id="spots-container">
+            <!-- Rendered by app.js -->
+        </div>
+    </main>
+
+    <!-- ==========================================
+         MODAL 1: Interactive Seat Map & Booking
+         ========================================== -->
+    <div class="modal-overlay" id="seat-modal">
+        <div class="seat-modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3 id="seat-modal-title" style="font-size: 1.3rem; font-weight: 800;">Denah Kursi Perpustakaan IT Del</h3>
+                    <p id="seat-modal-location" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Lokasi Ruangan</p>
+                </div>
+                <button class="modal-close">✕</button>
+            </div>
+
+            <!-- Seat Legend -->
+            <div class="seat-legend">
+                <div class="legend-item">
+                    <div class="legend-dot available"></div>
+                    <span>Kosong</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot occupied"></div>
+                    <span>Terisi Mahasiswa</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot selected"></div>
+                    <span>Pilihanmu</span>
+                </div>
+            </div>
+
+            <!-- Interactive Grid of Seats -->
+            <div class="seat-grid-container" id="seat-grid">
+                <!-- Generated by app.js -->
+            </div>
+
+            <div style="background: var(--border-subtle); border-radius: var(--radius-md); padding: 12px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                💡 <strong>Info Check-in Mahasiswa Del:</strong> Kursi yang kamu amankan akan ditandai selama 15 menit agar kamu sempat berjalan dari asrama / GD ke lokasi tanpa direbut mahasiswa lain.
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary modal-cancel" style="flex: 1;">Batal</button>
+                <button class="btn-primary" id="btn-confirm-seat" style="flex: 2; justify-content: center;" disabled>
+                    Pilih Kursi Terlebih Dahulu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 2: Lapor Kondisi Keramaian
+         ========================================== -->
+    <div class="modal-overlay" id="report-modal">
+        <div class="seat-modal-card" style="max-width: 440px;">
+            <div class="modal-header">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800;">📢 Lapor Kondisi Spot IT Del</h3>
+                    <p id="report-modal-spot-name" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Nama Spot</p>
+                </div>
+                <button class="modal-close">✕</button>
+            </div>
+
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.4;">
+                Bantu teman-teman mahasiswa IT Del dengan mengabarkan situasi terkini di lokasi:
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-primary" onclick="app.submitCrowdReport('more-empty')" style="background: var(--primary); justify-content: center; padding: 14px;">
+                    🟢 Ada Meja / Kursi yang Baru Kosong (+2)
+                </button>
+                <button class="btn-primary" onclick="app.submitCrowdReport('more-crowded')" style="background: var(--danger); justify-content: center; padding: 14px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+                    🔴 Lokasi Ini Bertambah Ramai / Penuh (-2)
+                </button>
+            </div>
+
+            <button class="btn-secondary modal-cancel" style="width: 100%;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

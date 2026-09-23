@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Ekosistem Web & Aplikasi Interaktif</title>
+    <meta name="description" content="Pusat portal dan peluncur 10 aplikasi web lengkap: Cuaca & Pengukur Suhu Cerdas, LifeQuest RPG, Layanan Asrama Kampus, Persiapan Karir, dan Game Edukasi.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-card: rgba(18, 24, 38, 0.75);
+            --bg-card-hover: rgba(26, 35, 56, 0.9);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(99, 102, 241, 0.35);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            
+            --primary: #6366f1;
+            --cyan: #06b6d4;
+            --emerald: #10b981;
+            --rose: #f43f5e;
+            --amber: #f59e0b;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-full: 9999px;
+            --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 20% 15%, rgba(99, 102, 241, 0.18), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15), transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1), transparent 60%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2.5rem 1.5rem 4rem 1.5rem;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Hero Header */
+        .hero-section {
+            text-align: center;
+            padding: 2rem 1rem 1rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .portal-badge {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #a5b4fc;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 1.1rem;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+        }
+
+        .live-count-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.4rem 0.9rem;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #34d399;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        h1.hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.hero-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-sub);
+            max-width: 720px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Quick Action Bar (Search & Filter Tabs) */
+        .controls-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .controls-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+            max-width: 480px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: rgba(11, 15, 25, 0.85);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-full);
+            padding: 0.75rem 1.25rem 0.75rem 2.8rem;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+            background: rgba(11, 15, 25, 0.98);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .btn-copy-all {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            padding: 0.65rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-copy-all:hover {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-sub);
+            padding: 0.45rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-color: #818cf8;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Grid of Apps */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .app-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1.25rem;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-color, #6366f1);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            transition: height 0.2s ease;
+        }
+
+        .app-card:hover {
+            transform: translateY(-6px);
+            background: var(--bg-card-hover);
+            border-color: var(--card-color, #6366f1);
+            box-shadow: 0 20px 40px -10px var(--card-glow, rgba(99, 102, 241, 0.35));
+        }
+
+        .app-card:hover::before {
+            height: 6px;
+        }
+
+        /* Top Bar inside Card */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .icon-wrap {
+            width: 54px;
+            height: 54px;
+            border-radius: var(--radius-md);
+            background: var(--icon-bg, rgba(99, 102, 241, 0.15));
+            border: 1px solid var(--icon-border, rgba(99, 102, 241, 0.3));
+            color: var(--card-color, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 4px 15px var(--icon-glow, rgba(99, 102, 241, 0.2));
+            transition: var(--transition);
+        }
+
+        .app-card:hover .icon-wrap {
+            transform: scale(1.08) rotate(3deg);
+        }
+
+        .badge-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.3rem;
+        }
+
+        .tag-category {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.25rem 0.65rem;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-sub);
+            border: 1px solid var(--border-glass);
+        }
+
+        .tag-special {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-full);
+            color: #fff;
+            background: var(--card-color, #6366f1);
+            box-shadow: 0 2px 8px var(--card-glow, rgba(99, 102, 241, 0.3));
+        }
+
+        /* Card Content */
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+
+        .card-desc {
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        /* Card Footer Actions */
+        .card-footer {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-launch {
+            flex: 1;
+            background: var(--card-color, #6366f1);
+            border: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            box-shadow: 0 4px 12px var(--card-glow, rgba(99, 102, 241, 0.3));
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-launch:hover {
+            filter: brightness(1.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-copy-link {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            color: var(--text-sub);
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .btn-copy-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Featured Highlight Card */
+        .app-card.card-featured-large {
+            grid-column: 1 / -1;
+            background: linear-gradient(145deg, rgba(24, 33, 56, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.2);
+        }
+
+        .card-featured-large .card-title {
+            font-size: 1.55rem;
+        }
+
+        .card-featured-large .card-desc {
+            font-size: 0.95rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem 1rem;
+            display: none;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        /* Footer */
+        .portal-footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* Toast Popup */
+        .toast-box {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: #fff;
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(15px);
+            transition: var(--transition);
+            z-index: 9999;
+        }
+
+        .toast-box.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .apps-grid {
+                grid-template-columns: 1fr;
+            }
+            .controls-top-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+            .toast-box {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Hero Header -->
+        <header class="hero-section">
+            <div class="top-badge-row">
+                <div class="portal-badge">
+                    <i class="fa-solid fa-shapes"></i> Master Web App Directory
+                </div>
+                <div class="live-count-badge">
+                    <span class="pulse-dot"></span> 10 Aplikasi Siap Diakses
+                </div>
+            </div>
+            
+            <h1 class="hero-title">Pusat Aplikasi & Game Web</h1>
+            <p class="hero-subtitle">
+                Akses instan seluruh ekosistem aplikasi web: Pengukur Suhu & Pengingat Hujan, Layanan Kampus, Produktivitas RPG, Karir Magang, dan Game Edukasi Interaktif.
+            </p>
+        </header>
+
+        <!-- Controls: Search & Category Filters -->
+        <div class="controls-card">
+            <div class="controls-top-row">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Cari nama aplikasi atau topik (misal: cuaca, payung, rpg, kamar, cv, matematika)...">
+                </div>
+                <button class="btn-copy-all" id="btnCopyAllLinks">
+                    <i class="fa-solid fa-copy"></i> Salin Semua Link
+                </button>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="tab-btn active" data-category="all">
+                    <i class="fa-solid fa-layer-group"></i> Semua (10)
+                </button>
+                <button class="tab-btn" data-category="utilitas">
+                    <i class="fa-solid fa-cloud-sun-rain"></i> Cuaca & Utilitas
+                </button>
+                <button class="tab-btn" data-category="kampus">
+                    <i class="fa-solid fa-building-columns"></i> Layanan Kampus
+                </button>
+                <button class="tab-btn" data-category="produktivitas">
+                    <i class="fa-solid fa-trophy"></i> Karir & RPG
+                </button>
+                <button class="tab-btn" data-category="game">
+                    <i class="fa-solid fa-gamepad"></i> Game & Edukasi
+                </button>
+            </div>
+        </div>
+
+        <!-- Applications Grid -->
+        <main class="apps-grid" id="appsGrid">
+
+            <!-- APP 1: CuacaSmart (FLAGSHIP FEATURED) -->
+            <div class="app-card card-featured-large" data-category="utilitas" data-tags="cuaca suhu termometer payung hujan angin uv panas reminder"
+                 style="--card-color: #06b6d4; --card-glow: rgba(6, 182, 212, 0.4); --icon-bg: rgba(6, 182, 212, 0.15); --icon-border: rgba(6, 182, 212, 0.35); --icon-glow: rgba(6, 182, 212, 0.3);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-cloud-sun-rain"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-special" style="background: linear-gradient(135deg, #06b6d4, #0284c7);">🔥 APLIKASI BARU</span>
+                        <span class="tag-category">Cuaca & Pengingat AI</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">CuacaSmart: Pengukur Suhu & Pengingat Payung Pintar</h2>
+                    <p class="card-desc">
+                        Pantau suhu real-time dengan termometer cairan dinamis, prakiraan cuaca 24 jam & 7 hari, alarm darurat bawa payung saat hujan, proteksi UV matahari, synthesizer audio bel, dan asisten suara bahasa Indonesia.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="cuaca-smart/index.html" class="btn-launch" style="background: linear-gradient(135deg, #0284c7, #06b6d4);">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka CuacaSmart
+                    </a>
+                    <button class="btn-copy-link" data-url="cuaca-smart/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 2: LifeQuest RPG -->
+            <div class="app-card" data-category="produktivitas" data-tags="lifequest rpg produktivitas rutinitas quest misi leveling game habit"
+                 style="--card-color: #8b5cf6; --card-glow: rgba(139, 92, 246, 0.35); --icon-bg: rgba(139, 92, 246, 0.15); --icon-border: rgba(139, 92, 246, 0.35); --icon-glow: rgba(139, 92, 246, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-special" style="background: #8b5cf6;">⚡ FLAGSHIP RPG</span>
+                        <span class="tag-category">Gamifikasi Produktivitas</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">LifeQuest: RPG Rutinitas & Misi Harian</h2>
+                    <p class="card-desc">
+                        Ubah rutinitas sehari-hari menjadi petualangan RPG: selesaikan misi belajar & koding, kalahkan monster ujian UTS/UAS, raih XP, dan tukar emas dengan reward nyata!
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="life-quest/index.html" class="btn-launch" style="background: #8b5cf6;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka LifeQuest
+                    </a>
+                    <button class="btn-copy-link" data-url="life-quest/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 3: InternReady -->
+            <div class="app-card" data-category="produktivitas" data-tags="internready karir magang cv ats interview latihan resume kerja"
+                 style="--card-color: #3b82f6; --card-glow: rgba(59, 130, 246, 0.35); --icon-bg: rgba(59, 130, 246, 0.15); --icon-border: rgba(59, 130, 246, 0.35); --icon-glow: rgba(59, 130, 246, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-special" style="background: #3b82f6;">💼 KARIER</span>
+                        <span class="tag-category">Persiapan Magang</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">InternReady: Persiapan Karir & Magang</h2>
+                    <p class="card-desc">
+                        Platform persiapan karir lengkap: CV ATS Builder profesional, simulator interview metode STAR, roadmap keahlian industri, dan tes kesiapan onboarding.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="intern-ready/index.html" class="btn-launch" style="background: #3b82f6;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka InternReady
+                    </a>
+                    <button class="btn-copy-link" data-url="intern-ready/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 4: RoomCheck IT Del -->
+            <div class="app-card" data-category="kampus" data-tags="roomcheck asrama kamar perbaikan air listrik fasilitas rusak kampus del"
+                 style="--card-color: #f43f5e; --card-glow: rgba(244, 63, 94, 0.35); --icon-bg: rgba(244, 63, 94, 0.15); --icon-border: rgba(244, 63, 94, 0.35); --icon-glow: rgba(244, 63, 94, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-category">Layanan Kampus</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">RoomCheck IT Del</h2>
+                    <p class="card-desc">
+                        Sistem pelaporan masalah kamar asrama cepat: air mati, listrik padam, kunci rusak, fasilitas patah, dan ceklist kebersihan asrama.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="room-check/index.html" class="btn-launch" style="background: #f43f5e;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka RoomCheck
+                    </a>
+                    <button class="btn-copy-link" data-url="room-check/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 5: Teman Seperjalanan -->
+            <div class="app-card" data-category="kampus" data-tags="teman seperjalanan tebengan asrama pulang bareng gps bensin patungan"
+                 style="--card-color: #0284c7; --card-glow: rgba(2, 132, 199, 0.35); --icon-bg: rgba(2, 132, 199, 0.15); --icon-border: rgba(2, 132, 199, 0.35); --icon-glow: rgba(2, 132, 199, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-car-side"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-category">Tebengan & Komunitas</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">Teman Seperjalanan</h2>
+                    <p class="card-desc">
+                        Radar GPS pulang bareng ke asrama saat malam hari, tebengan luar kampus aman, dan kalkulator patungan bensin otomatis.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="teman-seperjalanan/index.html" class="btn-launch" style="background: #0284c7;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Tebengan
+                    </a>
+                    <button class="btn-copy-link" data-url="teman-seperjalanan/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 6: SpotFinder IT Del -->
+            <div class="app-card" data-category="kampus" data-tags="spotfinder perpustakaan meja belajar kursi kosong kantin gd live"
+                 style="--card-color: #10b981; --card-glow: rgba(16, 185, 129, 0.35); --icon-bg: rgba(16, 185, 129, 0.15); --icon-border: rgba(16, 185, 129, 0.35); --icon-glow: rgba(16, 185, 129, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-category">Meja Belajar Kampus</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">SpotFinder IT Del</h2>
+                    <p class="card-desc">
+                        Pantau ketersediaan kursi & meja di Perpustakaan IT Del, Ruang Belajar GD, dan Kantin secara langsung dan real-time.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="spot-finder/index.html" class="btn-launch" style="background: #10b981;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka SpotFinder
+                    </a>
+                    <button class="btn-copy-link" data-url="spot-finder/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 7: LeaveCheck -->
+            <div class="app-card" data-category="utilitas" data-tags="leavecheck barang bawaan asrama tumbler payung termos jaket checklist"
+                 style="--card-color: #0ea5e9; --card-glow: rgba(14, 165, 233, 0.35); --icon-bg: rgba(14, 165, 233, 0.15); --icon-border: rgba(14, 165, 233, 0.35); --icon-glow: rgba(14, 165, 233, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-category">Asisten Keluar Kamar</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">LeaveCheck: Asisten Bawaan</h2>
+                    <p class="card-desc">
+                        Pengingat pintar barang bawaan sebelum melangkah keluar kamar: tumbler, payung saat mendung, termos air panas, jaket, dan alat makan.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="leave-check/index.html" class="btn-launch" style="background: #0ea5e9;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka LeaveCheck
+                    </a>
+                    <button class="btn-copy-link" data-url="leave-check/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 8: KataMaster -->
+            <div class="app-card" data-category="game" data-tags="katamaster game bahasa duolingo kosa kata susun kata streak belajar"
+                 style="--card-color: #22c55e; --card-glow: rgba(34, 197, 94, 0.35); --icon-bg: rgba(34, 197, 94, 0.15); --icon-border: rgba(34, 197, 94, 0.35); --icon-glow: rgba(34, 197, 94, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-category">Game Edukasi Bahasa</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">KataMaster: Duolingo-Style</h2>
+                    <p class="card-desc">
+                        Game kosa kata interaktif ala Duolingo: susun kata & kalimat, dengarkan pelafalan audio TTS, pertahankan streak harian, dan kumpulkan skor XP!
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="kata-master/index.html" class="btn-launch" style="background: #22c55e;">
+                        <i class="fa-solid fa-gamepad"></i> Mainkan KataMaster
+                    </a>
+                    <button class="btn-copy-link" data-url="kata-master/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 9: Math Adventure (RPG) -->
+            <div class="app-card" data-category="game" data-tags="math adventure rpg matematika game bertarung angka numeria sihir soal"
+                 style="--card-color: #6366f1; --card-glow: rgba(99, 102, 241, 0.35); --icon-bg: rgba(99, 102, 241, 0.15); --icon-border: rgba(99, 102, 241, 0.35); --icon-glow: rgba(99, 102, 241, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-category">RPG Matematika</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">Math Adventure: RPG Angka</h2>
+                    <p class="card-desc">
+                        Game RPG petualangan pahlawan matematika: kalahkan monster angka di Negeri Numeria dengan mantera hitung cepat dan sihir angka.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="math-adventure/index.html" class="btn-launch" style="background: #6366f1;">
+                        <i class="fa-solid fa-gamepad"></i> Mainkan RPG
+                    </a>
+                    <button class="btn-copy-link" data-url="math-adventure/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APP 10: PolaMatika -->
+            <div class="app-card" data-category="game" data-tags="polamatika puzzle pola iq matriks aritmatika fibonacci logika teka-teki"
+                 style="--card-color: #0891b2; --card-glow: rgba(8, 145, 178, 0.35); --icon-bg: rgba(8, 145, 178, 0.15); --icon-border: rgba(8, 145, 178, 0.35); --icon-glow: rgba(8, 145, 178, 0.25);">
+                <div class="card-top">
+                    <div class="icon-wrap">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="badge-group">
+                        <span class="tag-category">Puzzle Pola & IQ</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">PolaMatika: Teka-Teki Pola IQ</h2>
+                    <p class="card-desc">
+                        Teka-teki logika deret aritmatika, geometri, pola Fibonacci, matriks 3x3, uji ketajaman logika, serta pembahasan rumus lengkap.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="polamatika/index.html" class="btn-launch" style="background: #0891b2;">
+                        <i class="fa-solid fa-gamepad"></i> Mainkan PolaMatika
+                    </a>
+                    <button class="btn-copy-link" data-url="polamatika/index.html" title="Salin Link">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State Result -->
+            <div class="empty-state" id="emptyState">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <h3 style="color: #fff; margin-bottom: 0.3rem;">Tidak ada aplikasi yang cocok</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Coba gunakan kata kunci pencarian yang lain.</p>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="portal-footer">
+            <p><strong>Pusat Ekosistem Aplikasi Web Interaktif</strong> • Dibangun dengan HTML5, CSS3, & Vanilla JavaScript.</p>
+            <p>Server Port 5000 • Seluruh aplikasi berjalan mandiri dan kompatibel di perangkat desktop & mobile.</p>
+        </footer>
+
+    </div>
+
+    <!-- Toast Confirmation -->
+    <div class="toast-box" id="toastBox">
+        <i class="fa-solid fa-circle-check" style="color: #34d399; font-size: 1.2rem;"></i>
+        <span id="toastMsg">Tautan berhasil disalin ke clipboard!</span>
+    </div>
+
+    <script>
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const appCards = document.querySelectorAll('.app-card');
+        const emptyState = document.getElementById('emptyState');
+        const toastBox = document.getElementById('toastBox');
+        const toastMsg = document.getElementById('toastMsg');
+        const btnCopyAll = document.getElementById('btnCopyAllLinks');
+
+        let currentCategory = 'all';
+
+        // Filter and Search Logic
+        function filterApps() {
+            const query = searchInput.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            appCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const desc = card.querySelector('.card-desc').textContent.toLowerCase();
+                const tags = card.getAttribute('data-tags').toLowerCase();
+
+                const matchesCat = (currentCategory === 'all' || category === currentCategory);
+                const matchesSearch = (title.includes(query) || desc.includes(query) || tags.includes(query));
+
+                if (matchesCat && matchesSearch) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            emptyState.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
+
+        // Search Input Listener
+        searchInput.addEventListener('input', filterApps);
+
+        // Tab Filter Listener
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.getAttribute('data-category');
+                filterApps();
+            });
+        });
+
+        // Copy Individual App Link
+        document.querySelectorAll('.btn-copy-link').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const relativeUrl = btn.getAttribute('data-url');
+                const fullUrl = `${window.location.origin}/${relativeUrl}`;
+                
+                navigator.clipboard.writeText(fullUrl).then(() => {
+                    showToast(`Tautan ${relativeUrl} berhasil disalin!`);
+                }).catch(() => {
+                    showToast('Gagal menyalin tautan');
+                });
+            });
+        });
+
+        // Copy All Links Button
+        btnCopyAll.addEventListener('click', () => {
+            const origin = window.location.origin;
+            const linksList = [
+                `1. CuacaSmart (Pengukur Suhu & Pengingat Payung): ${origin}/cuaca-smart/index.html`,
+                `2. LifeQuest RPG Rutinitas: ${origin}/life-quest/index.html`,
+                `3. InternReady (Persiapan Magang & CV): ${origin}/intern-ready/index.html`,
+                `4. RoomCheck IT Del: ${origin}/room-check/index.html`,
+                `5. Teman Seperjalanan (Tebengan): ${origin}/teman-seperjalanan/index.html`,
+                `6. SpotFinder IT Del: ${origin}/spot-finder/index.html`,
+                `7. LeaveCheck: ${origin}/leave-check/index.html`,
+                `8. KataMaster: ${origin}/kata-master/index.html`,
+                `9. Math Adventure RPG: ${origin}/math-adventure/index.html`,
+                `10. PolaMatika: ${origin}/polamatika/index.html`
+            ].join('\n');
+
+            navigator.clipboard.writeText(linksList).then(() => {
+                showToast('Daftar 10 tautan aplikasi berhasil disalin!');
+            }).catch(() => {
+                showToast('Gagal menyalin daftar link');
+            });
+        });
+
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toastBox.classList.add('show');
+            setTimeout(() => {
+                toastBox.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

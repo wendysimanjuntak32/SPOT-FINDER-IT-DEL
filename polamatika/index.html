@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PolaMatika - Game Puzzle Pola Bilangan & Logika Matematika</title>
+    <meta name="description" content="Teka-teki matematika interaktif untuk mengasah logika pola bilangan: deret aritmatika, geometri, Fibonacci, matriks IQ 3x3, dan piramida angka.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- APP HEADER -->
+        <header class="app-header">
+            <div class="logo-area" id="header-logo" onclick="game.showScreen('screen-home')" title="Kembali ke Menu Utama">
+                <div class="logo-icon">∑</div>
+                <div class="logo-text">
+                    <h1>PolaMatika <span class="badge-tag">PRO</span></h1>
+                </div>
+            </div>
+            <div class="header-controls">
+                <a href="../index.html" class="icon-btn" title="Kembali ke Portal Utama" style="text-decoration: none; font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                    🏠 Portal
+                </a>
+            </div>
+        </header>
+
+        <!-- SCREEN 1: MENU UTAMA (HOME) -->
+        <main id="screen-home" class="screen active">
+            <section class="hero-section">
+                <div class="hero-badge">✨ Asah Logika & Ketajaman Otak</div>
+                <h2 class="hero-title">Teka-Teki Pola Bilangan</h2>
+                <p class="hero-desc">Pecahkan misteri di balik deret angka, matriks IQ, dan piramida logika. Temukan rumus tersembunyi dan buktikan kehebatan analisismu!</p>
+                
+                <!-- Quick Stats Summary -->
+                <div class="quick-stats-bar">
+                    <div class="stat-pill">
+                        <div class="stat-pill-icon">⭐</div>
+                        <div class="stat-pill-info">
+                            <div class="stat-val" id="home-total-stars">0 / 90</div>
+                            <div class="stat-lbl">Bintang Dikoleksi</div>
+                        </div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="stat-pill-icon">🔥</div>
+                        <div class="stat-pill-info">
+                            <div class="stat-val" id="home-best-streak">0x</div>
+                            <div class="stat-lbl">Kombo Tertinggi</div>
+                        </div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="stat-pill-icon">💎</div>
+                        <div class="stat-pill-info">
+                            <div class="stat-val" id="home-high-score">0</div>
+                            <div class="stat-lbl">Skor Tertinggi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode Selection Cards -->
+                <div class="mode-grid">
+                    <!-- Mode 1: Petualangan -->
+                    <div class="mode-card" id="mode-card-adventure">
+                        <div class="mode-icon-box">🗺️</div>
+                        <h3>Mode Petualangan</h3>
+                        <p>Level terstruktur dari aritmatika dasar, geometri, Fibonacci hingga matriks logika IQ 3x3!</p>
+                        <div class="mode-footer">
+                            <span class="mode-tag">Level Terstruktur</span>
+                            <div class="play-arrow">➔</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- SCREEN 2: GAMEPLAY SCREEN -->
+        <section id="screen-game" class="screen">
+            <!-- Top Status Bar -->
+            <div class="game-status-bar">
+                <button class="back-btn" id="btn-quit-game">✕ Keluar</button>
+                
+                <div class="status-badge" id="badge-streak-container">
+                    <span>🔥 Kombo:</span>
+                    <span class="val" id="game-streak-val" style="color: var(--accent-amber);">x0</span>
+                </div>
+
+                <div class="status-badge">
+                    <span>Skor:</span>
+                    <span class="val" id="game-score-val" style="color: var(--primary-cyan);">0</span>
+                </div>
+            </div>
+
+            <!-- Puzzle Main Stage -->
+            <div class="question-banner">
+                <span class="pattern-category-pill" id="game-category-pill">Aritmatika Dasar</span>
+
+                <h3 id="puzzle-title" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: #fff;">Temukan Angka Berikutnya</h3>
+
+                <!-- Puzzle Dynamic Display Stage -->
+                <div class="puzzle-stage" id="puzzle-stage">
+                    <!-- Injected by app.js -->
+                </div>
+
+                <!-- Step-by-Step Hint Visualization -->
+                <div class="hint-step-box" id="hint-visualizer-box">
+                    <div class="hint-text" id="hint-text-content">Selisih antar suku adalah konstan +3.</div>
+                </div>
+            </div>
+
+            <!-- Options Grid -->
+            <div class="options-grid" id="options-grid">
+                <!-- Buttons injected by app.js -->
+            </div>
+
+            <!-- Action Toolbar -->
+            <div class="action-toolbar">
+                <button class="tool-btn" id="btn-request-hint">💡 Bantuan Petunjuk</button>
+                <button class="tool-btn" id="btn-request-formula">📐 Rumus Logika</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL: VICTORY -->
+    <div class="modal-overlay" id="modal-victory">
+        <div class="modal-card">
+            <div style="font-size: 3rem; margin-bottom: 8px;">🎉</div>
+            <h2 style="font-size: 1.4rem; font-weight: 800;">Luar Biasa! Benar!</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Kamu berhasil memecahkan pola bilangan ini dengan tepat.</p>
+
+            <div class="formula-box">
+                <div class="formula-rule" id="victory-rule">Pola Penjumlahan (+3)</div>
+                <div class="formula-math" id="victory-formula">U_n = 3n - 1</div>
+                <div class="formula-steps" id="victory-explanation">2 + 3 = 5, 5 + 3 = 8, 8 + 3 = 11...</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" id="btn-victory-replay">Ulangi</button>
+                <button class="btn-primary" id="btn-victory-next">Level Berikutnya ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FORMULA EXPLANATION -->
+    <div class="modal-overlay" id="modal-formula">
+        <div class="modal-card">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;">📐</div>
+            <h2 style="font-size: 1.3rem; font-weight: 800;">Pembahasan Rumus Logika</h2>
+
+            <div class="formula-box">
+                <div class="formula-rule" id="modal-formula-rule">-</div>
+                <div class="formula-math" id="modal-formula-math">-</div>
+                <div class="formula-steps" id="modal-formula-steps">-</div>
+            </div>
+
+            <button class="btn-primary" id="btn-close-formula" style="width: 100%;">Tutup Pembahasan</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="patterns.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

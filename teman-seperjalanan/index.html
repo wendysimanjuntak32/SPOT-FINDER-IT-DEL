@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pulang Bareng Asrama IT Del - GPS & Teman Jalan</title>
+    <meta name="description" content="Deteksi lokasi GPS kampus IT Del dan kirim panggilan berjalan bersama ke asrama Silo, Kapernaum, Anthiokia, Danau Toba, Mamre, Pniel secara real-time.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dorm-card {
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="brand">
+            <div class="brand-icon">🏠</div>
+            <div>
+                <div>Teman<span>Seperjalanan</span></div>
+                <div style="font-size: 0.75rem; color: var(--emerald); font-weight: 700;">Institut Teknologi Del (Asrama & Kampus)</div>
+            </div>
+        </a>
+
+        <!-- Main Navigation Tabs -->
+        <div class="tabs-bar">
+            <button class="tab-btn active" data-tab="tab-rides">🏠 Pulang ke Asrama</button>
+            <button class="tab-btn" data-tab="tab-post">➕ Jadwalkan Rombongan</button>
+            <button class="tab-btn" data-tab="tab-calc">💰 Kalkulator Patungan</button>
+            <button class="tab-btn" data-tab="tab-game">🎮 Game Eco-Ride</button>
+            <a href="../index.html" class="tab-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; color: var(--text-muted);">🏛️ Portal Menu</a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-content">
+
+        <!-- ==========================================
+             TAB 1: PULANG BARENG KE ASRAMA (Feed & GPS)
+             ========================================== -->
+        <section id="tab-rides" class="tab-panel active">
+            
+            <!-- GPS Location & Live Radar Beacon Section -->
+            <div class="gps-radar-card">
+                <div class="radar-header">
+                    <div>
+                        <span style="font-size: 0.8rem; font-weight: 800; background: var(--emerald-light); color: var(--emerald-dark); padding: 4px 12px; border-radius: 9999px; text-transform: uppercase;">
+                            📡 GPS Kampus & Permintaan Jalan Bareng
+                        </span>
+                        <h2 style="font-size: 1.45rem; font-weight: 800; margin-top: 8px; color: var(--text-main);">
+                            Radar Teman Jalan ke Asrama Malam Ini 🌙
+                        </h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 2px;">
+                            Deteksi posisimu di kampus dan temukan mahasiswa lain yang mau jalan bareng ke asrama sekarang!
+                        </p>
+                    </div>
+
+                    <button class="btn-primary" id="btn-open-broadcast-modal" style="background: var(--emerald); font-size: 0.95rem; padding: 12px 20px; box-shadow: 0 4px 16px var(--emerald-glow);">
+                        📢 Buat Panggilan Jalan Bareng
+                    </button>
+                </div>
+
+                <!-- GPS Detector Box -->
+                <div class="location-detector-box">
+                    <div class="radar-pulse-beacon">📍</div>
+                    <div style="flex: 1;">
+                        <div id="user-gps-status" style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);">
+                            📍 Lokasi: <strong>Perpustakaan IT Del (Lantai 2)</strong>
+                        </div>
+                        <div id="user-gps-detail" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                            Terdeteksi via Jaringan Kampus <strong>Del-Student</strong> (Sitoluama, Laguboti)
+                        </div>
+                    </div>
+                    <button class="btn-secondary" id="btn-detect-gps" style="font-size: 0.82rem; padding: 8px 14px; border-radius: 9999px;">
+                        🔄 Update Lokasi GPS
+                    </button>
+                </div>
+
+                <!-- Live Active Requests Container -->
+                <div>
+                    <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>⚡</span> Permintaan Berjalan Bersama yang Sedang Menunggu (Live):
+                    </h4>
+                    <div id="live-requests-list" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Generated by app.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Filters -->
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;">
+                <input type="text" id="ride-search" placeholder="🔍 Cari asrama tujuan (misal: 'Silo', 'Kapernaum', 'Anthiokia', 'Danau Toba', 'Mamre', 'Perpus')..." style="width: 100%; padding: 14px 20px; border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--bg-card); font-family: inherit; font-size: 1rem; outline: none; box-shadow: var(--shadow-sm);">
+
+                <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+                    <button class="tab-btn active filter-pill" data-filter="asrama" style="border: 1px solid var(--border); background: var(--bg-card);">🏠 Semua Rute Asrama</button>
+                    <button class="tab-btn filter-pill" data-filter="walk" style="border: 1px solid var(--border); background: var(--bg-card);">🚶 Jalan Kaki Bareng (Gratis)</button>
+                    <button class="tab-btn filter-pill" data-filter="motorcycle" style="border: 1px solid var(--border); background: var(--bg-card);">🛵 Tebengan Motor</button>
+                    <button class="tab-btn filter-pill" data-filter="car" style="border: 1px solid var(--border); background: var(--bg-card);">🚗 Mobil / Luar Kampus</button>
+                    <button class="tab-btn filter-pill" data-filter="all" style="border: 1px solid var(--border); background: var(--bg-card);">🌐 Semua Rute</button>
+                </div>
+            </div>
+
+            <!-- Rides Grid -->
+            <div class="rides-grid" id="rides-container">
+                <!-- Dinamis di-render oleh app.js -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: AJAK PULANG BARENG (Post Form)
+             ========================================== -->
+        <section id="tab-post" class="tab-panel">
+            <div class="calc-card">
+                <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">➕ Jadwalkan Rombongan Pulang Asrama</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+                    Buat jadwal jalan kaki bareng atau tebengan motor dari ruang belajar/perpustakaan ke asramamu.
+                </p>
+
+                <form id="form-post-ride" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Lokasi Kamu Saat Ini (Asal)</label>
+                            <input type="text" id="post-origin" required value="Perpustakaan IT Del (Lantai 2)" style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Asrama Tujuan</label>
+                            <input type="text" id="post-dest" required placeholder="Contoh: Asrama Silo / Asrama Anthiokia" style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Waktu Berangkat</label>
+                            <input type="text" id="post-date" required value="Malam Ini" style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Jam Berangkat</label>
+                            <input type="text" id="post-time" required value="21:15 WIB (Tutup Perpus)" style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 14px;">
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Jenis Perjalanan</label>
+                            <select id="post-vtype" style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                                <option value="walk">🚶 Jalan Kaki Bareng (Gratis)</option>
+                                <option value="motorcycle">🛵 Tebengan Motor</option>
+                                <option value="car">🚗 Mobil</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Keterangan Rombongan</label>
+                            <input type="text" id="post-vname" required value="Rombongan Jalan Malam Asrama" style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Kapasitas Teman Ikut</label>
+                            <input type="number" id="post-seats" min="1" max="10" value="5" required style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Biaya (Isi 0 jika Gratis / Jalan)</label>
+                            <input type="number" id="post-fare" min="0" value="0" required style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Titik Kumpul</label>
+                        <textarea id="post-notes" rows="2" placeholder="Contoh: Kumpul di lobi pintu keluar Perpustakaan setelah jam 21:15 WIB..." style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="background: var(--emerald); padding: 14px; font-size: 1rem; justify-content: center; margin-top: 8px;">
+                        📢 Publikasikan Jadwal Pulang Asrama
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: KALKULATOR PATUNGAN (Split Bill)
+             ========================================== -->
+        <section id="tab-calc" class="tab-panel">
+            <div class="calc-card">
+                <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">💰 Kalkulator Berbagi Biaya Perjalanan</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+                    Hitung pembagian ongkos bensin / rental mobil secara adil antar mahasiswa.
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Total Biaya Bensin / Rental / Tol (Rp)</label>
+                        <input type="number" id="calc-total" value="120000" step="5000" style="width: 100%; padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit; font-size: 1.2rem; font-weight: 700;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Jumlah Teman Seperjalanan</label>
+                        <input type="number" id="calc-people" value="4" min="1" max="10" style="width: 100%; padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit; font-size: 1.2rem; font-weight: 700;">
+                    </div>
+
+                    <div class="calc-result-box">
+                        <div style="font-size: 0.9rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Patungan Tiap Mahasiswa:</div>
+                        <div id="calc-split-val" style="font-size: 2.5rem; font-weight: 800; margin: 8px 0;">Rp 30.000</div>
+                        <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.85rem; opacity: 0.95; margin-top: 10px;">
+                            <span id="calc-saving-val">Hemat Rp 90.000 / orang</span>
+                            <span>•</span>
+                            <span id="calc-carbon-val">🌱 Hemat 11.4 kg CO2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: GAME ECO-RIDE DEL (Mini Game)
+             ========================================== -->
+        <section id="tab-game" class="tab-panel">
+            <div class="game-container">
+                <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 4px;">🎮 Mini Game: Eco-Ride Del</h2>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">
+                    Jemput teman-teman yang menunggu di sepanjang jalan kampus IT Del & Danau Toba!
+                </p>
+
+                <div style="display: flex; justify-content: space-around; background: var(--border-subtle); padding: 10px; border-radius: var(--radius-md); margin-bottom: 14px; font-size: 0.85rem; font-weight: 700;">
+                    <div>Skor: <span id="game-score" style="color: var(--primary);">0</span></div>
+                    <div>Teman Dijemput: <span id="game-students" style="color: var(--emerald);">0 Orang</span></div>
+                    <div>CO2 Dihemat: <span id="game-carbon" style="color: var(--amber);">0 kg</span></div>
+                </div>
+
+                <canvas id="eco-game-canvas"></canvas>
+
+                <div class="game-controls-mobile">
+                    <button class="game-btn" id="game-btn-left">⬅️</button>
+                    <button class="game-btn" id="game-btn-right">➡️</button>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <button class="btn-primary" id="btn-start-game" style="width: 100%; justify-content: center; padding: 14px;">
+                        🕹️ Mulai Mainkan Game
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================
+         MODAL: Broadcast Permintaan Jalan Bareng ke Asrama
+         ========================================== -->
+    <div class="modal-overlay" id="broadcast-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--emerald-dark);">📢 Siarkan Panggilan Jalan Bareng</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Kirim sinyal ke mahasiswa lain yang berada di sekitar lokasimu saat ini</p>
+                </div>
+                <button class="modal-close" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">✕</button>
+            </div>
+
+            <form id="form-live-broadcast" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Lokasi Penjemputan / Kumpul Kamu</label>
+                    <input type="text" id="bcast-origin" required value="Perpustakaan IT Del (Lantai 2)" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Asrama Tujuan</label>
+                    <select id="bcast-dorm" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                        <option value="Asrama Silo & Kapernaum (Putra)">🏠 Asrama Silo & Kapernaum (Putra)</option>
+                        <option value="Asrama Anthiokia (Putri)">🏡 Asrama Anthiokia (Putri)</option>
+                        <option value="Asrama Danau Toba (Putri)">🏡 Asrama Danau Toba (Putri)</option>
+                        <option value="Asrama Mamre & Pniel (Putra)">🏠 Asrama Mamre & Pniel (Putra)</option>
+                        <option value="Asrama Sion (Putri)">🏡 Asrama Sion (Putri)</option>
+                    </select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Waktu Tunggu (Menit)</label>
+                        <select id="bcast-wait" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                            <option value="3">⚡ 3 Menit (Cepat)</option>
+                            <option value="5" selected>⏳ 5 Menit (Standar)</option>
+                            <option value="10">⏰ 10 Menit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Maksimal Teman</label>
+                        <input type="number" id="bcast-max" min="2" max="10" value="6" required style="width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Pesan Tambahan (Opsional)</label>
+                    <input type="text" id="bcast-note" placeholder="Misal: Aku tunggu di depan pintu keluar perpus..." style="width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); font-family: inherit;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 6px;">
+                    <button type="button" class="btn-secondary modal-cancel" style="flex: 1;">Batal</button>
+                    <button type="submit" class="btn-primary" style="background: var(--emerald); flex: 2; justify-content: center;">
+                        🚀 Siarkan Permintaan Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Join Modal -->
+    <div class="modal-overlay" id="join-modal">
+        <div class="modal-card">
+            <h3 style="font-size: 1.3rem; font-weight: 800;">🏠 Ikut Pulang Bareng ke Asrama</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Konfirmasi keikutsertaan jalan pulang bareng:</p>
+
+            <div style="background: var(--border-subtle); border-radius: var(--radius-md); padding: 14px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px;">
+                <div>Teman Pemimpin: <strong id="join-driver-name">Nama Mahasiswa</strong></div>
+                <div>Rute: <strong id="join-route-text">Rute</strong></div>
+                <div>Waktu: <strong id="join-time-text">Waktu</strong></div>
+                <div>Biaya: <strong id="join-fare-text" style="color: var(--emerald);">GRATIS</strong></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 8px;">
+                <button class="btn-secondary modal-cancel" style="flex: 1;">Batal</button>
+                <button class="btn-primary" id="btn-confirm-join" style="background: var(--emerald); flex: 2; justify-content: center;">
+                    ✅ Gabung Rombongan Asrama
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

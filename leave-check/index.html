@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LeaveCheck - Jangan Sampai Ketinggalan! Pengingat Barang Bawaan Kampus IT Del</title>
+    <meta name="description" content="Aplikasi asisten cerdas pengingat barang bawaan sebelum keluar kamar asrama IT Del berdasarkan tujuan, cuaca, dan aktivitas harian.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="nav-brand">
+            <div class="brand-icon-box">🎒</div>
+            <div class="brand-text">
+                <h1>Leave<span>Check</span></h1>
+                <div style="font-size: 0.72rem; color: var(--primary-light); font-weight: 700;">“Jangan Sampai Ketinggalan!” • Kampus IT Del</div>
+            </div>
+        </a>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="../index.html" class="btn-secondary" style="text-decoration: none; padding: 6px 14px; font-size: 0.82rem; border-radius: var(--radius-full);">
+                🏠 Portal Utama
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+
+        <!-- ==========================================
+             SECTION 1: SMART CONTEXT SELECTOR
+             ========================================== -->
+        <section class="context-selector-card">
+            <div>
+                <span style="font-size: 0.8rem; font-weight: 800; background: rgba(2, 132, 199, 0.2); color: var(--primary-light); padding: 4px 12px; border-radius: var(--radius-full); text-transform: uppercase;">
+                    🎯 Penyesuaian Kondisi Cerdas
+                </span>
+                <h2 style="font-size: 1.35rem; font-weight: 800; margin-top: 8px;">
+                    Mau ke Mana & Bagaimana Suasana Hari Ini?
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 2px;">
+                    Sistem secara cerdas menyesuaikan daftar barang wajib (tumbler, payung saat mendung, termos & jaket saat malam, sendok saat ke kantin).
+                </p>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="presets-bar">
+                <button class="preset-chip active" data-preset="preset-gd-morning">🏫 Kuliah Pagi GD Del</button>
+                <button class="preset-chip" data-preset="preset-night-library">🌙 Nugas Malam Perpus (Malam Dingin)</button>
+                <button class="preset-chip" data-preset="preset-canteen-lunch">🍱 Makan Siang Kantin Del</button>
+                <button class="preset-chip" data-preset="preset-lab-practicum">🖥️ Praktikum Lab Komputer</button>
+            </div>
+
+            <!-- Detailed Grid Selectors -->
+            <div class="context-grid">
+                <div class="context-group">
+                    <label class="context-label">1. Lokasi Tujuan</label>
+                    <select id="select-dest" class="context-select">
+                        <option value="gd">Gedung Kuliah (GD 5/7/9)</option>
+                        <option value="library">Perpustakaan IT Del</option>
+                        <option value="canteen">Kantin Utama / Asrama</option>
+                        <option value="lab">Laboratorium Komputer</option>
+                        <option value="field">Lapangan Olahraga</option>
+                    </select>
+                </div>
+
+                <div class="context-group">
+                    <label class="context-label">2. Waktu Keberangkatan</label>
+                    <select id="select-time" class="context-select">
+                        <option value="morning">Pagi Hari (06:00 - 11:59)</option>
+                        <option value="afternoon">Siang Hari (12:00 - 16:59)</option>
+                        <option value="night">Malam Hari (Udara Dingin)</option>
+                    </select>
+                </div>
+
+                <div class="context-group">
+                    <label class="context-label">3. Perkiraan Cuaca</label>
+                    <select id="select-weather" class="context-select">
+                        <option value="sunny">☀️ Cerah Terik</option>
+                        <option value="cloudy" selected>⛅ Berawan / Mendung</option>
+                        <option value="rainy">🌧️ Hujan Deras / Gerimis</option>
+                        <option value="cold">💨 Dingin Berangin Danau Toba</option>
+                    </select>
+                </div>
+
+                <div class="context-group">
+                    <label class="context-label">4. Aktivitas Utama</label>
+                    <select id="select-activity" class="context-select">
+                        <option value="study">Belajar / Perkuliahan</option>
+                        <option value="night_study">Belajar Malam Intensif</option>
+                        <option value="canteen">Makan Siang / Malam</option>
+                        <option value="workout">Olahraga & Kebugaran</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SECTION 2: GATEKEEPER PROGRESS & VOICE
+             ========================================== -->
+        <section class="gatekeeper-card" id="gatekeeper-card">
+            <div class="progress-info">
+                <span style="font-size: 0.78rem; font-weight: 800; color: var(--primary-light); text-transform: uppercase;">
+                    Status Kesiapan Keluar Kamar
+                </span>
+                <h2 id="gatekeeper-title" style="margin-top: 4px;">Pengecekan Barang Sebelum Keluar Kamar</h2>
+                <div id="gatekeeper-count" style="font-size: 0.92rem; color: var(--text-muted); margin-top: 2px; font-weight: 700;">
+                    0 / 0 Barang Siap (0%)
+                </div>
+
+                <div class="progress-track">
+                    <div class="progress-fill" id="gatekeeper-progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-primary" id="btn-voice-check" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                    🔊 Bacakan Barang yang Belum Dibawa
+                </button>
+                <button class="btn-secondary" id="btn-reset-checklist">
+                    🔄 Reset Centang
+                </button>
+                <button class="btn-secondary" id="btn-open-add-item">
+                    ➕ Tambah Barang Pribadi
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SECTION 3: CHECKLIST ITEMS GRID
+             ========================================== -->
+        <section>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">
+                    Daftar Barang yang Perlu Dibawa:
+                </h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">
+                    Klik pada kartu untuk mencentang barang yang sudah masuk tas
+                </span>
+            </div>
+
+            <div class="checklist-grid" id="checklist-container">
+                <!-- Injected dynamically by app.js -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================
+         MODAL: TAMBAH BARANG KUSTOM
+         ========================================== -->
+    <div class="modal-overlay" id="modal-add-item">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800;">➕ Tambah Barang Pribadi</h3>
+                <button class="modal-close" style="background: none; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer;">✕</button>
+            </div>
+
+            <form id="form-add-item" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Nama Barang:</label>
+                    <input type="text" id="new-item-name" required placeholder="Contoh: Kacamata Minus / Obat Pribadi" class="context-select">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Ikon Emot:</label>
+                        <input type="text" id="new-item-icon" value="👓" class="context-select" style="text-align: center;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Tingkat Kepentingan:</label>
+                        <select id="new-item-imp" class="context-select">
+                            <option value="critical">Wajib / Kritis</option>
+                            <option value="high" selected>Penting</option>
+                            <option value="medium">Sedang</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Keterangan Singkat:</label>
+                    <textarea id="new-item-desc" rows="2" placeholder="Catatan pengingat tambahan..." class="context-select" style="font-family: inherit;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <button type="button" class="btn-secondary modal-cancel" style="flex: 1; justify-content: center;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 2; justify-content: center;">Simpan Barang</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999;"></div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

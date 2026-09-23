@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>InternReady - Platform Kesiapan Magang Mahasiswa IT Del</title>
+    <meta name="description" content="Persiapkan diri sebelum magang kerja: CV ATS Builder, latihan simulasi wawancara STAR interaktif, roadmap keahlian teknis, dan simulasi hari pertama kerja.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="nav-brand">
+            <div class="brand-icon-box">💼</div>
+            <div class="brand-text">
+                <h1>Intern<span>Ready</span></h1>
+                <div style="font-size: 0.72rem; color: var(--primary-light); font-weight: 700;">Platform Akselerasi & Kesiapan Magang Mahasiswa</div>
+            </div>
+        </a>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="../index.html" class="btn-secondary" style="text-decoration: none; padding: 6px 14px; font-size: 0.82rem; border-radius: var(--radius-full);">
+                🏠 Portal Utama
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+
+        <!-- ==========================================
+             HERO READINESS CARD
+             ========================================== -->
+        <section class="hero-readiness-card">
+            <div>
+                <span style="font-size: 0.78rem; font-weight: 800; background: rgba(37, 99, 235, 0.2); color: var(--primary-light); padding: 4px 12px; border-radius: var(--radius-full); text-transform: uppercase;">
+                    Direktorat Kemahasiswaan & Karier Kampus
+                </span>
+                <h2 style="font-size: 1.45rem; font-weight: 800; margin-top: 8px;">
+                    Pusat Kesiapan Karier & Magang Industri
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px; max-width: 600px;">
+                    Optimalkan CV standar ATS, latih jawaban interview metode STAR dengan suara, dan tuntaskan checklist keahlian sebelum terjun ke industri.
+                </p>
+            </div>
+
+            <div class="readiness-score-box">
+                <div class="readiness-lbl">Indikator Kesiapan Magang</div>
+                <div class="readiness-val" id="global-readiness-val">85%</div>
+                <div style="font-size: 0.75rem; color: var(--emerald); font-weight: 700;">Siap Melamar Magang</div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             NAVIGATION TABS
+             ========================================== -->
+        <nav class="tabs-bar">
+            <button class="tab-btn active" data-tab="tab-cv">
+                📄 CV Builder & ATS Score
+            </button>
+            <button class="tab-btn" data-tab="tab-interview">
+                🎙️ Latihan Interview (STAR)
+            </button>
+            <button class="tab-btn" data-tab="tab-skills">
+                🎯 Skill Roadmap & Checklist
+            </button>
+            <button class="tab-btn" data-tab="tab-simulation">
+                🏢 Simulasi Hari Pertama Magang
+            </button>
+        </nav>
+
+        <!-- ==========================================
+             TAB 1: CV BUILDER & ATS ANALYZER
+             ========================================== -->
+        <section id="tab-cv" class="tab-panel active">
+            
+            <!-- ATS Analyzer Header -->
+            <div class="ats-score-meter">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Skor Kompatibilitas ATS (Applicant Tracking System):</div>
+                    <div id="ats-score-tip" style="font-size: 0.88rem; color: #fff; font-weight: 700; margin-top: 2px;">Sedang menganalisis kata kunci...</div>
+                </div>
+                <div style="text-align: right;">
+                    <div id="ats-score-val" style="font-size: 1.6rem; font-weight: 800; color: var(--emerald);">85%</div>
+                    <button class="btn-primary" id="btn-print-cv" style="padding: 6px 14px; font-size: 0.8rem; margin-top: 4px;">
+                        🖨️ Cetak / Simpan PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="cv-workspace-grid">
+                <!-- Editor Form -->
+                <div class="editor-card">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">Editor Data CV Magang</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Nama Lengkap Mahasiswa</label>
+                        <input type="text" id="cv-input-name" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Posisi Magang yang Dituju</label>
+                        <input type="text" id="cv-input-role" class="form-input">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label class="form-label">Email Kampus</label>
+                            <input type="email" id="cv-input-email" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor WhatsApp</label>
+                            <input type="text" id="cv-input-phone" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ringkasan Profesional (Summary)</label>
+                        <textarea id="cv-input-summary" rows="3" class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Riwayat Pendidikan</label>
+                        <textarea id="cv-input-edu" rows="2" class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Keahlian Teknis (Pisahkan koma)</label>
+                        <input type="text" id="cv-input-skills" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Pengalaman Proyek Unggulan (Gunakan Angka Metrik)</label>
+                        <textarea id="cv-input-projects" rows="4" class="form-textarea"></textarea>
+                    </div>
+                </div>
+
+                <!-- Live CV Paper Preview -->
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 12px;">Pratinjau CV Standar ATS</h3>
+                    <div class="cv-preview-paper" id="cv-preview-content">
+                        <!-- Rendered by app.js -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: INTERACTIVE MOCK INTERVIEW
+             ========================================== -->
+        <section id="tab-interview" class="tab-panel">
+            <div class="interview-stage-card">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
+                    <div>
+                        <span style="font-size: 0.8rem; font-weight: 800; color: var(--primary-light); text-transform: uppercase;">
+                            Simulator Wawancara Kerja
+                        </span>
+                        <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-top: 2px;">
+                            Latihan Menjawab Pertanyaan Rekruter
+                        </h3>
+                    </div>
+
+                    <div style="min-width: 240px;">
+                        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Pilih Posisi / Kategori Wawancara:</label>
+                        <select id="interview-category-select" class="form-select">
+                            <option value="hr_star">👔 HR & Behavioral (Metode STAR)</option>
+                            <option value="software_eng">💻 Software Engineering Intern</option>
+                            <option value="ui_ux">🎨 UI/UX Designer Intern</option>
+                            <option value="data_analyst">📊 Data Analyst Intern</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Interviewer Dialogue Box -->
+                <div class="interviewer-bubble">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span id="interview-role-label" style="font-weight: 800; color: var(--primary-light); font-size: 0.85rem; text-transform: uppercase;">
+                            HR Interviewer
+                        </span>
+                        <button class="btn-secondary" onclick="app.speakCurrentQuestion()" style="padding: 4px 12px; font-size: 0.82rem;">
+                            🔊 Dengarkan Suara Pewawancara
+                        </button>
+                    </div>
+
+                    <div class="question-text" id="interview-question-text">
+                        Ceritakan tentang diri Anda, latar belakang studi Anda di IT Del, dan mengapa Anda tertarik mendaftar magang di posisi ini?
+                    </div>
+
+                    <div style="margin-top: 12px; font-size: 0.85rem; color: var(--text-muted);">
+                        💡 <strong>Petunjuk Jawaban Terbaik:</strong> <span id="interview-tips-text">Gunakan struktur 60 detik...</span>
+                    </div>
+                </div>
+
+                <!-- User Answer Area -->
+                <div class="form-group">
+                    <label class="form-label">Jawaban Anda (Ketik jawaban Anda secara terstruktur):</label>
+                    <textarea id="interview-answer-input" rows="4" class="form-textarea" placeholder="Saya adalah mahasiswa tingkat akhir di Institut Teknologi Del dengan fokus pada pengembangan sistem perangkat lunak..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                    <button class="btn-primary" onclick="app.evaluateInterviewAnswer()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        ⚡ Evaluasi & Analisis Jawaban Saya
+                    </button>
+                    <button class="btn-secondary" onclick="app.nextInterviewQuestion()">
+                        Pertanyaan Selanjutnya ➔
+                    </button>
+                </div>
+
+                <!-- AI Feedback Box -->
+                <div id="interview-feedback-box" class="feedback-box" style="display: none;">
+                    <h4 id="feedback-score" style="font-size: 1.1rem; font-weight: 800; color: var(--emerald);">
+                        Skor Kesesuaian Jawaban: 85%
+                    </h4>
+                    <div id="feedback-notes" style="font-size: 0.88rem; color: var(--text-main); margin-top: 6px;"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: SKILL ROADMAP & CHECKLIST
+             ========================================== -->
+        <section id="tab-skills" class="tab-panel">
+            <div style="margin-bottom: 16px;">
+                <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff;">
+                    Checklist Keterampilan Teknis & Soft Skills Magang
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                    Centang keahlian yang telah Anda kuasai untuk mengukur kesiapan teknis dan profesional Anda.
+                </p>
+            </div>
+
+            <div id="skills-roadmap-container">
+                <!-- Injected dynamically by app.js -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: DAY-1 ONBOARDING SIMULATION
+             ========================================== -->
+        <section id="tab-simulation" class="tab-panel">
+            <div id="simulation-stage">
+                <!-- Injected dynamically by app.js -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

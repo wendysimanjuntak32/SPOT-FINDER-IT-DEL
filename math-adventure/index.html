@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Quest: Petualangan Negeri Numeria</title>
+    <meta name="description"
+        content="Game petualangan matematika seru berbasis RPG turn-based. Asah kemampuan matematika dengan menaklukkan monster dan menjelajahi dunia fantasi!">
+
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas for Atmospheric Particles & Confetti -->
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="app-container">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="brand" onclick="window.game.returnToMap()" style="cursor: pointer;">
+                <span class="brand-icon">⚔️</span>
+                <span class="brand-title">MATH QUEST</span>
+            </div>
+            <div class="player-status-bar">
+                <div class="status-badge level" id="player-level-display">Lv. 1</div>
+                <div class="status-badge gold">💰 <span id="player-gold-display">0</span></div>
+            </div>
+            <div class="nav-buttons">
+                <a href="../index.html" class="icon-btn" title="Kembali ke Portal Kampus" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">🏠</a>
+                <button class="icon-btn" id="nav-map-btn" title="Peta Petualangan">🗺️</button>
+                <button class="icon-btn" id="nav-shop-btn" title="Toko Senjata & Zirah">🛒</button>
+                <button class="icon-btn" id="nav-inv-btn" title="Inventori">🎒</button>
+                <button class="icon-btn" id="nav-ach-btn" title="Prestasi / Pencapaian">🏆</button>
+                <button class="icon-btn" id="btn-sound-toggle" title="Suara / Musik">🔊</button>
+                <button class="icon-btn" id="btn-reset-game" title="Reset Progres">⚙️</button>
+            </div>
+        </header>
+
+        <!-- ==========================================================================
+             VIEW 1: TITLE SCREEN & CHARACTER SELECTION
+             ========================================================================== -->
+        <main id="view-title" class="view active">
+            <div class="title-hero">
+                <div class="title-subtitle">★ RPG PETUALANGAN MATEMATIKA ★</div>
+                <h1 class="main-game-title">NEGERI NUMERIA</h1>
+                <p class="title-desc">
+                    Selamatkan Kristal Aritmatika dari cengkeraman Raja Kegelapan! Pecahkan persamaan matematika,
+                    kumpulkan mantra sihir legendaris, dan jadilah Pahlawan Matematika Terhebat!
+                </p>
+            </div>
+
+            <div style="font-weight: 700; font-size: 1.15rem; color: #a5b4fc; margin-bottom: 0.5rem;">
+                PILIH PAHLAWANMU:
+            </div>
+
+            <div class="avatar-selection-grid" id="avatar-selection-list">
+                <!-- Dynamically populated from GAME_DATA.avatars -->
+            </div>
+
+            <button class="btn-primary" id="btn-start-adventure">
+                <span>Mulai Petualangan</span> ⚔️
+            </button>
+        </main>
+
+        <!-- ==========================================================================
+             VIEW 2: WORLD MAP & STAGE SELECT
+             ========================================================================== -->
+        <main id="view-map" class="view">
+            <div class="map-header">
+                <div>
+                    <h2 class="section-title">PETA PETUALANGAN NUMERIA</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Pilih dunia dan taklukkan monster di setiap
+                        stage matematika.</p>
+                </div>
+            </div>
+
+            <div class="worlds-accordion" id="worlds-list-container">
+                <!-- Dynamically populated from GAME_DATA.worlds -->
+            </div>
+        </main>
+
+        <!-- ==========================================================================
+             VIEW 3: BATTLE ARENA
+             ========================================================================== -->
+        <main id="view-battle" class="view">
+            <div class="battle-arena-card" id="battle-arena-card">
+                <!-- Battle Top Bar: Turn Timer & Combo Streak -->
+                <div class="battle-top-bar">
+                    <div class="combo-streak-badge" id="battle-combo-badge">🔥 Combo: 0x</div>
+                    <div class="turn-timer-wrap">
+                        <span>WAKTU:</span>
+                        <div class="timer-circle" id="battle-timer-seconds">15</div>
+                    </div>
+                </div>
+
+                <!-- Combatants Stage Layout -->
+                <div class="combat-stage">
+                    <!-- Hero Combatant -->
+                    <div class="combatant">
+                        <div class="character-sprite" id="hero-sprite-container"></div>
+                        <div style="font-weight: 700; font-size: 1.05rem;" id="battle-hero-name">Pahlawan</div>
+                        <div class="stat-bars">
+                            <div class="bar-wrap">
+                                <div class="bar-fill hp-fill" id="hero-hp-bar" style="width: 100%;"></div>
+                                <span class="bar-text" id="hero-hp-text">100 / 100</span>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar-fill mana-fill" id="hero-mana-bar" style="width: 100%;"></div>
+                                <span class="bar-text" id="hero-mana-text">100 / 100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Versus Icon -->
+                    <div
+                        style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 900; color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.6);">
+                        VS
+                    </div>
+
+                    <!-- Monster Combatant -->
+                    <div class="combatant">
+                        <div class="monster-dialogue-bubble" id="monster-dialogue-bubble">"Grrr!"</div>
+                        <div class="character-sprite" id="monster-sprite-container"></div>
+                        <div style="font-weight: 700; font-size: 1.05rem;" id="battle-monster-name">Monster</div>
+                        <div class="stat-bars">
+                            <div class="bar-wrap">
+                                <div class="bar-fill hp-fill" id="monster-hp-bar" style="width: 100%;"></div>
+                                <span class="bar-text" id="monster-hp-text">100 / 100</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Math Question Arena -->
+                <div class="question-box">
+                    <div class="question-prompt" id="question-prompt-text">Selesaikan persamaan matematika:</div>
+                    <div class="equation-display" id="question-equation-text">8 + 7 = ?</div>
+                </div>
+
+                <!-- Multiple Choice Answers Grid -->
+                <div class="answers-grid" id="battle-choices-grid">
+                    <!-- 4 choices rendered here -->
+                </div>
+
+                <!-- Numeric Keypad (Collapsible or Auxiliary) -->
+                <div class="keypad-container" style="margin-top: 1rem;">
+                    <div style="display: flex; gap: 0.5rem; width: 100%; max-width: 320px;">
+                        <div class="keypad-input-display" id="keypad-input-display">?</div>
+                        <button class="keypad-btn action-clear" onclick="window.game.clearKeypad()"
+                            title="Hapus">⌫</button>
+                        <button class="keypad-btn action-submit" onclick="window.game.submitKeypad()"
+                            title="Kirim Jawaban">↵</button>
+                    </div>
+                    <div class="keypad-grid">
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('1')">1</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('2')">2</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('3')">3</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('4')">4</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('5')">5</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('6')">6</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('7')">7</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('8')">8</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('9')">9</button>
+                        <button class="keypad-btn" onclick="window.game.backspaceKeypad()">←</button>
+                        <button class="keypad-btn" onclick="window.game.appendKeypad('0')">0</button>
+                        <button class="keypad-btn action-submit" onclick="window.game.submitKeypad()">OK</button>
+                    </div>
+                </div>
+
+                <!-- Spells Quick Bar -->
+                <div class="battle-spells-bar" id="battle-spells-bar">
+                    <!-- Dynamic spells rendered here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- ==========================================================================
+             VIEW 4: SHOP (TOKO PERLENGKAPAN)
+             ========================================================================== -->
+        <main id="view-shop" class="view">
+            <div class="map-header">
+                <div>
+                    <h2 class="section-title">TOKO PERLENGKAPAN NUMERIA</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Gunakan koin emas dari hasil pertarungan
+                        untuk memperkuat senjatamu!</p>
+                </div>
+                <button class="btn-secondary" onclick="window.game.returnToMap()">Kembali ke Peta 🗺️</button>
+            </div>
+
+            <div class="shop-inventory-grid" id="shop-items-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </main>
+
+        <!-- ==========================================================================
+             VIEW 5: INVENTORY & EQUIPMENT
+             ========================================================================== -->
+        <main id="view-inventory" class="view">
+            <div class="map-header">
+                <div>
+                    <h2 class="section-title">INVENTORI & STATUS PAHLAWAN</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Perlengkapan yang sedang Anda gunakan saat
+                        ini.</p>
+                </div>
+                <button class="btn-secondary" onclick="window.game.returnToMap()">Kembali ke Peta 🗺️</button>
+            </div>
+
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="item-card">
+                    <div style="font-weight:700; color:#38bdf8;">⚔️ Senjata Terpasang:</div>
+                    <div id="equipped-weapon-display" style="font-size:1.1rem; font-weight:700;">Kosong</div>
+                </div>
+                <div class="item-card">
+                    <div style="font-weight:700; color:#34d399;">🛡️ Zirah Terpasang:</div>
+                    <div id="equipped-armor-display" style="font-size:1.1rem; font-weight:700;">Kosong</div>
+                </div>
+            </div>
+
+            <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Kantung Barang / Ramuan:</h3>
+            <div class="shop-inventory-grid" id="inventory-items-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </main>
+
+        <!-- ==========================================================================
+             VIEW 6: ACHIEVEMENTS (PRESTASI)
+             ========================================================================== -->
+        <main id="view-achievements" class="view">
+            <div class="map-header">
+                <div>
+                    <h2 class="section-title">PRESTASI & PENCAPAIAN</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Koleksi gelar dan pencapaian selama
+                        menjelajahi Negeri Numeria.</p>
+                </div>
+                <button class="btn-secondary" onclick="window.game.returnToMap()">Kembali ke Peta 🗺️</button>
+            </div>
+
+            <div class="achievements-grid" id="achievements-list-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+         CUSTOM MODAL OVERLAY
+         ========================================================================== -->
+    <div class="modal-overlay" id="game-modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title" id="modal-title-text">Pemberitahuan</div>
+            <div id="modal-body-content" style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;"></div>
+            <div id="modal-actions" style="display: flex; justify-content: center; gap: 0.75rem; margin-top: 0.5rem;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Scripts In Proper Dependency Order -->
+    <script src="js/audio.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/math-engine.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+
+</html>

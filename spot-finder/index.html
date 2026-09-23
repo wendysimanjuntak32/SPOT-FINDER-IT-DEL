@@ -589,6 +589,19 @@ void loop() {
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
 
+    <!-- MQTT Live Incoming Data Popup (Muncul saat data MQTT masuk) -->
+    <div id="mqtt-incoming-popup" class="mqtt-incoming-popup" onclick="app.openEsp32Modal()">
+        <div class="mqtt-pop-header">
+            <strong><span class="pulse-dot" style="background:#10b981; width:8px; height:8px; display:inline-block; border-radius:50%;"></span> 📡 DATA MQTT DITERIMA!</strong>
+            <span id="mqtt-pop-time" style="font-size:0.75rem; color:#38bdf8;">--:--:--</span>
+        </div>
+        <div class="mqtt-pop-body">
+            <div id="mqtt-pop-action" class="mqtt-pop-action">⚡ Update dari ESP Counter</div>
+            <div id="mqtt-pop-stats" class="mqtt-pop-stats">Gazebo Terisi: <strong>--</strong> • Sisa Kursi: <strong style="color:#10b981;">-- Kosong</strong></div>
+            <div id="mqtt-pop-raw" class="mqtt-pop-code">Menunggu payload...</div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="js/data.js"></script>
     <script src="js/app.js"></script>

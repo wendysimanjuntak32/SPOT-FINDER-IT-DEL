@@ -116,6 +116,7 @@ class SpotFinderApp {
         filtered.forEach(spot => {
             const card = document.createElement('div');
             card.className = 'spot-card';
+            card.dataset.spotId = spot.id;
 
             let statusClass = 'available';
             let statusText = `${spot.availableSeats} Tempat Kosong`;
@@ -493,16 +494,46 @@ class SpotFinderApp {
                     persen: Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100)
                 });
 
-                // Update payload display box
+                // Update payload display box in modal
                 const payloadEl = document.getElementById('mqtt-live-payload');
                 const timeEl = document.getElementById('mqtt-last-time');
+                const nowTime = new Date().toLocaleTimeString('id-ID');
                 if (payloadEl) payloadEl.textContent = JSON.stringify(data, null, 2);
-                if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('id-ID');
+                if (timeEl) timeEl.textContent = nowTime;
 
                 const peopleCount = (data.occupied !== undefined) ? data.occupied : (data.terisi !== undefined ? data.terisi : (gazebo.totalCapacity - gazebo.availableSeats));
-                const actionLabel = data.lastAction || data.action || (data.source ? data.source : "Update Counter");
+                const actionLabel = data.lastAction || data.action || (data.source ? data.source : "Update Counter ESP");
+                const deviceName = data.device || "ESP8266-Counter";
+
+                // Trigger Prominent Floating MQTT Live Incoming Popup
+                const popup = document.getElementById('mqtt-incoming-popup');
+                const popTime = document.getElementById('mqtt-pop-time');
+                const popAction = document.getElementById('mqtt-pop-action');
+                const popStats = document.getElementById('mqtt-pop-stats');
+                const popRaw = document.getElementById('mqtt-pop-raw');
+
+                if (popup && popTime && popAction && popStats && popRaw) {
+                    popTime.textContent = nowTime + " WIB";
+                    popAction.textContent = `⚡ [${deviceName}] ${actionLabel}`;
+                    popStats.innerHTML = `Gazebo Terisi: <strong>${peopleCount} Orang</strong> • Sisa: <strong style="color:#10b981;">${gazebo.availableSeats} Kursi Kosong</strong>`;
+                    popRaw.textContent = JSON.stringify(data);
+                    
+                    popup.classList.add('show');
+                    if (this.mqttPopupTimeout) clearTimeout(this.mqttPopupTimeout);
+                    this.mqttPopupTimeout = setTimeout(() => {
+                        popup.classList.remove('show');
+                    }, 6000);
+                }
+
+                // Add Card Flash Animation to Gazebo Card
+                const gazeboCard = document.querySelector(`[data-spot-id="spot-gazebo-danau"]`) || document.querySelector('.spot-card');
+                if (gazeboCard) {
+                    gazeboCard.classList.remove('spot-card-mqtt-flash');
+                    void gazeboCard.offsetWidth; // Trigger reflow
+                    gazeboCard.classList.add('spot-card-mqtt-flash');
+                }
                 
-                this.showToast(`📡 [ESP Counter: ${actionLabel}] Gazebo Terisi: ${peopleCount} orang (Tersedia: ${gazebo.availableSeats} kursi)`);
+                this.showToast(`📡 [MQTT MASUK: ${actionLabel}] Gazebo Terisi: ${peopleCount} org • Sisa: ${gazebo.availableSeats} kursi`);
             }
         }
     }

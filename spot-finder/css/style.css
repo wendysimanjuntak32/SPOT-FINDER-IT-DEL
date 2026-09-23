@@ -1194,9 +1194,109 @@ body.dark-mode .status-pill.available { color: var(--primary); }
     transition: all 0.2s ease;
 }
 
-.spot-card-lf-btn:hover {
-    background: rgba(2, 132, 199, 0.18);
-    border-color: var(--del-cyan);
+/* ==========================================================================
+   MQTT Live Incoming Data Popup & Animations
+   ========================================================================== */
+.mqtt-incoming-popup {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    max-width: 380px;
+    background: rgba(11, 30, 59, 0.95);
+    border: 2px solid #38bdf8;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.4);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    animation: slideInRight 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mqtt-incoming-popup.show {
+    display: flex;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.mqtt-pop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+    padding-bottom: 6px;
+}
+
+.mqtt-pop-header strong {
+    font-size: 0.88rem;
+    color: #38bdf8;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mqtt-pop-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     color: #ffffff;
-    transform: translateY(-1px);
+}
+
+.mqtt-pop-action {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #f59e0b;
+}
+
+.mqtt-pop-stats {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.mqtt-pop-code {
+    background: #020617;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.75rem;
+    color: #38bdf8;
+    word-break: break-all;
+    margin-top: 4px;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
+/* Flash animation on Spot Card when MQTT arrives */
+.spot-card-mqtt-flash {
+    animation: mqttCardPulse 1.8s ease-out;
+}
+
+@keyframes mqttCardPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8), 0 0 25px rgba(56, 189, 248, 0.6);
+        border-color: #10b981;
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0), 0 0 35px rgba(56, 189, 248, 0.8);
+        border-color: #38bdf8;
+    }
+    100% {
+        box-shadow: var(--shadow-sm);
+        border-color: var(--border);
+    }
 }

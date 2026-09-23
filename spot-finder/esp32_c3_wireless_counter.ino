@@ -34,8 +34,8 @@
 // ==========================================
 // 2. KONFIGURASI WIFI & MQTT BROKER
 // ==========================================
-const char *ssid        = "PELATIHAN_AI2";       // Nama WiFi Anda
-const char *password    = "AI23456";             // Password WiFi Anda
+const char *ssid        = "iPhone";              // Hotspot / WiFi yang sedang tersambung
+const char *password    = "Akubisa2026!";        // Password WiFi
 const char *mqtt_server = "76.13.19.250";        // IP Broker MQTT
 const int   mqtt_port   = 1883;                  // Port MQTT Standar
 const char *mqtt_topic  = "itdel/gazebo/status"; // Topik MQTT Gazebo

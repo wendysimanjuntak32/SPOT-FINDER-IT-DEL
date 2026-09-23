@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presentasi Interaktif - SpotFinder IT Del & IoT Smart Counter</title>
+    <title>Presentasi Resmi: SpotFinder IT Del (4 Poin Utama)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -11,15 +11,14 @@
         :root {
             --del-navy: #0b1e3b;
             --del-navy-dark: #061124;
-            --del-navy-light: #162f56;
             --del-blue: #0077b6;
             --del-cyan: #0284c7;
             --del-gold: #f59e0b;
             --del-gold-light: #fef3c7;
-            --bg-dark: #061124;
-            --card-bg: rgba(11, 30, 59, 0.75);
-            --border-glow: rgba(2, 132, 199, 0.4);
-            --text-main: #f8fafc;
+            --bg-dark: #040d1a;
+            --card-bg: rgba(11, 30, 59, 0.85);
+            --border-glow: rgba(2, 132, 199, 0.45);
+            --text-main: #ffffff;
             --text-muted: #94a3b8;
         }
 
@@ -38,14 +37,14 @@
             flex-direction: column;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.15), transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.12), transparent 40%),
-                linear-gradient(to bottom, #061124 0%, #0b1e3b 100%);
+                radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.2), transparent 45%),
+                radial-gradient(circle at 90% 85%, rgba(245, 158, 11, 0.15), transparent 45%),
+                linear-gradient(to bottom, #040d1a 0%, #0b1e3b 100%);
         }
 
-        /* Gorga Batak Accent Bar */
+        /* Gorga Batak Ribbon */
         .gorga-bar {
-            height: 6px;
+            height: 7px;
             width: 100%;
             background: repeating-linear-gradient(
                 45deg,
@@ -54,17 +53,18 @@
                 #f8fafc 24px, #f8fafc 32px,
                 #f59e0b 32px, #f59e0b 44px
             );
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         /* Header Navigation */
         .nav-header {
-            padding: 16px 28px;
+            padding: 16px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            background: rgba(6, 17, 36, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(14px);
+            background: rgba(6, 17, 36, 0.9);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -73,31 +73,34 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             text-decoration: none;
             color: #fff;
         }
 
         .brand-logo {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 10px;
             background: #fff;
             padding: 2px;
-            border: 1.5px solid var(--del-cyan);
+            border: 2px solid var(--del-cyan);
+            box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
         }
 
         .brand-text h1 {
-            font-size: 1.15rem;
-            font-weight: 800;
+            font-size: 1.25rem;
+            font-weight: 900;
             line-height: 1.1;
+            letter-spacing: -0.5px;
         }
 
         .brand-text span {
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             color: var(--del-gold);
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .nav-actions {
@@ -107,45 +110,104 @@
         }
 
         .btn-live {
-            background: linear-gradient(135deg, var(--del-blue), var(--del-navy));
+            background: linear-gradient(135deg, var(--del-cyan), var(--del-blue));
             color: #fff;
-            padding: 8px 16px;
+            padding: 9px 20px;
             border-radius: 9999px;
-            font-weight: 700;
-            font-size: 0.85rem;
+            font-weight: 800;
+            font-size: 0.88rem;
             text-decoration: none;
-            border: 1px solid var(--border-glow);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .btn-live:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 14px var(--border-glow);
-            background: linear-gradient(135deg, var(--del-cyan), var(--del-blue));
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6);
+            background: linear-gradient(135deg, #38bdf8, var(--del-blue));
         }
 
         /* Presentation Container */
         .presentation-container {
-            max-width: 1080px;
-            margin: 32px auto;
-            padding: 0 20px;
+            max-width: 1100px;
+            margin: 36px auto;
+            padding: 0 24px;
             width: 100%;
             flex: 1;
         }
 
-        /* Slide Card */
+        /* 4 Main Slide Tabs Bar */
+        .slide-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            background: rgba(11, 30, 59, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #cbd5e1;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .tab-btn .tab-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .tab-btn:hover {
+            background: rgba(15, 40, 78, 0.9);
+            border-color: var(--del-cyan);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(11, 30, 59, 0.95));
+            border-color: var(--del-cyan);
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35);
+        }
+
+        .tab-btn.active .tab-num {
+            background: var(--del-cyan);
+            color: #fff;
+            box-shadow: 0 0 10px var(--del-cyan);
+        }
+
+        /* Slide Main Card */
         .slide-deck {
             position: relative;
-            min-height: 580px;
+            min-height: 520px;
             background: var(--card-bg);
-            border: 1.5px solid var(--border-glow);
+            border: 2px solid var(--border-glow);
             border-radius: 24px;
             padding: 44px;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(16px);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -153,41 +215,40 @@
 
         .slide-content {
             display: none;
-            animation: fadeIn 0.3s ease;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .slide-content.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(14px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Slide Elements */
-        .slide-tag {
+        .slide-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 6px 14px;
             border-radius: 9999px;
-            font-size: 0.82rem;
+            font-size: 0.84rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            background: rgba(2, 132, 199, 0.18);
-            color: var(--del-cyan);
-            border: 1px solid rgba(2, 132, 199, 0.35);
-            margin-bottom: 18px;
+            background: rgba(2, 132, 199, 0.2);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            margin-bottom: 16px;
         }
 
         .slide-title {
-            font-size: 2.2rem;
+            font-size: 2.3rem;
             font-weight: 900;
-            line-height: 1.25;
-            margin-bottom: 16px;
-            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 14px;
+            letter-spacing: -0.8px;
         }
 
         .slide-title span {
@@ -198,107 +259,87 @@
 
         .slide-lead {
             font-size: 1.15rem;
-            color: #cbd5e1;
+            color: #e2e8f0;
             line-height: 1.6;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
-        /* Grid Cards inside slide */
+        /* 3-Col / 2-Col Grid Points */
         .points-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 18px;
-            margin-top: 20px;
+            margin-top: 16px;
         }
 
         .point-card {
-            background: rgba(15, 40, 78, 0.6);
-            border: 1px solid rgba(2, 132, 199, 0.25);
+            background: rgba(15, 40, 78, 0.65);
+            border: 1px solid rgba(2, 132, 199, 0.3);
             border-radius: 16px;
-            padding: 20px;
+            padding: 22px;
             transition: all 0.25s;
         }
 
         .point-card:hover {
             transform: translateY(-4px);
             border-color: var(--del-cyan);
-            box-shadow: 0 8px 24px rgba(2, 132, 199, 0.25);
-            background: rgba(15, 40, 78, 0.9);
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
+            background: rgba(15, 40, 78, 0.95);
         }
 
         .point-card-icon {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            margin-bottom: 12px;
             display: inline-block;
         }
 
         .point-card h4 {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 800;
             color: #ffffff;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .point-card p {
-            font-size: 0.92rem;
+            font-size: 0.94rem;
             color: var(--text-muted);
             line-height: 1.5;
         }
 
-        /* Speaker Talking Script Box */
-        .speaker-box {
-            margin-top: 28px;
-            background: rgba(245, 158, 11, 0.08);
-            border-left: 4px solid var(--del-gold);
-            border-radius: 0 12px 12px 0;
-            padding: 14px 18px;
+        .point-card strong {
+            color: #38bdf8;
         }
 
-        .speaker-box-title {
-            font-size: 0.8rem;
-            font-weight: 800;
+        /* Script Pembicara Box */
+        .speech-script-box {
+            margin-top: 28px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(11, 30, 59, 0.8));
+            border-left: 5px solid var(--del-gold);
+            border-radius: 0 14px 14px 0;
+            padding: 16px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .speech-script-title {
+            font-size: 0.82rem;
+            font-weight: 900;
             color: var(--del-gold);
             text-transform: uppercase;
-            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .speaker-box p {
-            font-size: 0.95rem;
-            color: #f1f5f9;
-            line-height: 1.5;
+        .speech-script-box p {
+            font-size: 1rem;
+            color: #ffffff;
+            line-height: 1.6;
             font-style: italic;
         }
 
-        /* Architecture Flow Diagram */
-        .flow-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin: 24px 0;
-            flex-wrap: wrap;
-        }
-
-        .flow-node {
-            flex: 1;
-            min-width: 140px;
-            background: rgba(11, 30, 59, 0.9);
-            border: 1.5px solid var(--del-cyan);
-            border-radius: 14px;
-            padding: 16px 12px;
-            text-align: center;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-        }
-
-        .flow-node-icon { font-size: 1.8rem; margin-bottom: 6px; }
-        .flow-node h5 { font-size: 0.92rem; font-weight: 800; color: #fff; }
-        .flow-node span { font-size: 0.72rem; color: #38bdf8; display: block; margin-top: 2px; }
-        .flow-arrow { font-size: 1.3rem; color: var(--del-gold); font-weight: bold; }
-
-        /* Slide Footer & Navigation Controls */
+        /* Slide Footer & Next/Prev Controls */
         .slide-footer {
             display: flex;
             justify-content: space-between;
@@ -308,352 +349,299 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .slide-dots {
-            display: flex;
-            gap: 8px;
+        .slide-counter-txt {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
         }
 
-        .slide-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .slide-dot.active {
-            width: 32px;
-            border-radius: 9999px;
-            background: linear-gradient(135deg, var(--del-cyan), var(--del-gold));
+        .slide-counter-txt strong {
+            color: #fff;
+            font-size: 1.1rem;
         }
 
         .slide-btns {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         .btn-nav {
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: rgba(15, 40, 78, 0.8);
             border: 1px solid var(--border-glow);
             color: #fff;
-            border-radius: var(--radius-md, 12px);
-            font-weight: 700;
-            font-size: 0.9rem;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.92rem;
             cursor: pointer;
             transition: all 0.2s;
+            font-family: inherit;
         }
 
         .btn-nav:hover:not(:disabled) {
             background: var(--del-cyan);
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+            box-shadow: 0 4px 16px rgba(2, 132, 199, 0.5);
             transform: translateY(-2px);
         }
 
         .btn-nav:disabled {
-            opacity: 0.4;
+            opacity: 0.35;
             cursor: not-allowed;
         }
 
-        /* Keyboard shortcuts tip */
         .shortcuts-tip {
             text-align: center;
-            margin-top: 16px;
-            font-size: 0.82rem;
+            margin-top: 18px;
+            font-size: 0.85rem;
             color: var(--text-muted);
         }
 
         .key-badge {
             background: rgba(255, 255, 255, 0.12);
-            padding: 2px 8px;
+            padding: 3px 8px;
             border-radius: 6px;
-            font-weight: 700;
+            font-weight: 800;
             color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .slide-tabs { grid-template-columns: 1fr 1fr; }
+            .slide-deck { padding: 24px; }
+            .slide-title { font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Gorga Batak Top Ribbon -->
+    <!-- Gorga Batak Cultural Ribbon -->
     <div class="gorga-bar"></div>
 
     <!-- Header Navigation -->
     <header class="nav-header">
         <a href="index.html" class="brand">
-            <img src="assets/logo-it-del.jpg" alt="Logo IT Del" class="brand-logo">
+            <img src="assets/logo-it-del.jpg" alt="Logo Resmi IT Del" class="brand-logo">
             <div class="brand-text">
                 <h1>SpotFinder IT Del</h1>
-                <span>PANDUAN PRESENTASI RESMI PROYEK IoT</span>
+                <span>SISTEM IOT & SMART CAPACITY COUNTER</span>
             </div>
         </a>
         <div class="nav-actions">
             <a href="index.html" class="btn-live">
-                🚀 Buka Web Aplikasi SpotFinder
+                🚀 Buka Aplikasi SpotFinder
             </a>
         </div>
     </header>
 
-    <!-- Main Presentation Container -->
+    <!-- Main Container -->
     <main class="presentation-container">
+
+        <!-- 4 MAIN SLIDE NAVIGATION TABS -->
+        <nav class="slide-tabs">
+            <button class="tab-btn active" onclick="goToSlide(0)">
+                <span class="tab-num">1</span>
+                <div>Nama & Identitas</div>
+            </button>
+            <button class="tab-btn" onclick="goToSlide(1)">
+                <span class="tab-num">2</span>
+                <div>Mengapa Dibuat (Masalah)</div>
+            </button>
+            <button class="tab-btn" onclick="goToSlide(2)">
+                <span class="tab-num">3</span>
+                <div>Fungsi & Manfaat</div>
+            </button>
+            <button class="tab-btn" onclick="goToSlide(3)">
+                <span class="tab-num">4</span>
+                <div>Potensi Pengembangan</div>
+            </button>
+        </nav>
+
+        <!-- SLIDE DECK CARD -->
         <div class="slide-deck">
-            
-            <!-- SLIDE 1: JUDUL & IDENTITAS -->
+
+            <!-- ==========================================
+                 POIN 1: NAMA APLIKASI & IDENTITAS
+                 ========================================== -->
             <section class="slide-content active" id="slide-1">
-                <div class="slide-tag">🏛️ Proyek IoT & Rekayasa Web • IT Del</div>
-                <h2 class="slide-title">SpotFinder <span>IT Del</span></h2>
+                <div class="slide-badge">🏛️ POIN 1: IDENTITAS PROYEK</div>
+                <h2 class="slide-title">Nama Aplikasi: <span>SpotFinder IT Del</span></h2>
                 <p class="slide-lead">
-                    Sistem Cerdas Pemantau Ketersediaan Kursi dan Spot Belajar di Kampus Institut Teknologi Del Berbasis Mikrokontroler IoT (ESP8266/ESP32) & Layar OLED.
+                    Aplikasi cerdas berbasis <strong>Internet of Things (IoT)</strong> yang mengintegrasikan tombol counter fisik di lokasi dengan dashboard visual di smartphone/laptop mahasiswa secara real-time.
                 </p>
 
                 <div class="points-grid">
                     <div class="point-card">
-                        <span class="point-card-icon">🎯</span>
-                        <h4>Fokus Proyek</h4>
-                        <p>Mengintegrasikan perangkat keras counter tombol fisik dengan aplikasi web real-time berlatar khas Danau Toba.</p>
+                        <span class="point-card-icon">💻</span>
+                        <h4>Aplikasi Web Modern</h4>
+                        <p>Dashboard responsif dengan tema resmi <strong>Royal Navy Blue IT Del</strong> dan panorama <strong>Danau Toba</strong>, dapat dibuka langsung dari browser smartphone apa saja.</p>
                     </div>
                     <div class="point-card">
-                        <span class="point-card-icon">⚡</span>
-                        <h4>Teknologi Utama</h4>
-                        <p>Mikrokontroler ESP8266/ESP32, Layar OLED I2C (SSD1306), Protokol MQTT Broker <code>76.13.19.250</code>, dan Web HTML/CSS/JS.</p>
+                        <span class="point-card-icon">🧠</span>
+                        <h4>Mikrokontroler Cerdas</h4>
+                        <p>Ditenagai <strong>ESP8266 / ESP32</strong> sebagai otak pemroses data yang terhubung ke jaringan WiFi kampus.</p>
                     </div>
                     <div class="point-card">
-                        <span class="point-card-icon">🎓</span>
-                        <h4>Semboyan Del</h4>
-                        <p>Dibuat dengan semangat <strong>MarTuhan, Marroha, Marbisuk</strong> untuk meningkatkan efisiensi dan produktivitas mahasiswa.</p>
+                        <span class="point-card-icon">📺</span>
+                        <h4>Layar Display Lokal</h4>
+                        <p>Dilengkapi <strong>Layar OLED I2C 0.96"</strong> di lokasi gazebo untuk menampilkan informasi ketersediaan kursi bagi pengunjung fisik.</p>
                     </div>
                 </div>
 
-                <div class="speaker-box">
-                    <div class="speaker-box-title">🗣️ Kata Pembuka (Script Pembicara):</div>
-                    <p>"Selamat pagi/siang bapak/ibu dosen dan teman-teman sekalian. Hari ini saya mempersembahkan proyek SpotFinder IT Del, yaitu inovasi IoT cerdas pemantau ketersediaan tempat belajar dan gazebo di kampus kita secara live langsung ke smartphone."</p>
+                <div class="speech-script-box">
+                    <div class="speech-script-title">🗣️ Kata Pembuka (Script Pembicara):</div>
+                    <p>"Selamat pagi/siang bapak/ibu dosen dan rekan-rekan sekalian. Proyek yang saya presentasikan bernama <strong>SpotFinder IT Del</strong>. Ini adalah aplikasi cerdas pemantau ketersediaan kursi dan spot belajar di kampus IT Del berbasis Internet of Things (IoT), yang menggabungkan perangkat mikrokontroler dengan dashboard web di smartphone."</p>
                 </div>
             </section>
 
-            <!-- SLIDE 2: MASALAH & LATAR BELAKANG -->
+            <!-- ==========================================
+                 POIN 2: MENGAPA DIBUAT (LATAR BELAKANG & MASALAH)
+                 ========================================== -->
             <section class="slide-content" id="slide-2">
-                <div class="slide-tag">❓ Latar Belakang & Analisis Masalah</div>
-                <h2 class="slide-title">Mengapa Aplikasi Ini <span>Diciptakan?</span></h2>
+                <div class="slide-badge">❓ POIN 2: LATAR BELAKANG & ANALISIS MASALAH</div>
+                <h2 class="slide-title">Mengapa Aplikasi Ini Dibuat? <span>(Adanya Suatu Masalah)</span></h2>
                 <p class="slide-lead">
-                    Berangkat dari permasalahan nyata yang dialami oleh civitas akademika IT Del setiap hari.
+                    Aplikasi ini lahir dari permasalahan nyata yang dirasakan langsung oleh mahasiswa IT Del dalam aktivitas perkuliahan sehari-hari.
                 </p>
 
                 <div class="points-grid">
                     <div class="point-card">
                         <span class="point-card-icon">🚶‍♂️</span>
                         <h4>1. Buang Waktu & Tenaga</h4>
-                        <p>Mahasiswa sering berjalan jauh ke Gazebo Danau Toba atau Ruang GD hanya untuk mendapati tempat tersebut sudah penuh 100%.</p>
+                        <p>Mahasiswa sering <strong>berjalan jauh</strong> dari asrama atau gedung kuliah ke Gazebo Danau Toba / Perpustakaan, hanya untuk mendapati tempat tersebut <strong>sudah penuh 100%</strong>.</p>
                     </div>
                     <div class="point-card">
                         <span class="point-card-icon">📡</span>
-                        <h4>2. Tidak Ada Informasi Live</h4>
-                        <p>Belum tersedianya sistem papan informasi jarak jauh yang mengabarkan sisa kursi kosong di area terbuka kampus.</p>
+                        <h4>2. Tidak Ada Informasi Real-Time</h4>
+                        <p>Belum ada sistem informasi jarak jauh yang memberi tahu sisa kursi kosong di area terbuka kampus sebelum mahasiswa mendatangi tempatnya.</p>
                     </div>
                     <div class="point-card">
                         <span class="point-card-icon">👥</span>
-                        <h4>3. Kapasitas Tidak Teratur</h4>
-                        <p>Sering terjadi penumpukan mahasiswa di satu gazebo sehingga kenyamanan belajar dan sirkulasi udara terganggu.</p>
+                        <h4>3. Terjadinya Overkapasitas</h4>
+                        <p>Tanpa adanya indikator kapasitas, gazebo sering berdesakan melebihi kapasitas nyaman belajar, sehingga sirkulasi udara dan konsentrasi belajar terganggu.</p>
                     </div>
                 </div>
 
-                <div class="speaker-box">
-                    <div class="speaker-box-title">🗣️ Narasi Presentasi:</div>
-                    <p>"Sering kali kita sudah lelah berjalan kaki ke Gazebo Toba, ternyata tidak ada kursi yang tersisa. SpotFinder hadir menyelesaikan masalah ini dengan menyediakan data ketersediaan kursi yang bisa dicek dari asrama atau kelas sebelum berangkat."</p>
+                <div class="speech-script-box">
+                    <div class="speech-script-title">🗣️ Narasi Presentasi (Script Pembicara):</div>
+                    <p>"Mengapa aplikasi ini kami buat? Karena ada masalah nyata yang sering kita alami: kita sudah lelah berjalan kaki menuju Gazebo tepi Danau Toba, ternyata sampai di sana semua kursi sudah penuh. Tidak adanya informasi kapasitas jarak jauh membuat banyak waktu dan tenaga terbuang sia-sia. SpotFinder hadir untuk menuntaskan masalah tersebut."</p>
                 </div>
             </section>
 
-            <!-- SLIDE 3: FUNGSI APLIKASI & HARDWARE -->
+            <!-- ==========================================
+                 POIN 3: FUNGSI DAN MANFAAT APLIKASI
+                 ========================================== -->
             <section class="slide-content" id="slide-3">
-                <div class="slide-tag">⚙️ Fitur & Fungsionalitas Sistem</div>
-                <h2 class="slide-title">Fungsi Utama & <span>Peran Mikrokontroler</span></h2>
+                <div class="slide-badge">⚙️ POIN 3: FITUR & VALUE</div>
+                <h2 class="slide-title">Fungsi & <span>Manfaat Aplikasi</span></h2>
                 <p class="slide-lead">
-                    Kombinasi perangkat keras di lokasi spot dengan dashboard interaktif di genggaman tangan.
+                    Menghubungkan aksi fisik di lokasi dengan visualisasi data instan di smartphone mahasiswa.
                 </p>
 
                 <div class="points-grid">
                     <div class="point-card">
                         <span class="point-card-icon">🔘</span>
-                        <h4>Dual-Button Counter</h4>
-                        <p><strong>Pin 14 (Masuk)</strong> menambah hitungan orang (+1), <strong>Pin 12 (Keluar)</strong> mengurangi hitungan orang (-1) secara instan.</p>
+                        <h4>Dual-Button Counter Fisik</h4>
+                        <p><strong>Pin 14 (Tombol Masuk)</strong> menambah hitungan (+1 orang), <strong>Pin 12 (Tombol Keluar)</strong> mengurangi hitungan (-1 orang). Angka langsung terhitung presisi.</p>
                     </div>
                     <div class="point-card">
-                        <span class="point-card-icon">📺</span>
-                        <h4>Layar OLED I2C di Lokasi</h4>
-                        <p>Menampilkan angka 'TERISI' dan sisa 'KOSONG' secara visual di gazebo agar pengunjung fisik langsung mengetahui kuota.</p>
+                        <span class="point-card-icon">⚡</span>
+                        <h4>Live Sinkronisasi Milidetik (MQTT)</h4>
+                        <p>Begitu tombol ditekan, data di web smartphone seluruh mahasiswa <strong>otomatis berubah dalam hitungan milidetik</strong> tanpa perlu me-refresh halaman.</p>
                     </div>
                     <div class="point-card">
                         <span class="point-card-icon">🪑</span>
                         <h4>Denah Kursi Digital (Seat Map)</h4>
-                        <p>Visualisasi kursi interaktif untuk melihat letak kursi mana yang kosong dan mengamankannya via web.</p>
+                        <p>Mahasiswa dapat melihat denah posisi kursi kosong secara visual dan mengamankan tempat belajarnya secara mandiri lewat web.</p>
                     </div>
                 </div>
 
-                <div class="speaker-box">
-                    <div class="speaker-box-title">🗣️ Narasi Presentasi:</div>
-                    <p>"Di gazebo terpasang alat Mikrokontroler dengan 2 tombol. Saat ada orang masuk, tekan Pin 14 (+1). Saat keluar, tekan Pin 12 (-1). Layar OLED di lokasi langsung berganti angka, dan dalam hitungan milidetik web di HP mahasiswa juga langsung terupdate otomatis."</p>
+                <div class="speech-script-box">
+                    <div class="speech-script-title">🗣️ Narasi Presentasi (Script Pembicara):</div>
+                    <p>"Fungsi utama alat ini adalah menghitung jumlah orang secara otomatis: saat orang masuk tombol Pin 14 ditekan (+1), dan saat keluar tombol Pin 12 ditekan (-1). Manfaatnya, mahasiswa di kamar asrama bisa membuka HP dan langsung melihat berapa kursi yang tersisa di Gazebo Toba, Gedung 7, atau Perpustakaan sebelum melangkahkan kaki."</p>
                 </div>
             </section>
 
-            <!-- SLIDE 4: CARA MEMBUAT & CARA KERJA SISTEM -->
+            <!-- ==========================================
+                 POIN 4: APLIKASI DAPAT DIKEMBANGKAN (TEMPAT UMUM)
+                 ========================================== -->
             <section class="slide-content" id="slide-4">
-                <div class="slide-tag">🛠️ Arsitektur & Cara Pembuatan</div>
-                <h2 class="slide-title">Bagaimana Sistem Ini <span>Dibuat & Bekerja?</span></h2>
+                <div class="slide-badge">🚀 POIN 4: SKALABILITAS & MASA DEPAN</div>
+                <h2 class="slide-title">Potensi Pengembangan <span>(Disambungkan ke HP & Tempat Umum)</span></h2>
                 <p class="slide-lead">
-                    Integrasi 3 pilar: Sensor & Tombol ➔ Mikrokontroler & MQTT ➔ Aplikasi Web Responsif.
-                </p>
-
-                <!-- Flowchart visual -->
-                <div class="flow-container">
-                    <div class="flow-node">
-                        <div class="flow-node-icon">🔘</div>
-                        <h5>Tombol Fisik</h5>
-                        <span>Pin 14 (IN) / Pin 12 (OUT)</span>
-                    </div>
-                    <div class="flow-arrow">➔</div>
-                    <div class="flow-node">
-                        <div class="flow-node-icon">🧠</div>
-                        <h5>ESP8266 / ESP32</h5>
-                        <span>Debouncing & Logika Kuota</span>
-                    </div>
-                    <div class="flow-arrow">➔</div>
-                    <div class="flow-node">
-                        <div class="flow-node-icon">📺</div>
-                        <h5>OLED I2C SSD1306</h5>
-                        <span>Tampilan Monitor Lokal</span>
-                    </div>
-                    <div class="flow-arrow">➔</div>
-                    <div class="flow-node">
-                        <div class="flow-node-icon">☁️</div>
-                        <h5>MQTT Broker</h5>
-                        <span>76.13.19.250:1883</span>
-                    </div>
-                    <div class="flow-arrow">➔</div>
-                    <div class="flow-node">
-                        <div class="flow-node-icon">📱</div>
-                        <h5>Web App di HP</h5>
-                        <span>WebSockets Real-time</span>
-                    </div>
-                </div>
-
-                <div class="speaker-box">
-                    <div class="speaker-box-title">🗣️ Narasi Presentasi:</div>
-                    <p>"Sistem dibuat menggunakan board ESP8266 yang diprogram dengan Arduino C++. Data dikirim via WiFi menggunakan protokol MQTT yang sangat ringan. Di sisi web, kami gunakan JavaScript dengan WebSocket agar data langsung ter-render tanpa perlu reload halaman."</p>
-                </div>
-            </section>
-
-            <!-- SLIDE 5: PENGEMBANGAN KE TEMPAT UMUM & SMART CITY -->
-            <section class="slide-content" id="slide-5">
-                <div class="slide-tag">🚀 Skalabilitas & Potensi Masa Depan</div>
-                <h2 class="slide-title">Pengembangan Lebih Luas <span>(Smart Facilities)</span></h2>
-                <p class="slide-lead">
-                    Konsep dasar penghitung kuota ini dapat diimplementasikan ke berbagai sektor publik modern.
+                    Konsep <strong>Smart Flow & Capacity Monitoring</strong> ini tidak terbatas pada kampus, melainkan sangat luas untuk diterapkan pada fasilitas publik modern:
                 </p>
 
                 <div class="points-grid">
                     <div class="point-card">
                         <span class="point-card-icon">🅿️</span>
-                        <h4>Smart Parking System</h4>
-                        <p>Dipasang di palang parkir. Pengendara mobil/motor bisa mengecek sisa slot parkir di setiap lantai mall/kampus lewat HP.</p>
+                        <h4>1. Smart Parking System (Tempat Parkir)</h4>
+                        <p>Dipasang di palang pintu gerbang masuk/keluar. Pengendara mobil/motor dapat mengecek <strong>sisa slot parkir kosong di tiap lantai</strong> lewat smartphone sebelum masuk.</p>
                     </div>
                     <div class="point-card">
                         <span class="point-card-icon">🏥</span>
-                        <h4>Rumah Sakit & Puskesmas</h4>
-                        <p>Memantau ketersediaan bed rawat inap atau antrean poliklinik secara live dari smartphone keluarga pasien.</p>
+                        <h4>2. Rumah Sakit & Puskesmas</h4>
+                        <p>Memantau <strong>ketersediaan tempat tidur (bed) rawat inap</strong> dan kuota antrean pasien di poliklinik yang bisa dipantau langsung oleh keluarga pasien dari rumah.</p>
                     </div>
                     <div class="point-card">
-                        <span class="point-card-icon">🚶</span>
-                        <h4>Antrean Bank & Samsat</h4>
-                        <p>Mencegah kerumunan fisik di ruang tunggu dengan pemantauan nomor antrean langsung dari HP pengunjung.</p>
+                        <span class="point-card-icon">🏛️</span>
+                        <h4>3. Antrean Tempat Umum (Bank, Samsat, Kafe)</h4>
+                        <p>Mencegah kerumunan berlebih di ruang tunggu dengan menyediakan <strong>nomor antrean digital</strong> yang berjalan live di smartphone pengunjung.</p>
                     </div>
                     <div class="point-card">
                         <span class="point-card-icon">🤖</span>
-                        <h4>Sensor Otomatis (AI / IR)</h4>
-                        <p>Tombol manual dapat ditingkatkan dengan <em>IR Beam</em> atau kamera AI penghitung orang otomatis saat melintas pintu.</p>
+                        <h4>4. Integrasi Sensor Otomatis</h4>
+                        <p>Tombol manual dapat ditingkatkan dengan <strong>Sensor Infrared (IR Beam), Ultrasonic, atau Kamera AI</strong> agar orang terhitung otomatis saat melewati pintu.</p>
                     </div>
                 </div>
 
-                <div class="speaker-box">
-                    <div class="speaker-box-title">🗣️ Narasi Presentasi:</div>
-                    <p>"Proyek ini sangat potensial untuk dikembangkan lebih jauh. Dengan menggabungkan mikrokontroler dan smartphone, kita bisa mengaplikasikannya pada smart parking, antrean rumah sakit, hingga kafe dan bank untuk mendukung konsep Smart City."</p>
-                </div>
-            </section>
-
-            <!-- SLIDE 6: KESIMPULAN -->
-            <section class="slide-content" id="slide-6">
-                <div class="slide-tag">📝 Penutup & Kesimpulan</div>
-                <h2 class="slide-title">Kesimpulan <span>Proyek</span></h2>
-                <p class="slide-lead">
-                    Sebuah solusi terpadu, hemat biaya, dan memberikan dampak nyata bagi kenyamanan kampus.
-                </p>
-
-                <div class="points-grid">
-                    <div class="point-card">
-                        <span class="point-card-icon">✅</span>
-                        <h4>1. Efisiensi Tinggi</h4>
-                        <p>Menghemat waktu mahasiswa dalam mencari spot belajar tanpa harus melakukan pengecekan manual.</p>
-                    </div>
-                    <div class="point-card">
-                        <span class="point-card-icon">💰</span>
-                        <h4>2. Biaya Terjangkau</h4>
-                        <p>Memanfaatkan mikrokontroler ekonomis (ESP8266/ESP32) dengan keandalan protokol industri (MQTT).</p>
-                    </div>
-                    <div class="point-card">
-                        <span class="point-card-icon">🌐</span>
-                        <h4>3. Siap Diterapkan</h4>
-                        <p>Desain web responsif ramah smartphone dengan identitas visual resmi Institut Teknologi Del.</p>
-                    </div>
-                </div>
-
-                <div class="speaker-box">
-                    <div class="speaker-box-title">🗣️ Kata Penutup Presentasi:</div>
-                    <p>"Demikian presentasi dari proyek SpotFinder IT Del. Kami yakin teknologi ini dapat terus dikembangkan untuk kemajuan fasilitas kampus dan masyarakat. Terima kasih atas perhatiannya, saya buka sesi tanya jawab."</p>
+                <div class="speech-script-box">
+                    <div class="speech-script-title">🗣️ Kata Penutup (Script Pembicara):</div>
+                    <p>"Ternyata teknologi ini masih sangat bisa dikembangkan lebih jauh jika disambungkan ke HP dan mikrokontroler canggih. Konsepnya bisa kita terapkan pada sistem parkir pintar, pemantauan bed rumah sakit, dan antrean fasilitas publik untuk mewujudkan konsep Smart City. Sekian presentasi dari saya, terima kasih dan saya siap menjawab pertanyaan."</p>
                 </div>
             </section>
 
-            <!-- Navigation Controls -->
+            <!-- Footer Navigation Controls -->
             <div class="slide-footer">
-                <div class="slide-dots">
-                    <div class="slide-dot active" onclick="goToSlide(0)"></div>
-                    <div class="slide-dot" onclick="goToSlide(1)"></div>
-                    <div class="slide-dot" onclick="goToSlide(2)"></div>
-                    <div class="slide-dot" onclick="goToSlide(3)"></div>
-                    <div class="slide-dot" onclick="goToSlide(4)"></div>
-                    <div class="slide-dot" onclick="goToSlide(5)"></div>
+                <div class="slide-counter-txt">
+                    Halaman Slide: <strong id="slide-num-txt">1</strong> dari <strong>4 Poin</strong>
                 </div>
                 <div class="slide-btns">
-                    <button class="btn-nav" id="btn-prev" onclick="prevSlide()" disabled>◀ Sebelumnya</button>
-                    <button class="btn-nav" id="btn-next" onclick="nextSlide()">Berikutnya ▶</button>
+                    <button class="btn-nav" id="btn-prev" onclick="prevSlide()" disabled>◀ Poin Sebelumnya</button>
+                    <button class="btn-nav" id="btn-next" onclick="nextSlide()">Poin Berikutnya ▶</button>
                 </div>
             </div>
 
         </div>
 
         <p class="shortcuts-tip">
-            💡 Tip Presentasi: Gunakan tombol <span class="key-badge">◀ Arrow Left</span> dan <span class="key-badge">Arrow Right ▶</span> pada keyboard untuk berpindah slide dengan lancar.
+            💡 Navigasi Cepat: Klik tombol tab di atas atau gunakan tombol <span class="key-badge">◀ Panah Kiri</span> dan <span class="key-badge">Panah Kanan ▶</span> pada keyboard.
         </p>
     </main>
 
     <script>
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide-content');
-        const dots = document.querySelectorAll('.slide-dot');
+        const tabs = document.querySelectorAll('.tab-btn');
         const prevBtn = document.getElementById('btn-prev');
         const nextBtn = document.getElementById('btn-next');
+        const numTxt = document.getElementById('slide-num-txt');
 
         function updateSlideUI() {
             slides.forEach((slide, idx) => {
                 slide.classList.toggle('active', idx === currentSlide);
             });
-            dots.forEach((dot, idx) => {
-                dot.classList.toggle('active', idx === currentSlide);
+            tabs.forEach((tab, idx) => {
+                tab.classList.toggle('active', idx === currentSlide);
             });
+
+            if (numTxt) numTxt.textContent = (currentSlide + 1);
 
             prevBtn.disabled = (currentSlide === 0);
             nextBtn.disabled = (currentSlide === slides.length - 1);
+            
             if (currentSlide === slides.length - 1) {
                 nextBtn.textContent = 'Selesai 🏁';
             } else {
-                nextBtn.textContent = 'Berikutnya ▶';
+                nextBtn.textContent = 'Poin Berikutnya ▶';
             }
         }
 
@@ -676,13 +664,16 @@
             updateSlideUI();
         }
 
-        // Keyboard Navigation
+        // Keyboard Controls
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
                 nextSlide();
             } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
                 prevSlide();
-            }
+            } else if (e.key === '1') goToSlide(0);
+            else if (e.key === '2') goToSlide(1);
+            else if (e.key === '3') goToSlide(2);
+            else if (e.key === '4') goToSlide(3);
         });
     </script>
 </body>

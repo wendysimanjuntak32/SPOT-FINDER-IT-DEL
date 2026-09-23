@@ -46,7 +46,10 @@
         <!-- Sensor Category Filter Tabs -->
         <nav class="sensor-tabs-row">
             <button class="sensor-tab active" onclick="window.sensorEngine.filterCategory('ALL', this)">
-                <i class="fa-solid fa-layer-group"></i> Semua Sensor (8)
+                <i class="fa-solid fa-layer-group"></i> Semua Sensor (9)
+            </button>
+            <button class="sensor-tab" onclick="window.sensorEngine.filterCategory('CAMERA', this)">
+                <i class="fa-solid fa-camera"></i> Sensor Optik Kamera (Vision AI)
             </button>
             <button class="sensor-tab" onclick="window.sensorEngine.filterCategory('MOTION', this)">
                 <i class="fa-solid fa-arrows-up-down-left-right"></i> Gerak & Orientasi (G-Force, Gyro)
@@ -61,6 +64,106 @@
 
         <!-- Main Telemetry Sensor Grid -->
         <main class="sensor-grid" id="sensorGrid">
+
+            <!-- SENSOR 0: DIGITAL CAMERA OPTICAL & COMPUTER VISION SENSOR -->
+            <div class="sensor-card card-featured-camera" data-cat="CAMERA" style="--card-accent: #06b6d4;">
+                <div class="card-header-top">
+                    <div class="sensor-title-box">
+                        <div class="sensor-icon-wrap" style="color: #06b6d4;"><i class="fa-solid fa-camera-retro"></i></div>
+                        <div>
+                            <h3 class="sensor-name-h3">Sensor Optik Kamera & Computer Vision</h3>
+                            <span class="sensor-type-sub">Real-Time Optical Telemetry, Colorimeter, Motion Vector & Photoplethysmography</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="status-badge" id="statusCameraBadge"><i class="fa-solid fa-video-slash"></i> Standby</span>
+                        <button class="btn-lab" id="btnCameraToggle" onclick="window.sensorEngine.toggleCamera()" style="padding: 0.35rem 0.85rem; font-size: 0.78rem;">
+                            <i class="fa-solid fa-power-off"></i> Nyalakan Kamera
+                        </button>
+                    </div>
+                </div>
+
+                <div class="camera-sensor-layout">
+                    <!-- Left: Camera Live Stream & Reticle Canvas -->
+                    <div class="camera-feed-box" id="cameraFeedContainer">
+                        <video id="cameraVideo" autoplay playsinline muted></video>
+                        <canvas id="cameraCanvas" width="640" height="480"></canvas>
+                        
+                        <div class="camera-placeholder" id="cameraPlaceholder">
+                            <i class="fa-solid fa-camera" style="font-size: 3rem; color: #06b6d4; opacity: 0.7;"></i>
+                            <h4 style="font-size: 1.1rem; color: #fff;">Kamera Sensor Optik Siap</h4>
+                            <p style="font-size: 0.82rem; max-width: 320px;">Klik tombol "Nyalakan Kamera" untuk mengaktifkan pemindaian warna pixel, deteksi gerakan optik, estimasi lux, dan PPG denyut nadi.</p>
+                            <button class="btn-lab" onclick="window.sensorEngine.toggleCamera()" style="background: var(--neon-cyan); color: #000; font-weight: 800;">
+                                <i class="fa-solid fa-camera"></i> Aktifkan Sensor Kamera
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Analysis Panel & Vision Tools -->
+                    <div class="camera-analysis-panel">
+                        <!-- Mode Selector Buttons -->
+                        <div>
+                            <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem;">
+                                Mode Analisis Sensor Optik:
+                            </span>
+                            <div class="camera-mode-buttons">
+                                <button class="btn-cam-mode active" onclick="window.sensorEngine.setCameraMode('COLOR', this)">
+                                    <i class="fa-solid fa-eye-dropper"></i> Colorimeter
+                                </button>
+                                <button class="btn-cam-mode" onclick="window.sensorEngine.setCameraMode('MOTION', this)">
+                                    <i class="fa-solid fa-person-running"></i> Optical Motion
+                                </button>
+                                <button class="btn-cam-mode" onclick="window.sensorEngine.setCameraMode('LUX', this)">
+                                    <i class="fa-solid fa-sun"></i> Optical Lux
+                                </button>
+                                <button class="btn-cam-mode" onclick="window.sensorEngine.setCameraMode('PPG', this)">
+                                    <i class="fa-solid fa-heart-pulse"></i> PPG Pulse
+                                </button>
+                                <button class="btn-cam-mode" onclick="window.sensorEngine.setCameraMode('SOBEL', this)">
+                                    <i class="fa-solid fa-vector-square"></i> Sobel Edge
+                                </button>
+                                <button class="btn-cam-mode" onclick="window.sensorEngine.setCameraMode('THERMAL', this)">
+                                    <i class="fa-solid fa-fire"></i> Thermal Vision
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Colorimeter Specimen -->
+                        <div class="color-swatch-box" id="camColorBox">
+                            <div class="color-preview-cube" id="camColorCube"></div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <h4 id="camColorName" style="font-size: 1.1rem; color: #fff; font-family: var(--font-heading);">Emerald Green</h4>
+                                    <span id="camColorHex" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--neon-cyan); font-weight: 800;">#10B981</span>
+                                </div>
+                                <div style="font-size: 0.75rem; color: #94a3b8; font-family: var(--font-mono); margin-top: 0.2rem;" id="camColorRgb">
+                                    RGB(16, 185, 129) • HSV(160°, 91%, 73%)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vision Telemetry Metrics Grid -->
+                        <div class="metrics-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+                            <div class="metric-item">
+                                <span>Optical Motion Flow:</span>
+                                <strong id="camMotionVal" style="color: var(--neon-cyan);">0.0% (Diam)</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Optical Luma (Lux):</span>
+                                <strong id="camLuxVal" style="color: var(--neon-gold);">0 Lux</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>PPG Capillary Pulse:</span>
+                                <strong id="camPulseVal" style="color: var(--neon-rose);">-- BPM (Siap)</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Resolution / FPS:</span>
+                                <strong id="camFpsVal">640x480 @ 30 FPS</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- SENSOR 1: ACCELEROMETER & G-FORCE -->
             <div class="sensor-card" data-cat="MOTION" style="--card-accent: #06b6d4;">

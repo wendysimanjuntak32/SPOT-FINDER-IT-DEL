@@ -31,24 +31,27 @@
 #include <Wire.h>
 
 // ==========================================
-// 1. KONFIGURASI LAYAR OLED SSD1306
+// 1. KONFIGURASI LAYAR OLED & TOMBOL BOOT
 // ==========================================
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET -1
 #define SCREEN_ADDRESS 0x3C // Alamat I2C umum OLED SSD1306 (0x3C atau 0x3D)
 
-// Pin I2C Hardware ESP32-C3 SuperMini
+// Pin I2C Hardware ESP32-C3 SuperMini (SDA: 8, SCL: 9 atau 5)
 #define I2C_SDA 8
 #define I2C_SCL 9
+
+// Tombol BOOT pada ESP32-C3 SuperMini terhubung ke GPIO 9 (Active LOW)
+#define BUTTON_BOOT_PIN 9
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // ==========================================
 // 2. KONFIGURASI WIFI & MQTT BROKER
 // ==========================================
-const char *ssid = "PELATIHAN_AI2";       // Ganti dengan Nama WiFi Anda
-const char *password = "AI23456";         // Ganti dengan Password WiFi Anda
+const char *ssid = "PELATIHAN_AI2";       // Nama WiFi Anda
+const char *password = "AI23456";         // Password WiFi Anda
 const char *mqtt_server = "76.13.19.250"; // IP Broker MQTT
 const int mqtt_port = 1883;               // Port MQTT Standar
 const char *mqtt_topic = "itdel/gazebo/status"; // Topik MQTT Gazebo IT Del
@@ -58,9 +61,15 @@ PubSubClient client(espClient);
 
 // Variabel data terkini
 String currentRoom = "Gazebo Toba";
-int currentEmpty = 12;
-int currentTotal = 20;
+int currentEmpty = 12; // Jumlah kursi kosong
+int currentTotal = 20; // Total kapasitas
+int currentOccupied = 8; // Jumlah orang saat ini di Gazebo (Total - Empty)
 int currentPercent = 40;
+
+// Variabel Debouncing Tombol BOOT
+int lastButtonState = HIGH;
+unsigned long lastDebounceTime = 0;
+const unsigned long debounceDelay = 250; // Delay debouncing 250ms
 
 // ==========================================
 // 3. FUNGSI RENDER TAMPILAN OLED 128x64
@@ -85,8 +94,8 @@ void renderOledDisplay(String roomName, int emptySeats, int totalSeats,
   display.setTextSize(1);
   display.print(roomName.substring(0, 20));
 
-  // --- Angka Ketersediaan Besar ---
-  display.setCursor(0, 26);
+  // --- Angka Ketersediaan Besar & Jumlah Orang ---
+  display.setCursor(0, 25);
   display.setTextSize(2);
   display.print(emptySeats);
   display.setTextSize(1);
@@ -94,25 +103,56 @@ void renderOledDisplay(String roomName, int emptySeats, int totalSeats,
   display.print(totalSeats);
   display.print(F(" KOSONG"));
 
+  // Subtitle: Orang yang ada di Gazebo
+  display.setCursor(0, 42);
+  display.setTextSize(1);
+  int terisi = totalSeats - emptySeats;
+  display.print(F("Ada: "));
+  display.print(terisi);
+  display.print(F(" org ("));
+  display.print(fillPercent);
+  display.print(F("%)"));
+
   // --- Progress Bar Visual ---
-  display.drawRect(0, 44, 128, 5, SSD1306_WHITE);
+  display.drawRect(0, 52, 128, 4, SSD1306_WHITE);
   int barWidth = map(fillPercent, 0, 100, 0, 124);
-  display.fillRect(2, 46, barWidth, 1, SSD1306_WHITE);
+  display.fillRect(2, 53, barWidth, 2, SSD1306_WHITE);
 
   // --- Status Footer Bar ---
-  display.setCursor(0, 53);
+  display.setCursor(0, 57);
   display.setTextSize(1);
-  display.print(F("Isi:"));
-  display.print(fillPercent);
-  display.print(F("% ["));
+  display.print(F("[BOOT:+1 Org] "));
   display.print(statusMsg);
-  display.print(F("]"));
 
   display.display();
 }
 
 // ==========================================
-// 4. KONEKSI KE WIFI
+// 4. PUBLISH UPDATE KE MQTT BROKER (76.13.19.250)
+// ==========================================
+void publishGazeboStatus(String actionSource) {
+  StaticJsonDocument<300> doc;
+  doc["ruangan"] = currentRoom;
+  doc["kosong"] = currentEmpty;
+  doc["total"] = currentTotal;
+  doc["terisi"] = currentTotal - currentEmpty;
+  doc["persen"] = currentPercent;
+  doc["source"] = actionSource;
+
+  char jsonBuffer[300];
+  serializeJson(doc, jsonBuffer);
+
+  if (client.connected()) {
+    client.publish(mqtt_topic, jsonBuffer, true); // Retain = true
+    Serial.println(">> [MQTT PUBLISH BERHASIL ke 76.13.19.250]");
+    Serial.println(jsonBuffer);
+  } else {
+    Serial.println(">> [MQTT GAGAL] Klien belum terhubung.");
+  }
+}
+
+// ==========================================
+// 5. KONEKSI KE WIFI
 // ==========================================
 void setup_wifi() {
   display.clearDisplay();
@@ -155,7 +195,7 @@ void setup_wifi() {
 }
 
 // ==========================================
-// 5. CALLBACK PENERIMA PESAN MQTT
+// 6. CALLBACK PENERIMA PESAN MQTT DARI WEB
 // ==========================================
 void mqttCallback(char *topic, byte *payload, unsigned int length) {
   String message = "";
@@ -174,21 +214,28 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
   DeserializationError error = deserializeJson(doc, message);
 
   if (!error) {
-    currentRoom = doc["ruangan"] | "Gazebo Toba";
+    // Hindari looping jika pesan berasal dari tombol ESP32 sendiri
+    const char *source = doc["source"] | "";
+    if (String(source) == "ESP32_BOOT_BUTTON") {
+      return;
+    }
+
+    currentRoom = doc["ruangan"] | "Gazebo Danau Toba";
     currentEmpty = doc["kosong"] | 0;
     currentTotal = doc["total"] | 20;
-    currentPercent = doc["persen"] | 0;
+    currentOccupied = currentTotal - currentEmpty;
+    currentPercent = doc["persen"] | (int)(((float)currentOccupied / currentTotal) * 100);
 
     // Render ke Layar OLED secara Real-Time
     renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
-                      "MQTT:OK");
+                      "SYNC:WEB");
   } else {
     Serial.println("Gagal parsing JSON!");
   }
 }
 
 // ==========================================
-// 6. RECONNECT MQTT JIKA TERPUTUS
+// 7. RECONNECT MQTT JIKA TERPUTUS
 // ==========================================
 void reconnectMqtt() {
   while (!client.connected()) {
@@ -216,11 +263,49 @@ void reconnectMqtt() {
 }
 
 // ==========================================
-// 7. SETUP UTAMA
+// 8. FUNGSI CEK TOMBOL BOOT DITEKAN (+1 ORANG)
+// ==========================================
+void checkBootButton() {
+  int reading = digitalRead(BUTTON_BOOT_PIN);
+
+  // Cek apakah tombol ditekan (Active LOW: LOW saat ditekan)
+  if (reading == LOW && lastButtonState == HIGH) {
+    if ((millis() - lastDebounceTime) > debounceDelay) {
+      lastDebounceTime = millis();
+
+      Serial.println("\n[TOMBOL BOOT DITEKAN!] Menambahkan 1 orang di Gazebo IT Del...");
+
+      // Jika masih ada kursi kosong, kurangi 1 kursi kosong (artinya orang bertambah 1)
+      if (currentEmpty > 0) {
+        currentEmpty--;
+      } else {
+        Serial.println("Gazebo sudah penuh kapasitas maksimal!");
+      }
+
+      currentOccupied = currentTotal - currentEmpty;
+      currentPercent = (int)(((float)currentOccupied / currentTotal) * 100);
+
+      // Tampilkan notifikasi di OLED
+      renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
+                        "+1 ORANG!");
+
+      // Publish update ke MQTT Broker 76.13.19.250 agar Web langsung ter-update
+      publishGazeboStatus("ESP32_BOOT_BUTTON");
+    }
+  }
+
+  lastButtonState = reading;
+}
+
+// ==========================================
+// 9. SETUP UTAMA
 // ==========================================
 void setup() {
   Serial.begin(115200);
   delay(500);
+
+  // Konfigurasi Pin Tombol BOOT sebagai Input Pullup
+  pinMode(BUTTON_BOOT_PIN, INPUT_PULLUP);
 
   // Inisialisasi I2C Wire untuk ESP32-C3 SuperMini (SDA=8, SCL=9)
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -240,6 +325,8 @@ void setup() {
   display.println(F("ESP32-C3 SUPERMINI"));
   display.println(F("SpotFinder IT Del"));
   display.println(F("Broker: 76.13.19.250"));
+  display.setCursor(0, 45);
+  display.println(F("Tombol BOOT: +1 Org"));
   display.display();
   delay(1500);
 
@@ -250,13 +337,17 @@ void setup() {
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(mqttCallback);
 
+  // Hitung initial persen
+  currentOccupied = currentTotal - currentEmpty;
+  currentPercent = (int)(((float)currentOccupied / currentTotal) * 100);
+
   // Render Display Pertama
   renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
                     "READY");
 }
 
 // ==========================================
-// 8. LOOP UTAMA
+// 10. LOOP UTAMA
 // ==========================================
 void loop() {
   // Pastikan koneksi WiFi tetap aktif
@@ -270,4 +361,8 @@ void loop() {
   }
 
   client.loop();
+
+  // Pantau penekanan tombol BOOT ESP32-C3
+  checkBootButton();
 }
+

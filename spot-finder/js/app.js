@@ -364,6 +364,27 @@ class SpotFinderApp {
 
             client.on('message', (topic, message) => {
                 console.log(`MQTT Received [${topic}]:`, message.toString());
+                try {
+                    const data = JSON.parse(message.toString());
+                    if (data && data.kosong !== undefined) {
+                        const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
+                        if (gazebo) {
+                            gazebo.availableSeats = data.kosong;
+                            if (data.total !== undefined) gazebo.totalCapacity = data.total;
+                            
+                            // Re-render UI & Summary Stats
+                            this.renderSummaryStats();
+                            this.renderSpots();
+                            this.updateVirtualLcd(data);
+
+                            if (data.source === 'ESP32_BOOT_BUTTON') {
+                                this.showToast(`🔔 [Hardware ESP32] Tombol BOOT ditekan: 1 orang baru masuk ke ${gazebo.name} (Tersisa: ${gazebo.availableSeats} kursi)!`);
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Error parsing incoming MQTT message:', err);
+                }
             });
 
         } catch (e) {

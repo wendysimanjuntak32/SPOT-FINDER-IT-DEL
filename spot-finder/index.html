@@ -261,6 +261,16 @@
                         ⚡ Test Kirim Paket Counter MQTT
                     </button>
                 </div>
+
+                <!-- Live Test Buttons for ESP8266 simulation -->
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="button" class="btn-primary" onclick="app.simulateEspCounter('masuk')" style="flex: 1; justify-content: center; padding: 8px; font-size: 0.82rem; background: #10b981; border-color: #059669;">
+                        ➕ Simulasi Tombol Masuk (+1 Orang)
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="app.simulateEspCounter('keluar')" style="flex: 1; justify-content: center; padding: 8px; font-size: 0.82rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
+                        ➖ Simulasi Tombol Keluar (-1 Orang)
+                    </button>
+                </div>
             </div>
 
             <!-- Standalone Clicker Hardware Guide -->

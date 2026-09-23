@@ -378,118 +378,190 @@ class SpotFinderApp {
             return;
         }
 
-        try {
-            // Connect to broker via WebSocket (Port 9001 on 76.13.19.250)
-            const brokerUrl = `ws://${this.mqttConfig.brokerIp}:${this.mqttConfig.wsPort}`;
-            console.log(`Connecting to MQTT Broker at ${brokerUrl}...`);
-            
-            const client = mqtt.connect(brokerUrl, {
-                clientId: 'SpotFinderWeb_' + Math.random().toString(16).substr(2, 8),
-                connectTimeout: 4000,
-                reconnectPeriod: 5000
-            });
+        const brokersToTry = [
+            `ws://${this.mqttConfig.brokerIp}:${this.mqttConfig.wsPort}`, // ws://76.13.19.250:9001
+            `wss://broker.emqx.io:8084/mqtt`,                             // Public EMQX WSS Broker
+            `ws://broker.emqx.io:8083/mqtt`                              // Public EMQX WS Broker
+        ];
 
-            this.mqttConfig.client = client;
+        let currentBrokerIndex = 0;
 
-            client.on('connect', () => {
-                this.mqttConfig.isConnected = true;
-                this.updateMqttBadge(true);
-                console.log('Connected to MQTT Broker 76.13.19.250');
-                
-                // Subscribe to Gazebo Status topic
-                client.subscribe(this.mqttConfig.topicGazebo);
-                
-                // Send Initial Broadcast
-                this.broadcastGazeboStatus();
-            });
-
-            client.on('error', (err) => {
-                console.warn('MQTT Broker connection error, falling back to simulated broker mode:', err);
-                this.mqttConfig.isConnected = false;
+        const attemptConnect = () => {
+            if (currentBrokerIndex >= brokersToTry.length) {
+                console.log("Semua broker MQTT selesai dicoba. Web tetap dalam mode simulasi aktif.");
                 this.updateMqttBadge(false);
-            });
+                return;
+            }
 
-            client.on('close', () => {
-                this.mqttConfig.isConnected = false;
-                this.updateMqttBadge(false);
-            });
+            const brokerUrl = brokersToTry[currentBrokerIndex];
+            console.log(`Connecting to MQTT Broker [${currentBrokerIndex + 1}/${brokersToTry.length}] at ${brokerUrl}...`);
 
-            client.on('message', (topic, message) => {
-                const msgStr = message.toString();
-                console.log(`MQTT Received [${topic}]:`, msgStr);
-                try {
-                    const data = JSON.parse(msgStr);
+            try {
+                const client = mqtt.connect(brokerUrl, {
+                    clientId: 'SpotFinderWeb_' + Math.random().toString(16).substr(2, 8),
+                    connectTimeout: 5000,
+                    reconnectPeriod: 6000
+                });
+
+                this.mqttConfig.client = client;
+
+                client.on('connect', () => {
+                    this.mqttConfig.isConnected = true;
+                    this.updateMqttBadge(true, brokerUrl);
+                    console.log(`✅ Connected to MQTT Broker: ${brokerUrl}`);
                     
-                    // Support both Bahasa and English key formats (kosong / empty, terisi / occupied)
-                    let emptySeats = undefined;
-                    if (data.kosong !== undefined) emptySeats = parseInt(data.kosong);
-                    else if (data.empty !== undefined) emptySeats = parseInt(data.empty);
-                    else if (data.occupied !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.occupied);
-                    else if (data.terisi !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.terisi);
+                    // Subscribe to Gazebo Status topic
+                    client.subscribe(this.mqttConfig.topicGazebo);
+                    client.subscribe("itdel/+/status");
+                    
+                    // Send Initial Broadcast
+                    this.broadcastGazeboStatus();
+                });
 
-                    if (emptySeats !== undefined && !isNaN(emptySeats)) {
-                        const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
-                        if (gazebo) {
-                            gazebo.availableSeats = Math.max(0, Math.min(gazebo.totalCapacity, emptySeats));
-                            if (data.total !== undefined) gazebo.totalCapacity = parseInt(data.total);
-                            
-                            // Synchronize individual seats in seat map
-                            if (gazebo.seats && gazebo.seats.length > 0) {
-                                let seatsToOccupy = gazebo.totalCapacity - gazebo.availableSeats;
-                                gazebo.seats.forEach((st, idx) => {
-                                    if (idx < seatsToOccupy) {
-                                        st.status = 'occupied';
-                                        if (!st.user) st.user = 'Mahasiswa (ESP Counter)';
-                                    } else {
-                                        st.status = 'available';
-                                        delete st.user;
-                                    }
-                                });
-                            }
-
-                            // Re-render UI & Summary Stats
-                            this.renderSummaryStats();
-                            this.renderSpots();
-                            this.updateVirtualLcd({
-                                ruangan: data.room || data.ruangan || "Gazebo View Danau Toba",
-                                kosong: gazebo.availableSeats,
-                                total: gazebo.totalCapacity,
-                                persen: Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100)
-                            });
-
-                            // Update payload display box
-                            const payloadEl = document.getElementById('mqtt-live-payload');
-                            const timeEl = document.getElementById('mqtt-last-time');
-                            if (payloadEl) payloadEl.textContent = JSON.stringify(data, null, 2);
-                            if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('id-ID');
-
-                            const peopleCount = (data.occupied !== undefined) ? data.occupied : (data.terisi !== undefined ? data.terisi : (gazebo.totalCapacity - gazebo.availableSeats));
-                            const actionLabel = data.lastAction || data.action || (data.source ? data.source : "Update Counter");
-                            
-                            this.showToast(`📡 [ESP Counter: ${actionLabel}] Gazebo Terisi: ${peopleCount} orang (Tersedia: ${gazebo.availableSeats} kursi)`);
-                        }
+                client.on('error', (err) => {
+                    console.warn(`MQTT connection error on ${brokerUrl}:`, err);
+                    if (!this.mqttConfig.isConnected) {
+                        client.end(true);
+                        currentBrokerIndex++;
+                        attemptConnect();
                     }
-                } catch (err) {
-                    console.warn('Error parsing incoming MQTT message:', err);
-                }
-            });
+                });
 
-        } catch (e) {
-            console.warn('Could not initialize MQTT connection directly:', e);
-            this.updateMqttBadge(false);
+                client.on('close', () => {
+                    if (this.mqttConfig.isConnected) {
+                        this.mqttConfig.isConnected = false;
+                        this.updateMqttBadge(false);
+                    }
+                });
+
+                client.on('message', (topic, message) => {
+                    const msgStr = message.toString();
+                    console.log(`📡 MQTT Received [${topic}]:`, msgStr);
+                    try {
+                        const data = JSON.parse(msgStr);
+                        this.handleIncomingMqttData(data);
+                    } catch (err) {
+                        console.warn('Error parsing incoming MQTT message:', err);
+                    }
+                });
+
+            } catch (e) {
+                console.warn('MQTT connect exception:', e);
+                currentBrokerIndex++;
+                attemptConnect();
+            }
+        };
+
+        attemptConnect();
+    }
+
+    handleIncomingMqttData(data) {
+        // Support both Bahasa and English key formats (kosong / empty, terisi / occupied)
+        let emptySeats = undefined;
+        if (data.empty !== undefined) emptySeats = parseInt(data.empty);
+        else if (data.kosong !== undefined) emptySeats = parseInt(data.kosong);
+        else if (data.occupied !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.occupied);
+        else if (data.terisi !== undefined && data.total !== undefined) emptySeats = parseInt(data.total) - parseInt(data.terisi);
+
+        if (emptySeats !== undefined && !isNaN(emptySeats)) {
+            const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
+            if (gazebo) {
+                gazebo.availableSeats = Math.max(0, Math.min(gazebo.totalCapacity, emptySeats));
+                if (data.total !== undefined) gazebo.totalCapacity = parseInt(data.total);
+                
+                // Synchronize individual seats in seat map
+                if (gazebo.seats && gazebo.seats.length > 0) {
+                    let seatsToOccupy = gazebo.totalCapacity - gazebo.availableSeats;
+                    gazebo.seats.forEach((st, idx) => {
+                        if (idx < seatsToOccupy) {
+                            st.status = 'occupied';
+                            if (!st.user) st.user = 'Mahasiswa (ESP Counter)';
+                        } else {
+                            st.status = 'available';
+                            delete st.user;
+                        }
+                    });
+                }
+
+                // Re-render UI & Summary Stats
+                this.renderSummaryStats();
+                this.renderSpots();
+                this.updateVirtualLcd({
+                    ruangan: data.room || data.ruangan || "Gazebo View Danau Toba",
+                    kosong: gazebo.availableSeats,
+                    total: gazebo.totalCapacity,
+                    persen: Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100)
+                });
+
+                // Update payload display box
+                const payloadEl = document.getElementById('mqtt-live-payload');
+                const timeEl = document.getElementById('mqtt-last-time');
+                if (payloadEl) payloadEl.textContent = JSON.stringify(data, null, 2);
+                if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('id-ID');
+
+                const peopleCount = (data.occupied !== undefined) ? data.occupied : (data.terisi !== undefined ? data.terisi : (gazebo.totalCapacity - gazebo.availableSeats));
+                const actionLabel = data.lastAction || data.action || (data.source ? data.source : "Update Counter");
+                
+                this.showToast(`📡 [ESP Counter: ${actionLabel}] Gazebo Terisi: ${peopleCount} orang (Tersedia: ${gazebo.availableSeats} kursi)`);
+            }
         }
     }
 
-    updateMqttBadge(connected) {
+    // Manual / Testing Counter Action from Web
+    simulateEspCounter(action) {
+        const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
+        if (!gazebo) return;
+
+        let occupied = gazebo.totalCapacity - gazebo.availableSeats;
+
+        if (action === 'masuk') {
+            if (occupied < gazebo.totalCapacity) {
+                occupied++;
+                gazebo.availableSeats--;
+            } else {
+                this.showToast('⚠️ Gazebo sudah penuh (20/20 orang)!');
+                return;
+            }
+        } else if (action === 'keluar') {
+            if (occupied > 0) {
+                occupied--;
+                gazebo.availableSeats++;
+            } else {
+                this.showToast('⚠️ Gazebo sudah kosong (0 orang)!');
+                return;
+            }
+        }
+
+        const payloadObj = {
+            id: "gazebo-1",
+            room: "Gazebo View Danau Toba",
+            empty: gazebo.availableSeats,
+            occupied: occupied,
+            total: gazebo.totalCapacity,
+            percent: Math.round((occupied / gazebo.totalCapacity) * 100),
+            lastAction: action === 'masuk' ? "Tombol Masuk (+1)" : "Tombol Keluar (-1)",
+            device: "Simulasi-ESP8266-Web",
+            timestamp: Math.floor(Date.now() / 1000)
+        };
+
+        this.handleIncomingMqttData(payloadObj);
+
+        // Publish to MQTT Broker if connected
+        if (this.mqttConfig.client && this.mqttConfig.client.connected) {
+            this.mqttConfig.client.publish(this.mqttConfig.topicGazebo, JSON.stringify(payloadObj), { qos: 0, retain: true });
+        }
+    }
+
+    updateMqttBadge(connected, brokerUrl = '') {
         const dot = document.getElementById('mqtt-dot');
         const text = document.getElementById('mqtt-status-text');
         if (dot && text) {
             if (connected) {
                 dot.style.background = '#10b981';
-                text.textContent = 'MQTT: 76.13.19.250 (Connected)';
+                text.textContent = brokerUrl.includes('emqx') ? 'MQTT: Online (EMQX)' : 'MQTT: 76.13.19.250';
             } else {
                 dot.style.background = '#f59e0b';
-                text.textContent = 'MQTT: 76.13.19.250 (Ready)';
+                text.textContent = 'MQTT: 76.13.19.250';
             }
         }
     }

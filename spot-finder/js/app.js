@@ -118,35 +118,18 @@ class SpotFinderApp {
             else if (percent > 65) barColor = 'amber';
 
             card.innerHTML = `
-                ${spot.id === 'spot-gazebo-danau' ? `
-                    <div style="width:100%; height:130px; border-radius: 12px 12px 0 0; overflow:hidden; position:relative; margin-bottom: 8px;">
-                        <img src="assets/kampus-del-danau-toba.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Foto Gazebo Danau Toba IT Del">
-                        <span style="position:absolute; bottom:8px; left:8px; background:rgba(15,23,42,0.85); color:#38bdf8; font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:9999px; backdrop-filter:blur(6px);">
-                            🏞️ Live View Toba
-                        </span>
-                    </div>
-                ` : spot.id === 'spot-study-gd7' ? `
-                    <div style="width:100%; height:110px; border-radius: 12px 12px 0 0; overflow:hidden; position:relative; margin-bottom: 8px;">
-                        <img src="assets/gedung-del.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Foto Gedung Kuliah IT Del">
-                        <span style="position:absolute; bottom:8px; left:8px; background:rgba(15,23,42,0.85); color:#fbbf24; font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:9999px; backdrop-filter:blur(6px);">
-                            🏛️ Gedung 7 IT Del
-                        </span>
-                    </div>
-                ` : ''}
                 <div class="spot-header">
-                    <div class="spot-identity">
-                        <div class="spot-avatar">${spot.imageIcon}</div>
-                        <div>
-                            <h3 class="spot-name">${spot.name}</h3>
-                            <p class="spot-location">📍 ${spot.floor} • ${spot.building}</p>
-                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--accent); background: var(--accent-light); padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 4px;">
-                                🚶 ${spot.distance} (${spot.campusZone})
-                            </span>
-                        </div>
+                    <div class="spot-top-bar">
+                        <div class="spot-avatar-box">${spot.imageIcon}</div>
+                        <span class="status-pill ${statusClass}">
+                            ${statusClass === 'available' ? '🟢' : statusClass === 'almost-full' ? '🟡' : '🔴'} ${statusText}
+                        </span>
                     </div>
-                    <span class="status-pill ${statusClass}">
-                        ${statusClass === 'available' ? '🟢' : statusClass === 'almost-full' ? '🟡' : '🔴'} ${statusText}
-                    </span>
+                    <div class="spot-title-block">
+                        <h3 class="spot-name">${spot.name}</h3>
+                        <p class="spot-location">📍 ${spot.floor} • ${spot.building}</p>
+                        <span class="spot-zone-badge">🚶 ${spot.distance} (${spot.campusZone})</span>
+                    </div>
                 </div>
 
                 <div class="spot-body">
@@ -160,12 +143,24 @@ class SpotFinderApp {
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                    ${spot.id === 'spot-gazebo-danau' ? `
+                        <div class="spot-photo-preview">
+                            <img src="assets/kampus-del-danau-toba.jpg" alt="Foto Gazebo Danau Toba IT Del">
+                            <span class="photo-badge">🏞️ View Danau Toba IT Del</span>
+                        </div>
+                    ` : spot.id === 'spot-study-gd7' ? `
+                        <div class="spot-photo-preview">
+                            <img src="assets/gedung-del.jpg" alt="Foto Gedung Kuliah IT Del">
+                            <span class="photo-badge">🏛️ Gedung 7 IT Del</span>
+                        </div>
+                    ` : ''}
+
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
                         <span>🔊 ${spot.noiseLevel}</span>
                         <span>📶 ${spot.wifiSpeed}</span>
                     </div>
 
-                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.4;">
+                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.45;">
                         ${spot.description}
                     </p>
 

@@ -256,9 +256,12 @@ body.dark-mode .live-beacon {
 /* ==========================================================================
    Lake Toba & IT Del Panoramic Hero Section with Background Photo
    ========================================================================== */
+/* ==========================================================================
+   Lake Toba & IT Del Panoramic Hero Section with Background Photo
+   ========================================================================== */
 .hero-section {
-    padding: 24px 20px 20px;
-    max-width: 1140px;
+    padding: 24px 32px 20px;
+    max-width: 1440px;
     margin: 0 auto;
     width: 100%;
 }
@@ -360,6 +363,14 @@ body.dark-mode .live-beacon {
     padding: 3px 8px;
     border-radius: 6px;
     white-space: nowrap;
+}
+
+/* Quick Summary Grid */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
 }
 
 .card-toba-highlight {
@@ -504,12 +515,14 @@ body.dark-mode .live-beacon {
     box-shadow: 0 4px 12px var(--primary-glow);
 }
 
-/* Spots Grid */
+/* ==========================================================================
+   Spots Grid & Cards (Wide Layout & Unified Alignments)
+   ========================================================================== */
 .spots-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
 }
 
 .spot-card {
@@ -530,21 +543,23 @@ body.dark-mode .live-beacon {
     border-color: #0077b6;
 }
 
+/* Header of the Spot Card (Title takes full width, no squishing) */
 .spot-header {
-    padding: 20px 20px 14px;
+    padding: 22px 22px 14px;
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    flex-direction: column;
     gap: 12px;
 }
 
-.spot-identity {
+.spot-top-bar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
+    width: 100%;
 }
 
-.spot-avatar {
+.spot-avatar-box {
     width: 48px;
     height: 48px;
     border-radius: var(--radius-md);
@@ -553,26 +568,56 @@ body.dark-mode .live-beacon {
     align-items: center;
     justify-content: center;
     font-size: 1.6rem;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.spot-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
 }
 
 .spot-name {
-    font-size: 1.15rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
     color: var(--text-main);
     line-height: 1.3;
+    letter-spacing: -0.3px;
 }
 
 .spot-location {
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     color: var(--text-muted);
-    margin-top: 2px;
+    line-height: 1.4;
+}
+
+.spot-zone-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #0077b6;
+    background: rgba(0, 119, 182, 0.1);
+    padding: 3px 10px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    margin-top: 4px;
+    border: 1px solid rgba(0, 119, 182, 0.22);
+}
+
+body.dark-mode .spot-zone-badge {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
 }
 
 /* Status Badge on Card */
 .status-pill {
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: var(--radius-full);
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 800;
     display: inline-flex;
     align-items: center;
@@ -598,11 +643,90 @@ body.dark-mode .status-pill.available { color: var(--primary); }
 
 /* Card Body & Capacity Meter */
 .spot-body {
-    padding: 0 20px 16px;
+    padding: 0 22px 18px;
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.capacity-meter-box {
+    background: var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+}
+
+.capacity-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+}
+
+.capacity-labels strong {
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.available-count {
+    color: var(--primary);
+    font-weight: 800;
+}
+
+.capacity-bar-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+}
+
+.capacity-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.4s ease;
+}
+
+.capacity-bar-fill.green { background: var(--primary); }
+.capacity-bar-fill.amber { background: var(--warning); }
+.capacity-bar-fill.red { background: var(--danger); }
+
+/* Photo Preview (Positioned lower inside the card body) */
+.spot-photo-preview {
+    width: 100%;
+    height: 145px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+    margin: 4px 0 6px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.spot-photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.spot-photo-preview:hover img {
+    transform: scale(1.04);
+}
+
+.photo-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(6, 17, 36, 0.88);
+    color: #38bdf8;
+    font-size: 0.74rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(56, 189, 248, 0.4);
 }
 
 .capacity-meter-box {

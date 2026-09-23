@@ -490,13 +490,13 @@ class MathSnakeGame {
                 ctx.textBaseline = 'middle';
                 ctx.fillText(orb.value, cx, cy);
             } else {
-                // Number Orb
-                ctx.fillStyle = orb.isCorrect ? '#10b981' : '#334155';
+                // Number Orb (Identical styling for all options - NO spoiler hints!)
+                ctx.fillStyle = '#d97706';
                 ctx.beginPath();
                 ctx.arc(cx, cy, this.cellSize * 0.45, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.strokeStyle = orb.isCorrect ? '#38bdf8' : 'rgba(255,255,255,0.2)';
+                ctx.strokeStyle = '#fbbf24';
                 ctx.lineWidth = 2;
                 ctx.stroke();
 

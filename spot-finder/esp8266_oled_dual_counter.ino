@@ -37,12 +37,12 @@
  * ======================================================================================
  */
 
-#include <ESP8266WiFi.h>
-#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
+#include <Wire.h>
 
 // ==========================================
 // 1. KONFIGURASI PIN DAN OLED DISPLAY
@@ -57,7 +57,7 @@
 #define PIN_OLED_SCL 5 // GPIO 5 (D1)
 
 // Definisi Pin Tombol Masuk & Keluar
-#define PIN_BTN_MASUK  14 // GPIO 14 (Pin D5 pada NodeMCU)
+#define PIN_BTN_MASUK 14  // GPIO 14 (Pin D5 pada NodeMCU)
 #define PIN_BTN_KELUAR 12 // GPIO 12 (Pin D6 pada NodeMCU)
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -66,11 +66,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // 2. KONFIGURASI WIFI & MQTT BROKER
 // ==========================================
 // Ganti ssid dan password sesuai WiFi / Hotspot yang digunakan:
-const char *ssid        = "STUDIO";                    // Nama WiFi / Hotspot HP
-const char *password    = "Bait695mash215";            // Password WiFi
-const char *mqtt_server = "76.13.19.250";              // IP Broker MQTT Kampus IT Del
-const int   mqtt_port   = 1883;                        // Port MQTT TCP
-const char *mqtt_topic  = "itdel/gazebo/status";        // Topik Gazebo IT Del
+const char *ssid = "STUDIO";                    // Nama WiFi / Hotspot HP
+const char *password = "Bait695mash215";        // Password WiFi
+const char *mqtt_server = "76.13.19.250";       // IP Broker MQTT Kampus IT Del
+const int mqtt_port = 1883;                     // Port MQTT TCP
+const char *mqtt_topic = "itdel/gazebo/status"; // Topik Gazebo IT Del
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -79,25 +79,27 @@ PubSubClient client(espClient);
 // 3. VARIABEL DATA KAPASITAS GAZEBO & NOTIFIKASI
 // ==========================================
 const String roomName = "Gazebo IT Del";
-const int TOTAL_CAPACITY = 10; // Kapasitas maksimal Gazebo Danau Toba (10 Orang)
+const int TOTAL_CAPACITY =
+    10; // Kapasitas maksimal Gazebo Danau Toba (10 Orang)
 
-int orangDiDalam = 4;          // Jumlah orang saat ini
-int kursiKosong  = 6;          // Kursi kosong = TOTAL_CAPACITY - orangDiDalam
+int orangDiDalam = 4; // Jumlah orang saat ini
+int kursiKosong = 6;  // Kursi kosong = TOTAL_CAPACITY - orangDiDalam
 
 // Debouncing Tombol Masuk & Keluar
-int lastBtnMasukState  = HIGH;
+int lastBtnMasukState = HIGH;
 int lastBtnKeluarState = HIGH;
-unsigned long lastDebounceMasuk  = 0;
+unsigned long lastDebounceMasuk = 0;
 unsigned long lastDebounceKeluar = 0;
 const unsigned long debounceDelay = 220; // 220ms debounce anti-double-click
 
 // Status & Variabel Notifikasi Text Dinamis
-String notifTitle    = "SIAP DIGUNAKAN";
-String notifAction   = "Ready";
-String notifSub      = "Gazebo Danau Toba";
+String notifTitle = "SIAP DIGUNAKAN";
+String notifAction = "Ready";
+String notifSub = "Gazebo Danau Toba";
 unsigned long lastNotifTime = 0;
-const unsigned long NOTIF_DURATION = 3500; // 3.5 detik durasi highlight notifikasi di OLED
-bool isNotifActive   = false;
+const unsigned long NOTIF_DURATION =
+    3500; // 3.5 detik durasi highlight notifikasi di OLED
+bool isNotifActive = false;
 
 // ==========================================
 // 4. FUNGSI RENDER TAMPILAN OLED 128x64
@@ -123,12 +125,14 @@ void renderOled() {
   display.drawLine(0, 9, 128, 9, SSD1306_WHITE);
 
   // --- 2. BANNER NOTIFIKASI TEKS (HIGHLIGHT) ---
-  bool showingNotif = (millis() - lastNotifTime < NOTIF_DURATION) && isNotifActive;
+  bool showingNotif =
+      (millis() - lastNotifTime < NOTIF_DURATION) && isNotifActive;
 
   if (showingNotif) {
     // Kotak Invert Putih untuk Sorotan Notifikasi Teks
     display.fillRect(0, 11, 128, 11, SSD1306_WHITE);
-    display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); // Teks Hitam di latar Putih
+    display.setTextColor(SSD1306_BLACK,
+                         SSD1306_WHITE); // Teks Hitam di latar Putih
     display.setTextSize(1);
 
     if (notifAction == "+1 MASUK") {
@@ -220,19 +224,20 @@ void publishStatus() {
 
   // Format JSON payload lengkap
   StaticJsonDocument<384> doc;
-  doc["id"]           = "gazebo-1";
-  doc["room"]         = "Gazebo View Danau Toba";
-  doc["empty"]        = kursiKosong;
-  doc["kosong"]       = kursiKosong;
-  doc["occupied"]     = orangDiDalam;
-  doc["terisi"]       = orangDiDalam;
-  doc["total"]        = TOTAL_CAPACITY;
-  doc["percent"]      = percent;
-  doc["lastAction"]   = notifAction;
-  doc["notifTitle"]   = notifTitle;
-  doc["notification"] = notifTitle + " | Terisi: " + String(orangDiDalam) + " Orang, Sisa: " + String(kursiKosong) + " Kursi";
-  doc["device"]       = "ESP8266-Counter-OLED";
-  doc["timestamp"]    = millis() / 1000;
+  doc["id"] = "gazebo-1";
+  doc["room"] = "Gazebo View Danau Toba";
+  doc["empty"] = kursiKosong;
+  doc["kosong"] = kursiKosong;
+  doc["occupied"] = orangDiDalam;
+  doc["terisi"] = orangDiDalam;
+  doc["total"] = TOTAL_CAPACITY;
+  doc["percent"] = percent;
+  doc["lastAction"] = notifAction;
+  doc["notifTitle"] = notifTitle;
+  doc["notification"] = notifTitle + " | Terisi: " + String(orangDiDalam) +
+                        " Orang, Sisa: " + String(kursiKosong) + " Kursi";
+  doc["device"] = "ESP8266-Counter-OLED";
+  doc["timestamp"] = millis() / 1000;
 
   char buffer[384];
   serializeJson(doc, buffer);
@@ -246,7 +251,8 @@ void publishStatus() {
       Serial.println(F("❌ [MQTT PUBLISH GAGAL] Periksa ukuran paket buffer!"));
     }
   } else {
-    Serial.println(F("⚠️ [MQTT OFFLINE] Terhubung ke WiFi namun MQTT belum siap."));
+    Serial.println(
+        F("⚠️ [MQTT OFFLINE] Terhubung ke WiFi namun MQTT belum siap."));
   }
 }
 
@@ -269,9 +275,11 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
     const char *dev = doc["device"] | "";
     // Abaikan jika pesan berasal dari ESP8266 ini sendiri
     if (strcmp(dev, "ESP8266-Counter-OLED") != 0) {
-      if (doc.containsKey("empty") || doc.containsKey("kosong") || doc.containsKey("occupied") || doc.containsKey("terisi")) {
+      if (doc.containsKey("empty") || doc.containsKey("kosong") ||
+          doc.containsKey("occupied") || doc.containsKey("terisi")) {
         if (doc.containsKey("occupied")) {
-          orangDiDalam = constrain(doc["occupied"].as<int>(), 0, TOTAL_CAPACITY);
+          orangDiDalam =
+              constrain(doc["occupied"].as<int>(), 0, TOTAL_CAPACITY);
           kursiKosong = TOTAL_CAPACITY - orangDiDalam;
         } else if (doc.containsKey("terisi")) {
           orangDiDalam = constrain(doc["terisi"].as<int>(), 0, TOTAL_CAPACITY);
@@ -284,16 +292,23 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
           orangDiDalam = TOTAL_CAPACITY - kursiKosong;
         }
 
-        notifAction   = "SyncWeb";
-        notifTitle    = "SINKRON DARI WEB";
+        notifAction = "SyncWeb";
+        notifTitle = "SINKRON DARI WEB";
         lastNotifTime = millis();
         isNotifActive = true;
 
-        Serial.println(F("\n========================================================"));
-        Serial.println(F("🔄 [SINKRONISASI] DATA DIPERBARUI DARI WEB DASHBOARD"));
-        Serial.print(F("👥 Jumlah Terisi : ")); Serial.print(orangDiDalam); Serial.println(F(" Orang"));
-        Serial.print(F("🪑 Sisa Kosong   : ")); Serial.print(kursiKosong); Serial.println(F(" Kursi"));
-        Serial.println(F("========================================================"));
+        Serial.println(
+            F("\n========================================================"));
+        Serial.println(
+            F("🔄 [SINKRONISASI] DATA DIPERBARUI DARI WEB DASHBOARD"));
+        Serial.print(F("👥 Jumlah Terisi : "));
+        Serial.print(orangDiDalam);
+        Serial.println(F(" Orang"));
+        Serial.print(F("🪑 Sisa Kosong   : "));
+        Serial.print(kursiKosong);
+        Serial.println(F(" Kursi"));
+        Serial.println(
+            F("========================================================"));
 
         renderOled();
       }
@@ -308,8 +323,10 @@ unsigned long lastMqttReconnectAttempt = 0;
 // 7. KONEKSI KE MQTT BROKER (NON-BLOCKING)
 // ==========================================
 void reconnectMQTT() {
-  if (WiFi.status() != WL_CONNECTED) return;
-  if (client.connected()) return;
+  if (WiFi.status() != WL_CONNECTED)
+    return;
+  if (client.connected())
+    return;
 
   unsigned long now = millis();
   if (now - lastMqttReconnectAttempt > 3500) {
@@ -323,7 +340,7 @@ void reconnectMQTT() {
       client.subscribe(mqtt_topic);
       client.subscribe("itdel/gazebo/#");
       notifAction = "Online";
-      notifTitle  = "TERHUBUNG MQTT";
+      notifTitle = "TERHUBUNG MQTT";
       lastNotifTime = millis();
       isNotifActive = true;
       renderOled();
@@ -342,7 +359,8 @@ void reconnectMQTT() {
 void setup() {
   Serial.begin(115200);
   delay(100);
-  Serial.println(F("\n========================================================"));
+  Serial.println(
+      F("\n========================================================"));
   Serial.println(F("  SPOTFINDER IT DEL - ESP8266 TWO-WAY SMART COUNTER     "));
   Serial.println(F("  Sistem Monitoring Orang Masuk/Keluar & OLED Display   "));
   Serial.println(F("========================================================"));
@@ -351,7 +369,8 @@ void setup() {
   pinMode(PIN_BTN_MASUK, INPUT_PULLUP);  // Pin D5 (GPIO 14)
   pinMode(PIN_BTN_KELUAR, INPUT_PULLUP); // Pin D6 (GPIO 12)
 
-  // Inisialisasi I2C Wire untuk ESP8266 (SDA = GPIO 4 / Pin D2, SCL = GPIO 5 / Pin D1)
+  // Inisialisasi I2C Wire untuk ESP8266 (SDA = GPIO 4 / Pin D2, SCL = GPIO 5 /
+  // Pin D1)
   Wire.begin(PIN_OLED_SDA, PIN_OLED_SCL);
   Wire.setClock(100000); // 100kHz standard I2C clock
 
@@ -364,12 +383,13 @@ void setup() {
     oledFound = true;
     Serial.println(F(" [OK] OLED SSD1306 Ditemukan pada Alamat: 0x3D"));
   } else {
-    Serial.println(F(" [WARN] OLED SSD1306 Tidak Ditemukan! Periksa kabel SDA/SCL."));
+    Serial.println(
+        F(" [WARN] OLED SSD1306 Tidak Ditemukan! Periksa kabel SDA/SCL."));
   }
 
   // Inisialisasi Angka Awal
   kursiKosong = TOTAL_CAPACITY - orangDiDalam;
-  notifTitle  = "SISTEM SIAP";
+  notifTitle = "SISTEM SIAP";
   notifAction = "Ready";
   lastNotifTime = millis();
   isNotifActive = false;
@@ -388,7 +408,8 @@ void setup() {
   // Setup MQTT & Perbesar Buffer PubSubClient ke 512 Byte
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(mqttCallback);
-  client.setBufferSize(512); // PENTING: Wajib 512 byte agar payload JSON tidak terpotong
+  client.setBufferSize(
+      512); // PENTING: Wajib 512 byte agar payload JSON tidak terpotong
   client.setKeepAlive(15);
   client.setSocketTimeout(5);
 }
@@ -404,11 +425,16 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     if (!lastWifiStatus) {
       lastWifiStatus = true;
-      Serial.println(F("\n========================================================"));
+      Serial.println(
+          F("\n========================================================"));
       Serial.println(F("✅ [WIFI] BERHASIL TERHUBUNG KE JARINGAN!"));
-      Serial.print(F("📍 IP ESP8266 : ")); Serial.println(WiFi.localIP());
-      Serial.print(F("📶 Sinyal RSSI: ")); Serial.print(WiFi.RSSI()); Serial.println(F(" dBm"));
-      Serial.println(F("========================================================"));
+      Serial.print(F("📍 IP ESP8266 : "));
+      Serial.println(WiFi.localIP());
+      Serial.print(F("📶 Sinyal RSSI: "));
+      Serial.print(WiFi.RSSI());
+      Serial.println(F(" dBm"));
+      Serial.println(
+          F("========================================================"));
       renderOled();
     }
 
@@ -440,14 +466,16 @@ void loop() {
         orangDiDalam++;
         kursiKosong = TOTAL_CAPACITY - orangDiDalam;
 
-        notifAction   = "+1 MASUK";
-        notifTitle    = "ADA ORANG MASUK (+1)";
+        notifAction = "+1 MASUK";
+        notifTitle = "ADA ORANG MASUK (+1)";
         lastNotifTime = millis();
         isNotifActive = true;
 
         // Cetak Tulisan Pemberitahuan dan Jumlah Angka ke Serial Monitor
-        Serial.println(F("\n========================================================"));
-        Serial.println(F("📢 [PEMBERITAHUAN TULISAN] ADA ORANG MASUK (+1 ORANG)"));
+        Serial.println(
+            F("\n========================================================"));
+        Serial.println(
+            F("📢 [PEMBERITAHUAN TULISAN] ADA ORANG MASUK (+1 ORANG)"));
         Serial.print(F("👥 Jumlah Terisi      : "));
         Serial.print(orangDiDalam);
         Serial.println(F(" Orang"));
@@ -460,19 +488,23 @@ void loop() {
         Serial.print(F("📊 Persentase Terisi  : "));
         Serial.print((orangDiDalam * 100) / TOTAL_CAPACITY);
         Serial.println(F("%"));
-        Serial.println(F("========================================================"));
+        Serial.println(
+            F("========================================================"));
 
         renderOled();
         publishStatus();
       } else {
-        notifAction   = "FULL 10/10";
-        notifTitle    = "GAZEBO SUDAH PENUH!";
+        notifAction = "FULL 10/10";
+        notifTitle = "GAZEBO SUDAH PENUH!";
         lastNotifTime = millis();
         isNotifActive = true;
 
-        Serial.println(F("\n========================================================"));
-        Serial.println(F("⚠️ [PEMBERITAHUAN] GAZEBO PENUH! Kuota 10/10 tercapai!"));
-        Serial.println(F("========================================================"));
+        Serial.println(
+            F("\n========================================================"));
+        Serial.println(
+            F("⚠️ [PEMBERITAHUAN] GAZEBO PENUH! Kuota 10/10 tercapai!"));
+        Serial.println(
+            F("========================================================"));
 
         renderOled();
       }
@@ -490,14 +522,16 @@ void loop() {
         orangDiDalam--;
         kursiKosong = TOTAL_CAPACITY - orangDiDalam;
 
-        notifAction   = "-1 KELUAR";
-        notifTitle    = "ADA ORANG KELUAR (-1)";
+        notifAction = "-1 KELUAR";
+        notifTitle = "ADA ORANG KELUAR (-1)";
         lastNotifTime = millis();
         isNotifActive = true;
 
         // Cetak Tulisan Pemberitahuan dan Jumlah Angka ke Serial Monitor
-        Serial.println(F("\n========================================================"));
-        Serial.println(F("📢 [PEMBERITAHUAN TULISAN] ADA ORANG KELUAR (-1 ORANG)"));
+        Serial.println(
+            F("\n========================================================"));
+        Serial.println(
+            F("📢 [PEMBERITAHUAN TULISAN] ADA ORANG KELUAR (-1 ORANG)"));
         Serial.print(F("👥 Jumlah Terisi      : "));
         Serial.print(orangDiDalam);
         Serial.println(F(" Orang"));
@@ -510,19 +544,22 @@ void loop() {
         Serial.print(F("📊 Persentase Terisi  : "));
         Serial.print((orangDiDalam * 100) / TOTAL_CAPACITY);
         Serial.println(F("%"));
-        Serial.println(F("========================================================"));
+        Serial.println(
+            F("========================================================"));
 
         renderOled();
         publishStatus();
       } else {
-        notifAction   = "KOSONG 0/10";
-        notifTitle    = "GAZEBO SUDAH KOSONG!";
+        notifAction = "KOSONG 0/10";
+        notifTitle = "GAZEBO SUDAH KOSONG!";
         lastNotifTime = millis();
         isNotifActive = true;
 
-        Serial.println(F("\n========================================================"));
+        Serial.println(
+            F("\n========================================================"));
         Serial.println(F("ℹ️ [PEMBERITAHUAN] GAZEBO KOSONG! (0/10 Orang)"));
-        Serial.println(F("========================================================"));
+        Serial.println(
+            F("========================================================"));
 
         renderOled();
       }
@@ -530,7 +567,8 @@ void loop() {
   }
   lastBtnKeluarState = readingKeluar;
 
-  // 4. Auto-Reset Highlight Notifikasi setelah durasi selesai agar layar kembali bersih
+  // 4. Auto-Reset Highlight Notifikasi setelah durasi selesai agar layar
+  // kembali bersih
   static unsigned long lastResetCheck = 0;
   if (millis() - lastResetCheck > 500) {
     lastResetCheck = millis();

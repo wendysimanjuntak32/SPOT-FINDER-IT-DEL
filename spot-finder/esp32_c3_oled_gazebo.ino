@@ -61,9 +61,9 @@ PubSubClient client(espClient);
 
 // Variabel data terkini
 String currentRoom = "Gazebo Toba";
-int currentEmpty = 12;   // Jumlah kursi kosong
-int currentTotal = 20;   // Total kapasitas (Maksimal 20 Orang)
-int currentOccupied = 8; // Jumlah orang saat ini di Gazebo (Total - Empty)
+int currentEmpty = 6;    // Jumlah kursi kosong
+int currentTotal = 10;   // Total kapasitas (Maksimal 10 Orang)
+int currentOccupied = 4; // Jumlah orang saat ini di Gazebo (Total - Empty)
 int currentPercent = 40;
 
 // Variabel Debouncing Tombol BOOT
@@ -79,7 +79,7 @@ void renderOledDisplay(String roomName, int emptySeats, int totalSeats,
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
 
-  // --- Header Bar ---
+  // --- 1. Header Bar IT Del & WiFi ---
   display.setTextSize(1);
   display.setCursor(0, 0);
   display.print(F("SPOTFINDER IT DEL"));
@@ -89,40 +89,64 @@ void renderOledDisplay(String roomName, int emptySeats, int totalSeats,
   display.print(WiFi.status() == WL_CONNECTED ? F("OK") : F("NO"));
   display.drawLine(0, 9, 128, 9, SSD1306_WHITE);
 
-  // --- Nama Ruangan / Gazebo ---
-  display.setCursor(0, 13);
-  display.setTextSize(1);
-  display.print(roomName.substring(0, 20));
+  // --- 2. Banner Notifikasi Teks (Highlight) ---
+  int terisi = totalSeats - emptySeats;
+  bool isEvent = (statusMsg.indexOf(F("+1")) >= 0 || statusMsg.indexOf(F("MASUK")) >= 0 || statusMsg.indexOf(F("KELUAR")) >= 0);
 
-  // --- Angka Ketersediaan Besar & Jumlah Orang ---
-  display.setCursor(0, 25);
+  if (isEvent) {
+    display.fillRect(0, 11, 128, 10, SSD1306_WHITE);
+    display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
+    display.setTextSize(1);
+    display.setCursor(4, 12);
+    display.print(F(">> ADA ORANG MASUK <<"));
+  } else {
+    display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(1);
+    display.setCursor(0, 12);
+    display.print(roomName.substring(0, 20));
+  }
+
+  display.setTextColor(SSD1306_WHITE);
+
+  // --- 3. Angka Ketersediaan Besar & Jumlah Orang Terisi ---
+  // Sisi Kiri: TERISI
+  display.setTextSize(1);
+  display.setCursor(2, 24);
+  display.print(F("TERISI"));
   display.setTextSize(2);
+  display.setCursor(6, 34);
+  display.print(terisi);
+  display.setTextSize(1);
+  display.setCursor(34, 39);
+  display.print(F("Org"));
+
+  // Garis Pemisah Vertikal
+  display.drawLine(58, 23, 58, 51, SSD1306_WHITE);
+
+  // Sisi Kanan: SISA KOSONG
+  display.setTextSize(1);
+  display.setCursor(64, 24);
+  display.print(F("SISA KOSONG"));
+  display.setTextSize(2);
+  display.setCursor(68, 34);
   display.print(emptySeats);
   display.setTextSize(1);
-  display.print(F("/"));
-  display.print(totalSeats);
-  display.print(F(" KOSONG"));
+  display.setCursor(96, 39);
+  display.print(F("/10"));
 
-  // Subtitle: Orang yang ada di Gazebo
-  display.setCursor(0, 42);
+  // --- 4. Status Footer Bar ---
+  display.drawLine(0, 52, 128, 52, SSD1306_WHITE);
+  display.setCursor(0, 55);
   display.setTextSize(1);
-  int terisi = totalSeats - emptySeats;
-  display.print(F("Ada: "));
-  display.print(terisi);
-  display.print(F(" org ("));
-  display.print(fillPercent);
-  display.print(F("%)"));
-
-  // --- Progress Bar Visual ---
-  display.drawRect(0, 52, 128, 4, SSD1306_WHITE);
-  int barWidth = map(fillPercent, 0, 100, 0, 124);
-  display.fillRect(2, 53, barWidth, 2, SSD1306_WHITE);
-
-  // --- Status Footer Bar ---
-  display.setCursor(0, 57);
-  display.setTextSize(1);
-  display.print(F("[BOOT:+1 Org] "));
-  display.print(statusMsg);
+  if (isEvent) {
+    display.print(F("[+1] Terisi:"));
+    display.print(terisi);
+    display.print(F(" | Sisa:"));
+    display.print(emptySeats);
+  } else {
+    display.print(F("BOOT:+1 Masuk | "));
+    display.print(statusMsg.substring(0, 6));
+  }
 
   display.display();
 }
@@ -131,23 +155,37 @@ void renderOledDisplay(String roomName, int emptySeats, int totalSeats,
 // 4. PUBLISH UPDATE KE MQTT BROKER (76.13.19.250)
 // ==========================================
 void publishGazeboStatus(String actionSource) {
-  StaticJsonDocument<300> doc;
-  doc["ruangan"] = currentRoom;
-  doc["kosong"] = currentEmpty;
-  doc["total"] = currentTotal;
-  doc["terisi"] = currentTotal - currentEmpty;
-  doc["persen"] = currentPercent;
-  doc["source"] = actionSource;
+  int occupied = currentTotal - currentEmpty;
+  
+  StaticJsonDocument<320> doc;
+  doc["id"]           = "gazebo-1";
+  doc["ruangan"]      = currentRoom;
+  doc["room"]         = currentRoom;
+  doc["kosong"]       = currentEmpty;
+  doc["empty"]        = currentEmpty;
+  doc["total"]        = currentTotal;
+  doc["terisi"]       = occupied;
+  doc["occupied"]     = occupied;
+  doc["persen"]       = currentPercent;
+  doc["percent"]      = currentPercent;
+  doc["source"]       = actionSource;
+  doc["lastAction"]   = "+1 MASUK";
+  doc["notifTitle"]   = "ADA ORANG MASUK (+1)";
+  doc["notification"] = "Ada 1 orang masuk ke Gazebo. Terisi: " + String(occupied) + " Orang, Sisa: " + String(currentEmpty) + " Kursi";
+  doc["device"]       = "ESP32-C3-Gazebo";
+  doc["timestamp"]    = millis() / 1000;
 
-  char jsonBuffer[300];
+  char jsonBuffer[320];
   serializeJson(doc, jsonBuffer);
 
   if (client.connected()) {
     client.publish(mqtt_topic, jsonBuffer, true); // Retain = true
-    Serial.println(">> [MQTT PUBLISH BERHASIL ke 76.13.19.250]");
+    Serial.println(F("\n========================================================"));
+    Serial.println(F(">> [MQTT PUBLISH BERHASIL ke 76.13.19.250]"));
     Serial.println(jsonBuffer);
+    Serial.println(F("========================================================"));
   } else {
-    Serial.println(">> [MQTT GAGAL] Klien belum terhubung.");
+    Serial.println(F(">> [MQTT GAGAL] Klien belum terhubung."));
   }
 }
 
@@ -222,7 +260,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
 
     currentRoom = doc["ruangan"] | "Gazebo Danau Toba";
     currentEmpty = doc["kosong"] | 0;
-    currentTotal = doc["total"] | 20;
+    currentTotal = doc["total"] | 10;
     currentOccupied = currentTotal - currentEmpty;
     currentPercent =
         doc["persen"] | (int)(((float)currentOccupied / currentTotal) * 100);
@@ -274,26 +312,41 @@ void checkBootButton() {
     if ((millis() - lastDebounceTime) > debounceDelay) {
       lastDebounceTime = millis();
 
-      Serial.println(
-          "\n[TOMBOL BOOT DITEKAN!] Menambahkan 1 orang di Gazebo IT Del...");
-
-      // Jika masih ada kursi kosong, kurangi 1 kursi kosong (artinya orang
-      // bertambah 1)
       if (currentEmpty > 0) {
         currentEmpty--;
+        currentOccupied = currentTotal - currentEmpty;
+        currentPercent = (int)(((float)currentOccupied / currentTotal) * 100);
+
+        // Cetak Notifikasi Lengkap berupa Tulisan dan Rincian Angka ke Serial Monitor
+        Serial.println(F("\n========================================================"));
+        Serial.println(F("🔔 [NOTIFIKASI] ADA ORANG MASUK KE GAZEBO (+1 ORANG)"));
+        Serial.print(F("👥 Jumlah Terisi      : "));
+        Serial.print(currentOccupied);
+        Serial.println(F(" Orang"));
+        Serial.print(F("🪑 Sisa Kursi Kosong  : "));
+        Serial.print(currentEmpty);
+        Serial.println(F(" Kursi"));
+        Serial.print(F("🏛️ Total Kapasitas    : "));
+        Serial.print(currentTotal);
+        Serial.println(F(" Orang"));
+        Serial.print(F("📊 Persentase Terisi  : "));
+        Serial.print(currentPercent);
+        Serial.println(F("%"));
+        Serial.println(F("========================================================"));
+
+        // Tampilkan notifikasi di OLED
+        renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
+                          "+1 MASUK");
+
+        // Publish update ke MQTT Broker 76.13.19.250 agar Web langsung ter-update
+        publishGazeboStatus("ESP32_BOOT_BUTTON");
       } else {
-        Serial.println("Gazebo sudah penuh kapasitas maksimal!");
+        Serial.println(F("\n========================================================"));
+        Serial.println(F("⚠️ [PERINGATAN] GAZEBO SUDAH PENUH! Kuota 10/10 Tercapai!"));
+        Serial.println(F("========================================================"));
+        renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
+                          "PENUH!");
       }
-
-      currentOccupied = currentTotal - currentEmpty;
-      currentPercent = (int)(((float)currentOccupied / currentTotal) * 100);
-
-      // Tampilkan notifikasi di OLED
-      renderOledDisplay(currentRoom, currentEmpty, currentTotal, currentPercent,
-                        "+1 ORANG!");
-
-      // Publish update ke MQTT Broker 76.13.19.250 agar Web langsung ter-update
-      publishGazeboStatus("ESP32_BOOT_BUTTON");
     }
   }
 

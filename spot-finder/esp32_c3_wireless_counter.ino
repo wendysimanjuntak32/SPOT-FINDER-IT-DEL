@@ -45,9 +45,9 @@ PubSubClient client(espClient);
 
 // Data Counter Gazebo IT Del
 const char *roomName = "Gazebo View Danau Toba (Taman Del)";
-int totalCapacity = 20;
-int availableSeats = 12; // Kursi kosong
-int peopleInside = 8;    // Orang yang berada di Gazebo
+int totalCapacity = 10;
+int availableSeats = 6;  // Kursi kosong
+int peopleInside = 4;    // Orang yang berada di Gazebo
 
 // Variabel Debouncing Tombol
 int lastButtonState = HIGH;
@@ -74,40 +74,49 @@ void publishCounterEvent() {
   if (availableSeats > 0) {
     availableSeats--;
   } else {
-    Serial.println(">> Gazebo sudah penuh maksimal!");
+    Serial.println(">> [PERINGATAN] Gazebo sudah penuh maksimal 10/10!");
   }
   
   peopleInside = totalCapacity - availableSeats;
   int fillPercent = (int)(((float)peopleInside / totalCapacity) * 100);
 
   // Buat Payload JSON
-  StaticJsonDocument<300> doc;
-  doc["ruangan"] = roomName;
-  doc["kosong"] = availableSeats;
-  doc["total"] = totalCapacity;
-  doc["terisi"] = peopleInside;
-  doc["persen"] = fillPercent;
-  doc["source"] = "ESP32_BOOT_BUTTON";
-  doc["action"] = "PERSON_ENTERED";
-  doc["timestamp"] = millis();
+  StaticJsonDocument<320> doc;
+  doc["id"]           = "gazebo-1";
+  doc["ruangan"]      = roomName;
+  doc["room"]         = roomName;
+  doc["kosong"]       = availableSeats;
+  doc["empty"]        = availableSeats;
+  doc["total"]        = totalCapacity;
+  doc["terisi"]       = peopleInside;
+  doc["occupied"]     = peopleInside;
+  doc["persen"]       = fillPercent;
+  doc["percent"]      = fillPercent;
+  doc["source"]       = "ESP32_BOOT_BUTTON";
+  doc["lastAction"]   = "+1 MASUK";
+  doc["notifTitle"]   = "ADA ORANG MASUK (+1)";
+  doc["notification"] = "Ada 1 orang masuk ke Gazebo. Terisi: " + String(peopleInside) + " Orang, Sisa: " + String(availableSeats) + " Kursi";
+  doc["device"]       = "ESP32-C3-Wireless-Clicker";
+  doc["timestamp"]    = millis() / 1000;
 
-  char jsonBuffer[300];
+  char jsonBuffer[320];
   serializeJson(doc, jsonBuffer);
 
   if (client.connected()) {
     client.publish(mqtt_topic, jsonBuffer, true); // Retain = true
-    Serial.println("\n==========================================");
-    Serial.println(">> [SUKSES TRANSMIT MQTT KE 76.13.19.250]");
-    Serial.print(">> Jumlah Orang di Gazebo : "); Serial.print(peopleInside); Serial.println(" Orang");
-    Serial.print(">> Sisa Kursi Kosong     : "); Serial.print(availableSeats); Serial.println(" Kursi");
-    Serial.print(">> Payload               : "); Serial.println(jsonBuffer);
-    Serial.println("==========================================");
+    Serial.println(F("\n========================================================"));
+    Serial.println(F("🔔 [NOTIFIKASI] SUKSES TRANSMIT EVENT (+1 ORANG MASUK)"));
+    Serial.print(F("👥 Jumlah Orang Terisi : ")); Serial.print(peopleInside); Serial.println(F(" Orang"));
+    Serial.print(F("🪑 Sisa Kursi Kosong   : ")); Serial.print(availableSeats); Serial.println(F(" Kursi"));
+    Serial.print(F("🏛️ Total Kapasitas      : ")); Serial.print(totalCapacity); Serial.println(F(" Orang"));
+    Serial.print(F("📡 Payload Terkirim    : ")); Serial.println(jsonBuffer);
+    Serial.println(F("========================================================"));
 
     // Kedipkan LED 2 kali tanda transmisi berhasil
     ledBlink(2, 60);
     digitalWrite(LED_INDICATOR_PIN, LOW); // Tetap menyala standby
   } else {
-    Serial.println(">> [GAGAL MQTT] Klien belum terhubung ke 76.13.19.250");
+    Serial.println(F(">> [GAGAL MQTT] Klien belum terhubung ke broker 76.13.19.250"));
   }
 }
 
@@ -148,7 +157,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
 
     if (doc.containsKey("kosong")) {
       availableSeats = doc["kosong"];
-      totalCapacity = doc["total"] | 20;
+      totalCapacity = doc["total"] | 10;
       peopleInside = totalCapacity - availableSeats;
       Serial.print(">> [SYNC DARI WEB] Kursi Kosong saat ini: ");
       Serial.println(availableSeats);

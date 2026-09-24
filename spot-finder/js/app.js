@@ -39,6 +39,9 @@ class SpotFinderApp {
             isConnected: false
         };
 
+        const gazeboInit = this.spots.find(s => s.id === 'spot-gazebo-danau');
+        this._previousOccupiedNum = gazeboInit ? (gazeboInit.totalCapacity - gazeboInit.availableSeats) : 8;
+
         this.init();
     }
 
@@ -163,23 +166,28 @@ class SpotFinderApp {
                     </div>
 
                     ${spot.id === 'spot-gazebo-danau' ? `
-                        <div class="spot-photo-preview">
-                            <img src="assets/kampus-del-danau-toba.jpg" alt="Foto Gazebo Danau Toba IT Del">
-                            <span class="photo-badge">🏞️ View Danau Toba IT Del</span>
+                        <div class="spot-photo-preview" style="width: 100%; height: 140px; border-radius: 10px; overflow: hidden; position: relative; margin: 2px 0 4px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                            <img src="assets/gazebo-danau-toba.jpg" alt="Foto Asli Gazebo Danau Toba IT Del" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <span class="photo-badge" style="position: absolute; bottom: 6px; left: 8px; background: rgba(3, 15, 38, 0.85); color: #38bdf8; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 9999px; backdrop-filter: blur(6px); border: 1px solid rgba(56, 189, 248, 0.35);">📸 Foto Asli Gazebo IT Del</span>
                         </div>
-                    ` : spot.id === 'spot-study-gd7' ? `
-                        <div class="spot-photo-preview">
-                            <img src="assets/gedung-del.jpg" alt="Foto Gedung Kuliah IT Del">
-                            <span class="photo-badge">🏛️ Gedung 7 IT Del</span>
+                    ` : (spot.id === 'spot-perpus-itdel' || spot.id === 'spot-perpus-lt2') ? `
+                        <div class="spot-photo-preview" style="width: 100%; height: 140px; border-radius: 10px; overflow: hidden; position: relative; margin: 2px 0 4px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                            <img src="assets/perpus-itdel.jpg" alt="Foto Asli Perpustakaan IT Del" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <span class="photo-badge" style="position: absolute; bottom: 6px; left: 8px; background: rgba(3, 15, 38, 0.85); color: #38bdf8; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 9999px; backdrop-filter: blur(6px); border: 1px solid rgba(56, 189, 248, 0.35);">📚 Foto Perpustakaan IT Del</span>
+                        </div>
+                    ` : (spot.id === 'spot-gd7-study' || spot.id.includes('gd7')) ? `
+                        <div class="spot-photo-preview" style="width: 100%; height: 140px; border-radius: 10px; overflow: hidden; position: relative; margin: 2px 0 4px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                            <img src="assets/gedung-del.jpg" alt="Foto Gedung Kuliah IT Del" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <span class="photo-badge" style="position: absolute; bottom: 6px; left: 8px; background: rgba(3, 15, 38, 0.85); color: #38bdf8; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 9999px; backdrop-filter: blur(6px); border: 1px solid rgba(56, 189, 248, 0.35);">🏛️ Gedung 7 IT Del (GD 712)</span>
                         </div>
                     ` : ''}
 
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
                         <span>🔊 ${spot.noiseLevel}</span>
                         <span>📶 ${spot.wifiSpeed}</span>
                     </div>
 
-                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.45;">
+                    <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0;">
                         ${spot.description}
                     </p>
 
@@ -196,8 +204,8 @@ class SpotFinderApp {
                         if (lostItems.length > 0) {
                             return `
                                 <div class="spot-lost-alert" onclick="app.openLostFoundModal('${spot.id}', 'list')" title="Klik untuk melihat detail barang tertinggal di ${spot.name}">
-                                    <span>📦 <strong>${lostItems.length} Barang Tertinggal</strong> (${lostItems[0].item.split('(')[0].trim()}${lostItems.length > 1 ? ', +' + (lostItems.length - 1) : ''})</span>
-                                    <span style="font-size:0.75rem; text-decoration:underline;">Lihat Detail ➔</span>
+                                    <span class="spot-lost-alert-text">📦 <strong>${lostItems.length} Barang Tertinggal:</strong> ${lostItems[0].item.split('(')[0].trim()}${lostItems.length > 1 ? ', +' + (lostItems.length - 1) : ''}</span>
+                                    <span class="spot-lost-alert-link">Lihat Detail ➔</span>
                                 </div>
                             `;
                         }
@@ -205,12 +213,12 @@ class SpotFinderApp {
                     })()}
                 </div>
 
-                <div class="spot-footer" style="flex-direction: column; gap: 8px;">
-                    <div style="display: flex; gap: 10px; width: 100%;">
-                        <button class="btn-secondary" onclick="app.openReportModal('${spot.id}')" style="flex: 1; padding: 9px 10px; font-size: 0.82rem;">
+                <div class="spot-footer">
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <button class="btn-secondary" onclick="app.openReportModal('${spot.id}')" style="flex: 1; padding: 8px 10px; font-size: 0.82rem;">
                             📢 Lapor Kondisi
                         </button>
-                        <button class="btn-primary" onclick="app.openSeatMapModal('${spot.id}')" ${spot.availableSeats === 0 ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''} style="flex: 1.2; padding: 9px 10px; font-size: 0.82rem;">
+                        <button class="btn-primary" onclick="app.openSeatMapModal('${spot.id}')" ${spot.availableSeats === 0 ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''} style="flex: 1.2; padding: 8px 10px; font-size: 0.82rem;">
                             🪑 Lihat Kursi
                         </button>
                     </div>
@@ -239,9 +247,50 @@ class SpotFinderApp {
         const locationEl = document.getElementById('seat-modal-location');
         const gridEl = document.getElementById('seat-grid');
         const confirmBtn = document.getElementById('btn-confirm-seat');
+        const photoContainer = document.getElementById('seat-modal-photo-container');
 
         if (titleEl) titleEl.textContent = `Denah Kursi: ${spot.name}`;
         if (locationEl) locationEl.textContent = `${spot.floor} • Tersedia ${spot.availableSeats} kursi kosong`;
+
+        if (photoContainer) {
+            if (spot.id === 'spot-gazebo-danau') {
+                photoContainer.innerHTML = `
+                    <div style="position: relative; width: 100%; height: 160px; border-radius: 12px; overflow: hidden; margin: 4px 0 12px; border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+                        <img src="assets/gazebo-danau-toba.jpg" alt="Foto Asli Gazebo Danau Toba IT Del" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 12px; background: linear-gradient(transparent, rgba(3, 15, 38, 0.95)); display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #ffffff; font-weight: 700; font-size: 0.82rem;">📍 Gazebo View Danau Toba (Taman Kampus IT Del)</span>
+                            <span style="color: #38bdf8; font-size: 0.72rem; font-weight: 800; background: rgba(56, 189, 248, 0.18); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.4);">Kapasitas: 10 Kursi</span>
+                        </div>
+                    </div>
+                `;
+                photoContainer.style.display = 'block';
+            } else if (spot.id === 'spot-perpus-itdel' || spot.id === 'spot-perpus-lt2') {
+                photoContainer.innerHTML = `
+                    <div style="position: relative; width: 100%; height: 160px; border-radius: 12px; overflow: hidden; margin: 4px 0 12px; border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+                        <img src="assets/perpus-itdel.jpg" alt="Foto Perpustakaan Institut Teknologi Del" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 12px; background: linear-gradient(transparent, rgba(3, 15, 38, 0.95)); display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #ffffff; font-weight: 700; font-size: 0.82rem;">📚 Perpustakaan IT Del (Lantai 2 - Zona Hening & Mandiri)</span>
+                            <span style="color: #38bdf8; font-size: 0.72rem; font-weight: 800; background: rgba(56, 189, 248, 0.18); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.4);">Kapasitas: 45 Kursi</span>
+                        </div>
+                    </div>
+                `;
+                photoContainer.style.display = 'block';
+            } else if (spot.id === 'spot-gd7-study' || spot.id.includes('gd7')) {
+                photoContainer.innerHTML = `
+                    <div style="position: relative; width: 100%; height: 160px; border-radius: 12px; overflow: hidden; margin: 4px 0 12px; border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+                        <img src="assets/gedung-del.jpg" alt="Foto Gedung Perkuliahan IT Del" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 12px; background: linear-gradient(transparent, rgba(3, 15, 38, 0.95)); display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #ffffff; font-weight: 700; font-size: 0.82rem;">🏛️ Ruang Belajar Bersama Gedung 7 (GD 712)</span>
+                            <span style="color: #38bdf8; font-size: 0.72rem; font-weight: 800; background: rgba(56, 189, 248, 0.18); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.4);">Kapasitas: 26 Kursi</span>
+                        </div>
+                    </div>
+                `;
+                photoContainer.style.display = 'block';
+            } else {
+                photoContainer.innerHTML = '';
+                photoContainer.style.display = 'none';
+            }
+        }
 
         if (confirmBtn) {
             confirmBtn.disabled = true;
@@ -408,6 +457,7 @@ class SpotFinderApp {
                     this.mqttConfig.activeBroker = brokerUrl;
                     this.updateMqttBadge(true, "76.13.19.250");
                     console.log(`✅ Berhasil terhubung ke Broker 76.13.19.250 (Port ${port})`);
+                    this.showToast(`🟢 Terhubung ke Broker Kampus IT Del (76.13.19.250)!`);
                     
                     // Subscribe to Gazebo Status topic & wildcards
                     client.subscribe(this.mqttConfig.topicGazebo);
@@ -415,9 +465,11 @@ class SpotFinderApp {
                     client.subscribe("itdel/gazebo/#");
                     client.subscribe("itdel/#");
                     client.subscribe("#"); // Global wildcard catch-all
-                    
-                    // Send Initial Broadcast
-                    this.broadcastGazeboStatus();
+
+                    // Broadcast status terkini dengan kapasitas 10 agar menimpa retained message lama di broker
+                    setTimeout(() => {
+                        this.broadcastGazeboStatus();
+                    }, 800);
                 });
 
                 client.on('error', (err) => {
@@ -513,7 +565,10 @@ class SpotFinderApp {
     }
 
     handleIncomingMqttData(data, topic = '') {
-        console.log("Processing MQTT Data:", data, "Topic:", topic);
+        // Filter: Hanya proses topik Gazebo IT Del / SpotFinder atau data bertopik relevan
+        if (topic && !topic.startsWith('itdel') && !topic.includes('gazebo') && topic !== '') {
+            return; // Abaikan topik lain dari broker publik kampus (seperti pltgu, crypto, dll)
+        }
 
         let parsedData = data;
         if (typeof data === 'string') {
@@ -529,23 +584,53 @@ class SpotFinderApp {
             }
         }
 
+        const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
+        if (gazebo) {
+            gazebo.totalCapacity = 10; // Kunci tetap 10 kapasitas maksimum Gazebo
+        }
+
         // Support both Bahasa and English key formats (kosong / empty, terisi / occupied)
         let emptySeats = undefined;
+        let occupiedSeats = undefined;
+
+        if (parsedData.occupied !== undefined) occupiedSeats = parseInt(parsedData.occupied);
+        else if (parsedData.terisi !== undefined) occupiedSeats = parseInt(parsedData.terisi);
+
         if (parsedData.empty !== undefined) emptySeats = parseInt(parsedData.empty);
         else if (parsedData.kosong !== undefined) emptySeats = parseInt(parsedData.kosong);
-        else if (parsedData.occupied !== undefined && parsedData.total !== undefined) emptySeats = parseInt(parsedData.total) - parseInt(parsedData.occupied);
-        else if (parsedData.terisi !== undefined && parsedData.total !== undefined) emptySeats = parseInt(parsedData.total) - parseInt(parsedData.terisi);
+        else if (occupiedSeats !== undefined) emptySeats = 10 - occupiedSeats;
         else if (typeof parsedData === 'number') emptySeats = parsedData;
 
+        // Normalisasi agar kapasitas Gazebo tidak melebihi 10 dan tidak negatif
         if (emptySeats !== undefined && !isNaN(emptySeats)) {
-            const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau');
-            if (gazebo) {
-                gazebo.availableSeats = Math.max(0, Math.min(gazebo.totalCapacity, emptySeats));
-                if (parsedData.total !== undefined) gazebo.totalCapacity = parseInt(parsedData.total);
+            if (occupiedSeats !== undefined && !isNaN(occupiedSeats)) {
+                emptySeats = Math.max(0, Math.min(10, 10 - occupiedSeats));
+            } else {
+                emptySeats = Math.max(0, Math.min(10, emptySeats));
+            }
+        }
+
+        // Cek perubahan data agar tidak echo berulang dari broadcast lokal
+        const peopleCount = (occupiedSeats !== undefined) ? Math.min(10, occupiedSeats) : (gazebo ? Math.max(0, 10 - (emptySeats !== undefined ? emptySeats : gazebo.availableSeats)) : 4);
+        const currentDataKey = `${emptySeats}_${peopleCount}_${parsedData.lastAction || parsedData.action || ''}_${parsedData.timestamp || ''}`;
+        
+        if (this._lastDataKey === currentDataKey) {
+            return; // Data sama persis, abaikan
+        }
+        this._lastDataKey = currentDataKey;
+
+        console.log("📡 [SPOTFINDER MQTT RECEIVED - NEW EVENT]", parsedData, "Topik:", topic);
+
+        let remainingKosong = "--";
+
+        if (gazebo) {
+            gazebo.totalCapacity = 10;
+            if (emptySeats !== undefined && !isNaN(emptySeats)) {
+                gazebo.availableSeats = Math.max(0, Math.min(10, emptySeats));
                 
-                // Synchronize individual seats in seat map
+                // Synchronize individual seats in seat map (10 kursi)
                 if (gazebo.seats && gazebo.seats.length > 0) {
-                    let seatsToOccupy = gazebo.totalCapacity - gazebo.availableSeats;
+                    let seatsToOccupy = 10 - gazebo.availableSeats;
                     gazebo.seats.forEach((st, idx) => {
                         if (idx < seatsToOccupy) {
                             st.status = 'occupied';
@@ -556,85 +641,200 @@ class SpotFinderApp {
                         }
                     });
                 }
-
-                // Update summary stat header
-                const statGazeboEl = document.getElementById('stat-gazebo-empty');
-                if (statGazeboEl) statGazeboEl.textContent = `${gazebo.availableSeats} Kursi Kosong`;
-
-                // Re-render UI & Summary Stats
-                this.renderSummaryStats();
-                this.renderSpots();
-                this.updateVirtualLcd({
-                    ruangan: parsedData.room || parsedData.ruangan || "Gazebo View Danau Toba",
-                    kosong: gazebo.availableSeats,
-                    total: gazebo.totalCapacity,
-                    persen: Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100)
-                });
-
-                // Update payload display box in modal
-                const payloadEl = document.getElementById('mqtt-live-payload');
-                const timeEl = document.getElementById('mqtt-last-time');
-                const nowTime = new Date().toLocaleTimeString('id-ID');
-                if (payloadEl) payloadEl.textContent = JSON.stringify(parsedData, null, 2);
-                if (timeEl) timeEl.textContent = nowTime;
-
-                const peopleCount = (parsedData.occupied !== undefined) ? parsedData.occupied : (parsedData.terisi !== undefined ? parsedData.terisi : (gazebo.totalCapacity - gazebo.availableSeats));
-                const actionLabel = parsedData.lastAction || parsedData.action || (parsedData.source ? parsedData.source : (topic ? "Topik: " + topic : "Update Counter ESP"));
-                const deviceName = parsedData.device || "ESP8266-Counter";
-
-                // Play Audio Chime Notification
-                this.playMqttChime();
-
-                // Trigger Prominent Floating MQTT Live Incoming Popup
-                const popup = document.getElementById('mqtt-incoming-popup');
-                const popTime = document.getElementById('mqtt-pop-time');
-                const popAction = document.getElementById('mqtt-pop-action');
-                const popStats = document.getElementById('mqtt-pop-stats');
-                const popRaw = document.getElementById('mqtt-pop-raw');
-
-                if (popup && popTime && popAction && popStats && popRaw) {
-                    popTime.textContent = nowTime + " WIB";
-                    popAction.textContent = `⚡ [${deviceName}] ${actionLabel}`;
-                    popStats.innerHTML = `Gazebo Terisi: <strong>${peopleCount} Orang</strong> • Sisa: <strong style="color:#10b981;">${gazebo.availableSeats} Kursi Kosong</strong>`;
-                    popRaw.textContent = JSON.stringify(parsedData);
-                    
-                    popup.classList.add('show');
-                    if (this.mqttPopupTimeout) clearTimeout(this.mqttPopupTimeout);
-                    this.mqttPopupTimeout = setTimeout(() => {
-                        popup.classList.remove('show');
-                    }, 8000);
-                }
-
-                // Add Card Flash Animation to Gazebo Card
-                const gazeboCard = document.querySelector(`[data-spot-id="spot-gazebo-danau"]`) || document.querySelector('.spot-card');
-                if (gazeboCard) {
-                    gazeboCard.classList.remove('spot-card-mqtt-flash');
-                    void gazeboCard.offsetWidth; // Trigger reflow
-                    gazeboCard.classList.add('spot-card-mqtt-flash');
-                }
-                
-                this.showToast(`📡 [DATA MQTT MASUK] ${actionLabel} • Gazebo Terisi: ${peopleCount} org (Sisa: ${gazebo.availableSeats} kursi)`);
             }
+
+            remainingKosong = gazebo.availableSeats;
+
+            // Update summary stat header
+            const statGazeboEl = document.getElementById('stat-gazebo-empty');
+            if (statGazeboEl) statGazeboEl.textContent = `${gazebo.availableSeats} Kursi Kosong`;
+
+            // Re-render UI & Summary Stats
+            this.renderSummaryStats();
+            this.renderSpots();
+            this.updateVirtualLcd({
+                ruangan: parsedData.room || parsedData.ruangan || "Gazebo View Danau Toba",
+                kosong: gazebo.availableSeats,
+                total: 10,
+                persen: Math.round(((10 - gazebo.availableSeats) / 10) * 100)
+            });
         }
+
+        const nowTime = new Date().toLocaleTimeString('id-ID');
+        const payloadEl = document.getElementById('mqtt-live-payload');
+        const rawAction = parsedData.lastAction || parsedData.action || (parsedData.source ? parsedData.source : (topic ? "Topik: " + topic : "Update Counter ESP"));
+        const deviceName = parsedData.device || "ESP8266-Counter";
+
+        // Deteksi secara presisi apakah data BERTAMBAH (+1) atau BERKURANG (-1)
+        const currentOccupiedNum = (typeof peopleCount === 'number') ? peopleCount : parseInt(peopleCount) || 0;
+        const previousOccupiedNum = this._previousOccupiedNum;
+        this._previousOccupiedNum = currentOccupiedNum;
+
+        let changeType = 'sync';
+        let bubbleTitle = '📡 DATA DI-UPDATE';
+        let bubbleSub = `Terisi: ${peopleCount} Orang • Sisa: ${remainingKosong} Kursi`;
+        let eventColor = '#38bdf8';
+        const actionLower = String(rawAction).toLowerCase();
+
+        if (actionLower.includes('masuk') || actionLower.includes('+1') || actionLower.includes('in') || actionLower.includes('enter') || (previousOccupiedNum !== undefined && currentOccupiedNum > previousOccupiedNum)) {
+            changeType = 'bertambah';
+            bubbleTitle = '🟢 UPDATE DATA: ORANG MASUK (+1)';
+            bubbleSub = `Terisi BERTAMBAH jadi ${peopleCount} Orang • Sisa: ${remainingKosong} Kursi`;
+            eventColor = '#10b981';
+        } else if (actionLower.includes('keluar') || actionLower.includes('-1') || actionLower.includes('out') || actionLower.includes('exit') || (previousOccupiedNum !== undefined && currentOccupiedNum < previousOccupiedNum)) {
+            changeType = 'berkurang';
+            bubbleTitle = '🔴 UPDATE DATA: ORANG KELUAR (-1)';
+            bubbleSub = `Terisi BERKURANG jadi ${peopleCount} Orang • Sisa: ${remainingKosong} Kursi`;
+            eventColor = '#ef4444';
+        } else if (actionLower.includes('full') || actionLower.includes('penuh') || currentOccupiedNum >= 10) {
+            changeType = 'full';
+            bubbleTitle = '⚠️ UPDATE DATA: GAZEBO PENUH (10/10)';
+            bubbleSub = 'Kapasitas maksimal 10 orang telah tercapai!';
+            eventColor = '#f59e0b';
+        } else if (actionLower.includes('empty') || actionLower.includes('kosong') || currentOccupiedNum <= 0) {
+            changeType = 'empty';
+            bubbleTitle = 'ℹ️ UPDATE DATA: GAZEBO KOSONG (0/10)';
+            bubbleSub = 'Semua 10 kursi kini tersedia kosong';
+            eventColor = '#06b6d4';
+        }
+
+        // 💬 1. Tampilkan BUBBLE TEXT FLOATING langsung melayang di atas Kartu Gazebo
+        this.showCardFloatingBubble('spot-gazebo-danau', changeType, bubbleTitle, bubbleSub);
+
+        // 💬 2. Tampilkan Box Tulisan Pemberitahuan Visual di Layar (Tanpa Suara)
+        this.showMqttFloatingPopup({
+            nowTime: nowTime + " WIB",
+            deviceName: deviceName,
+            eventType: changeType,
+            eventTitle: bubbleTitle,
+            eventBadge: changeType.toUpperCase(),
+            eventColor: eventColor,
+            actionLabel: rawAction,
+            peopleCount: peopleCount,
+            remainingKosong: remainingKosong,
+            totalCapacity: (gazebo ? gazebo.totalCapacity : 10),
+            parsedData: parsedData
+        });
+
+        // ✨ 3. Tambahkan Animasi Flash Visual pada Kartu Gazebo
+        const gazeboCard = document.querySelector(`[data-spot-id="spot-gazebo-danau"]`) || document.querySelector('.spot-card');
+        if (gazeboCard) {
+            gazeboCard.classList.remove('spot-card-mqtt-flash');
+            void gazeboCard.offsetWidth; // Trigger reflow
+            gazeboCard.classList.add('spot-card-mqtt-flash');
+        }
+        
+        // 📢 4. Tampilkan Toast Banner Tulisan Pemberitahuan (Murni Visual)
+        this.showToast(`📢 [PEMBERITAHUAN] ${bubbleTitle} • ${bubbleSub}`);
+    }
+
+    showCardFloatingBubble(spotId, changeType, title, subtitle) {
+        const card = document.querySelector(`[data-spot-id="${spotId}"]`);
+        if (!card) return;
+
+        // Hapus bubble sebelumnya jika ada
+        const existingBubble = card.querySelector('.card-floating-bubble');
+        if (existingBubble) existingBubble.remove();
+
+        // Buat elemen bubble melayang baru dengan panah indikator
+        const bubble = document.createElement('div');
+        bubble.className = `card-floating-bubble ${changeType}`;
+        const icon = changeType === 'bertambah' ? '🟢' : changeType === 'berkurang' ? '🔴' : changeType === 'full' ? '⚠️' : 'ℹ️';
+        const badgeText = changeType === 'bertambah' ? '+1 MASUK' : changeType === 'berkurang' ? '-1 KELUAR' : changeType === 'full' ? 'PENUH' : 'UPDATE';
+        const badgeBg = changeType === 'bertambah' ? '#10b981' : changeType === 'berkurang' ? '#ef4444' : changeType === 'full' ? '#f59e0b' : '#0284c7';
+
+        bubble.innerHTML = `
+            <div style="font-size: 1.3rem; line-height: 1; flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(255,255,255,0.4));">${icon}</div>
+            <div style="display: flex; flex-direction: column; gap: 2px; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 0.88rem; font-weight: 900; letter-spacing: -0.2px; color: #ffffff;">${title}</span>
+                    <span style="background: ${badgeBg}; color: #ffffff; font-size: 0.68rem; font-weight: 900; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.4px;">${badgeText}</span>
+                </div>
+                <div style="font-size: 0.76rem; font-weight: 700; color: rgba(255,255,255,0.94);">${subtitle}</div>
+            </div>
+        `;
+
+        card.appendChild(bubble);
+
+        // Hapus otomatis setelah animasi selesai (6 detik)
+        setTimeout(() => {
+            if (bubble.parentElement) bubble.remove();
+        }, 6000);
+    }
+
+    showMqttFloatingPopup(info) {
+        let popup = document.getElementById('mqtt-incoming-popup');
+        if (!popup) return;
+
+        const popTime = document.getElementById('mqtt-pop-time');
+        const popAction = document.getElementById('mqtt-pop-action');
+        const popStats = document.getElementById('mqtt-pop-stats');
+        const popRaw = document.getElementById('mqtt-pop-raw');
+        const progressBar = document.getElementById('mqtt-pop-progress-bar');
+
+        if (popTime) popTime.textContent = info.nowTime;
+        
+        if (popAction) {
+            popAction.innerHTML = `<span style="color:${info.eventColor || '#38bdf8'}; font-weight:800; font-size:0.98rem;">${info.eventTitle}</span> <span style="font-size:0.75rem; background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:4px; margin-left:6px; color:#ffffff;">${info.deviceName}</span>`;
+        }
+        
+        if (popStats) {
+            popStats.innerHTML = `
+                <div style="margin-top: 3px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 6px; border-left: 3px solid ${info.eventColor || '#38bdf8'};">
+                    <div>👥 Terisi: <strong style="color:#f59e0b; font-size:1.02rem;">${info.peopleCount} Orang</strong></div>
+                    <div>🪑 Sisa: <strong style="color:#10b981; font-size:1.02rem;">${info.remainingKosong} Kursi</strong> <span style="color:rgba(255,255,255,0.6); font-size:0.8rem;">/ ${info.totalCapacity || 10}</span></div>
+                </div>
+            `;
+        }
+        
+        if (popRaw) {
+            popRaw.textContent = typeof info.parsedData === 'object' ? JSON.stringify(info.parsedData) : String(info.parsedData);
+        }
+
+        // Terapkan border highlight sesuai event
+        popup.style.borderColor = info.eventColor || '#38bdf8';
+        popup.style.boxShadow = `0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px ${info.eventColor ? info.eventColor + '55' : 'rgba(56, 189, 248, 0.55)'}`;
+
+        // Pastikan popup tampil di paling atas layar
+        popup.style.display = 'flex';
+        popup.style.visibility = 'visible';
+        popup.style.opacity = '1';
+        popup.style.zIndex = '9999999';
+        popup.classList.remove('hiding');
+        popup.classList.add('show');
+
+        // Reset & jalankan animasi progress bar
+        if (progressBar) {
+            progressBar.style.animation = 'none';
+            progressBar.style.background = info.eventColor ? `linear-gradient(90deg, ${info.eventColor}, #38bdf8)` : 'linear-gradient(90deg, #10b981, #38bdf8)';
+            void progressBar.offsetWidth;
+            progressBar.style.animation = 'progressCountdown 5s linear forwards';
+        }
+
+        if (this.mqttPopupTimeout) clearTimeout(this.mqttPopupTimeout);
+        this.mqttPopupTimeout = setTimeout(() => {
+            this.dismissMqttPopup();
+        }, 5000);
+    }
+
+    dismissMqttPopup() {
+        const popup = document.getElementById('mqtt-incoming-popup');
+        if (!popup) return;
+
+        popup.classList.add('hiding');
+        popup.style.opacity = '0';
+        popup.style.transform = 'translateY(-20px) scale(0.92)';
+
+        setTimeout(() => {
+            popup.classList.remove('show');
+            popup.classList.remove('hiding');
+            popup.style.display = 'none';
+        }, 380);
     }
 
     playMqttChime() {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
-            const ctx = new AudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
-            osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12); // E6 note
-            gain.gain.setValueAtTime(0.18, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.28);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.28);
-        } catch(e) {}
+        // Notifikasi murni berupa tulisan/visual (tanpa suara)
+        return;
     }
 
     // Manual / Testing Counter Action from Web
@@ -649,7 +849,7 @@ class SpotFinderApp {
                 occupied++;
                 gazebo.availableSeats--;
             } else {
-                this.showToast('⚠️ Gazebo sudah penuh (20/20 orang)!');
+                this.showToast('⚠️ Gazebo sudah penuh (10/10 orang)!');
                 return;
             }
         } else if (action === 'keluar') {
@@ -728,8 +928,8 @@ class SpotFinderApp {
     broadcastGazeboStatus() {
         const gazebo = this.spots.find(s => s.id === 'spot-gazebo-danau') || {
             name: "Gazebo View Danau Toba",
-            availableSeats: 12,
-            totalCapacity: 20
+            availableSeats: 6,
+            totalCapacity: 10
         };
 
         const percent = Math.round(((gazebo.totalCapacity - gazebo.availableSeats) / gazebo.totalCapacity) * 100);
@@ -764,8 +964,8 @@ class SpotFinderApp {
     updateVirtualLcd(data) {
         const gazebo = data || this.spots.find(s => s.id === 'spot-gazebo-danau') || {
             ruangan: "Gazebo Danau Toba",
-            kosong: 12,
-            total: 20,
+            kosong: 6,
+            total: 10,
             persen: 40
         };
 
@@ -1085,6 +1285,25 @@ class SpotFinderApp {
                 }, 800);
             });
         }
+
+        // Unlock Web Audio Context on first user interaction anywhere
+        const unlockAudio = () => {
+            if (!this.audioCtx) {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) this.audioCtx = new AudioContext();
+                } catch(e) {}
+            }
+            if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
+            }
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('keydown', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('keydown', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
 
         document.querySelectorAll('.modal-close, .modal-cancel').forEach(btn => {
             btn.addEventListener('click', () => this.closeAllModals());
